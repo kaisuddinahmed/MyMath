@@ -2,7 +2,7 @@ import json
 import time
 import requests
 
-BASE_URL = "http://127.0.0.1:1234"
+BASE_URL = "http://127.0.0.1:1233"
 ENDPOINT = "/solve-and-video-prompt"
 OUT_FILE = "backend/test_results.json"
 

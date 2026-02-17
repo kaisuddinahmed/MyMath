@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display), cursive;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  outline-offset: 3px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #2563eb;
+}
+
+.app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(147, 197, 253, 0.45), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(125, 211, 252, 0.4), transparent 42%),
+    linear-gradient(160deg, #f8fbff, #eef6ff);
+}
+
+html.dark .app-shell {
+  background:
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.35), transparent 45%),
+    radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.3), transparent 42%),
+    linear-gradient(160deg, #020617, #0f172a);
+}

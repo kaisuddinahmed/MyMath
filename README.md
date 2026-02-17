@@ -100,11 +100,11 @@ EMBEDDING_MODEL=...
 
 ### 3) Run API
 ```bash
-uvicorn backend.main:app --reload --host 127.0.0.1 --port 1234
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233
 ```
 Open:
-- `http://127.0.0.1:1234/`
-- `http://127.0.0.1:1234/docs`
+- `http://127.0.0.1:1233/`
+- `http://127.0.0.1:1233/docs`
 
 ---
 
