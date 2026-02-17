@@ -59,6 +59,20 @@ Initial topics:
 
 ---
 
+## ▶️ Run Locally (Backend)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 1234
+```
+
+Open in browser:
+- `http://localhost:1234/`
+- `http://localhost:1234/docs`
+
+---
+
 ## 📌 Long-Term Vision
 - Multi-language narration
 - Voice input & camera scan
