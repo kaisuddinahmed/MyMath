@@ -6,5 +6,61 @@
     "template": "counters_add",
     "score": 90,
     "timestamp": "2026-02-17T14:15:20.115352+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "1/8",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 0,
+    "timestamp": "2026-02-17T14:23:20.985957+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "1/4",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 0,
+    "timestamp": "2026-02-17T14:23:31.650878+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "1/4",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 0,
+    "timestamp": "2026-02-17T14:23:35.132748+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "1/4 of 12",
+    "topic": "fractions",
+    "template": "fraction_pie",
+    "score": 0,
+    "timestamp": "2026-02-17T14:23:57.147371+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "1/4 of 12",
+    "topic": "fractions",
+    "template": "fraction_bar",
+    "score": 0,
+    "timestamp": "2026-02-17T14:23:58.795398+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "4 x 3",
+    "topic": "multiplication",
+    "template": "arrays",
+    "score": 95,
+    "timestamp": "2026-02-17T14:24:03.974466+00:00"
+  },
+  {
+    "child_id": "68382d7e-db40-47cf-b5d2-a33a94f9f4fd",
+    "question": "5 x 5",
+    "topic": "multiplication",
+    "template": "arrays",
+    "score": 95,
+    "timestamp": "2026-02-17T14:25:12.373561+00:00"
   }
 ]
