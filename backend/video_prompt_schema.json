@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "required": [
+    "title",
+    "grade",
+    "topic",
+    "problem",
+    "correct_answer",
+    "visual_template",
+    "duration_seconds",
+    "scenes",
+    "checkpoint_question",
+    "practice_problem"
+  ],
+  "properties": {
+    "title": { "type": "string" },
+    "grade": { "type": "integer" },
+    "topic": { "type": "string" },
+    "problem": { "type": "string" },
+    "correct_answer": { "type": "string" },
+    "visual_template": { "type": "string" },
+    "duration_seconds": { "type": "integer" },
+
+    "scenes": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["duration", "visual", "narration"],
+        "properties": {
+          "duration": { "type": "integer" },
+          "visual": { "type": "string" },
+          "narration": { "type": "string" }
+        }
+      }
+    },
+
+    "checkpoint_question": { "type": "string" },
+
+    "practice_problem": {
+      "type": "object",
+      "required": ["question", "answer"],
+      "properties": {
+        "question": { "type": "string" },
+        "answer": { "type": "string" }
+      }
+    }
+  }
+}

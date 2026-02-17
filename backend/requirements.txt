@@ -1,2 +1,10 @@
 fastapi
 uvicorn
+pydantic
+groq
+python-dotenv
+requests
+jsonschema
+moviepy
+pillow
+pyttsx3

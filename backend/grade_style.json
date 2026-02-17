@@ -1,0 +1,7 @@
+{
+  "1": { "max_seconds": 35, "sentence_length": "very_short", "pace": "slow", "vocab": "very_simple" },
+  "2": { "max_seconds": 45, "sentence_length": "short", "pace": "slow", "vocab": "simple" },
+  "3": { "max_seconds": 55, "sentence_length": "short", "pace": "medium", "vocab": "simple" },
+  "4": { "max_seconds": 70, "sentence_length": "medium", "pace": "medium", "vocab": "simple_plus" },
+  "5": { "max_seconds": 80, "sentence_length": "medium", "pace": "medium", "vocab": "simple_plus" }
+}

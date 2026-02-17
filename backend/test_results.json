@@ -1,0 +1,498 @@
+[
+  {
+    "input": {
+      "grade": 2,
+      "question": "12 + 5"
+    },
+    "topic": "addition",
+    "verified_answer": "17",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Addition with Counters\nGRADE: 2\nTOPIC: Addition\nPROBLEM: 12 + 5\nCORRECT_ANSWER: 17\nVISUAL_STYLE: Colorful counters and numbers\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 12 counters, Narration: We have 12 counters, Practical example: Show 12 counters**\n2. **Duration: 10 seconds, On-screen visuals: 5 more counters added, Narration: Now we add 5 more counters, Practical example: Add 5 counters to the 12 counters**\n3. **Duration: 10 seconds, On-screen visuals: All 17 counters, Narration: Let's count them together, Practical example: Count the 17 counters**\n4. **Duration: 10 seconds, On-screen visuals: Number line jump from 12 to 17, Narration: We jumped 5 numbers on the number line, Practical example: Show the number line**\n5. **Duration: 10 seconds, On-screen visuals: The answer 17, Narration: The answer is 17, Practical example: Write the answer**\nCHECKPOINT_QUESTION: If I have 12 pencils and I get 5 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 8 + 4 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Addition with Counters\nGRADE: 2\nTOPIC: Addition\nPROBLEM: 12 + 5\nCORRECT_ANSWER: 17\nVISUAL_STYLE: Colorful counters and numbers\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 12 counters, Narration: We have 12 counters, Practical example: Show 12 counters**\n2. **Duration: 10 seconds, On-screen visuals: 5 more counters added, Narration: Now we add 5 more counters, Practical example: Add 5 counters to the 12 counters**\n3. **Duration: 10 seconds, On-screen visuals: All 17 counters, Narration: Let's count them together, Practical example: Count the 17 counters**\n4. **Duration: 10 seconds, On-screen visuals: Number line jump from 12 to 17, Narration: We jumped 5 numbers on the number line, Practical example: Show the number line**\n5. **Duration: 10 seconds, On-screen visuals: The answer 17, Narration: The answer is 17, Practical example: Write the answer**\nCHECKPOINT_QUESTION: If I have 12 pencils and I get 5 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 8 + 4 = ?"
+  },
+  {
+    "input": {
+      "grade": 2,
+      "question": "9 + 6"
+    },
+    "topic": "addition",
+    "verified_answer": "15",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Addition with Blocks\nGRADE: 2\nTOPIC: Addition\nPROBLEM: 9 + 6\nCORRECT_ANSWER: 15\nVISUAL_STYLE: Colorful blocks and numbers\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 9 blocks, Narration: We have 9 blocks, Practical example: Show 9 blocks on the screen\n2. Duration: 10 seconds, On-screen visuals: 9 blocks + 6 blocks, Narration: Now we add 6 more blocks, Practical example: Add 6 blocks to the 9 blocks\n3. Duration: 10 seconds, On-screen visuals: 15 blocks, Narration: Now we count all the blocks, Practical example: Count the blocks together\n4. Duration: 10 seconds, On-screen visuals: Number line jumping from 9 to 15, Narration: We jumped 6 numbers on the number line, Practical example: Show a number line with a jump from 9 to 15\n5. Duration: 10 seconds, On-screen visuals: 15 blocks and the number 15, Narration: We have 15 blocks now, Practical example: Show the total count of blocks\nCHECKPOINT_QUESTION: If I have 9 pencils and I get 6 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 8 + 4 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Addition with Blocks\nGRADE: 2\nTOPIC: Addition\nPROBLEM: 9 + 6\nCORRECT_ANSWER: 15\nVISUAL_STYLE: Colorful blocks and numbers\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 9 blocks, Narration: We have 9 blocks, Practical example: Show 9 blocks on the screen\n2. Duration: 10 seconds, On-screen visuals: 9 blocks + 6 blocks, Narration: Now we add 6 more blocks, Practical example: Add 6 blocks to the 9 blocks\n3. Duration: 10 seconds, On-screen visuals: 15 blocks, Narration: Now we count all the blocks, Practical example: Count the blocks together\n4. Duration: 10 seconds, On-screen visuals: Number line jumping from 9 to 15, Narration: We jumped 6 numbers on the number line, Practical example: Show a number line with a jump from 9 to 15\n5. Duration: 10 seconds, On-screen visuals: 15 blocks and the number 15, Narration: We have 15 blocks now, Practical example: Show the total count of blocks\nCHECKPOINT_QUESTION: If I have 9 pencils and I get 6 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 8 + 4 = ?"
+  },
+  {
+    "input": {
+      "grade": 2,
+      "question": "18 - 7"
+    },
+    "topic": "subtraction",
+    "verified_answer": "11",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 2\nTOPIC: Subtraction\nPROBLEM: 18 - 7\nCORRECT_ANSWER: 11\nVISUAL_STYLE: Colorful counters\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 18 counters, Narration: We have 18 counters, Practical example: Show 18 counters on the screen**\n2. **Duration: 10 seconds, On-screen visuals: Remove 7 counters, Narration: If we take away 7 counters, Practical example: Remove 7 counters from the 18**\n3. **Duration: 10 seconds, On-screen visuals: 11 counters left, Narration: How many counters are left?, Practical example: Count the remaining counters**\n4. **Duration: 10 seconds, On-screen visuals: Number 11, Narration: We have 11 counters left, Practical example: Show the number 11 on the screen**\n5. **Duration: 10 seconds, On-screen visuals: 18 - 7 = 11, Narration: So, 18 minus 7 is 11, Practical example: Write the equation on the screen**\nCHECKPOINT_QUESTION: If I have 15 pencils and I give 3 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 12 - 4 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 2\nTOPIC: Subtraction\nPROBLEM: 18 - 7\nCORRECT_ANSWER: 11\nVISUAL_STYLE: Colorful counters\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 18 counters, Narration: We have 18 counters, Practical example: Show 18 counters on the screen**\n2. **Duration: 10 seconds, On-screen visuals: Remove 7 counters, Narration: If we take away 7 counters, Practical example: Remove 7 counters from the 18**\n3. **Duration: 10 seconds, On-screen visuals: 11 counters left, Narration: How many counters are left?, Practical example: Count the remaining counters**\n4. **Duration: 10 seconds, On-screen visuals: Number 11, Narration: We have 11 counters left, Practical example: Show the number 11 on the screen**\n5. **Duration: 10 seconds, On-screen visuals: 18 - 7 = 11, Narration: So, 18 minus 7 is 11, Practical example: Write the equation on the screen**\nCHECKPOINT_QUESTION: If I have 15 pencils and I give 3 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 12 - 4 = ?"
+  },
+  {
+    "input": {
+      "grade": 2,
+      "question": "14 - 9"
+    },
+    "topic": "subtraction",
+    "verified_answer": "5",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 2\nTOPIC: Subtraction\nPROBLEM: 14 - 9\nCORRECT_ANSWER: 5\nVISUAL_STYLE: Colorful counters\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 14 counters, Narration: We have 14 counters, Practical example: Show 14 counters on the screen\n2. Duration: 10 seconds, On-screen visuals: Remove 9 counters, Narration: If we take away 9 counters, Practical example: Remove 9 counters from the 14 counters\n3. Duration: 10 seconds, On-screen visuals: 5 counters left, Narration: How many counters are left?, Practical example: Show 5 counters on the screen\n4. Duration: 10 seconds, On-screen visuals: 5 counters, Narration: We have 5 counters left, Practical example: Count the 5 counters again\n5. Duration: 10 seconds, On-screen visuals: Number 5, Narration: The answer is 5, Practical example: Show the number 5 on the screen\nCHECKPOINT_QUESTION: If I have 12 pencils and I give 7 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 17 - 11 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 2\nTOPIC: Subtraction\nPROBLEM: 14 - 9\nCORRECT_ANSWER: 5\nVISUAL_STYLE: Colorful counters\nNARRATION_STYLE: Slow and clear\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 14 counters, Narration: We have 14 counters, Practical example: Show 14 counters on the screen\n2. Duration: 10 seconds, On-screen visuals: Remove 9 counters, Narration: If we take away 9 counters, Practical example: Remove 9 counters from the 14 counters\n3. Duration: 10 seconds, On-screen visuals: 5 counters left, Narration: How many counters are left?, Practical example: Show 5 counters on the screen\n4. Duration: 10 seconds, On-screen visuals: 5 counters, Narration: We have 5 counters left, Practical example: Count the 5 counters again\n5. Duration: 10 seconds, On-screen visuals: Number 5, Narration: The answer is 5, Practical example: Show the number 5 on the screen\nCHECKPOINT_QUESTION: If I have 12 pencils and I give 7 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 17 - 11 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "25 + 13"
+    },
+    "topic": "addition",
+    "verified_answer": "38",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Addition with Blocks\nGRADE: 3\nTOPIC: Addition\nPROBLEM: 25 + 13\nCORRECT_ANSWER: 38\nVISUAL_STYLE: Colorful blocks and numbers\nNARRATION_STYLE: Clear and friendly\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 25 blocks, Narration: We have 25 blocks, Practical example: Count the blocks together**\n2. **Duration: 10 seconds, On-screen visuals: 13 more blocks added, Narration: Now, let's add 13 more blocks, Practical example: Count the new blocks together**\n3. **Duration: 10 seconds, On-screen visuals: All 38 blocks, Narration: How many blocks do we have now? Let's count them, Practical example: Count all the blocks together**\n4. **Duration: 10 seconds, On-screen visuals: Number line jumping from 25 to 38, Narration: We can also use a number line to find the answer, Practical example: Show the number line jump**\n5. **Duration: 10 seconds, On-screen visuals: Answer 38, Narration: The answer is 38, Practical example: Write the answer on screen**\n6. **Duration: 10 seconds, On-screen visuals: Blocks and answer, Narration: Let's check our answer, Practical example: Review the blocks and answer**\nCHECKPOINT_QUESTION: If I have 25 pencils and I get 13 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 17 + 22 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Addition with Blocks\nGRADE: 3\nTOPIC: Addition\nPROBLEM: 25 + 13\nCORRECT_ANSWER: 38\nVISUAL_STYLE: Colorful blocks and numbers\nNARRATION_STYLE: Clear and friendly\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 25 blocks, Narration: We have 25 blocks, Practical example: Count the blocks together**\n2. **Duration: 10 seconds, On-screen visuals: 13 more blocks added, Narration: Now, let's add 13 more blocks, Practical example: Count the new blocks together**\n3. **Duration: 10 seconds, On-screen visuals: All 38 blocks, Narration: How many blocks do we have now? Let's count them, Practical example: Count all the blocks together**\n4. **Duration: 10 seconds, On-screen visuals: Number line jumping from 25 to 38, Narration: We can also use a number line to find the answer, Practical example: Show the number line jump**\n5. **Duration: 10 seconds, On-screen visuals: Answer 38, Narration: The answer is 38, Practical example: Write the answer on screen**\n6. **Duration: 10 seconds, On-screen visuals: Blocks and answer, Narration: Let's check our answer, Practical example: Review the blocks and answer**\nCHECKPOINT_QUESTION: If I have 25 pencils and I get 13 more, how many pencils do I have now?\nPRACTICE_PROBLEM: 17 + 22 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "32 - 18"
+    },
+    "topic": "subtraction",
+    "verified_answer": "14",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 3\nTOPIC: Subtraction\nPROBLEM: 32 - 18\nCORRECT_ANSWER: 14\nVISUAL_STYLE: Colorful counters and blocks\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. **Introduction** (5 seconds, counters on screen, \"Let's learn subtraction!\", example: 32 counters appear)\n2. **Start with 32** (10 seconds, 32 counters on screen, \"We have 32 counters.\", example: show all 32 counters)\n3. **Remove 18** (15 seconds, remove 18 counters, \"Now, let's remove 18 counters.\", example: 18 counters disappear)\n4. **Count what's left** (10 seconds, 14 counters on screen, \"Let's count how many are left.\", example: count the remaining 14 counters)\n5. **Answer** (10 seconds, 14 counters and answer on screen, \"We have 14 counters left!\", example: show answer \"14\")\nCHECKPOINT_QUESTION: If I have 25 toys and I give 10 away, how many toys do I have left?\nPRACTICE_PROBLEM: 25 - 10 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Counters: Subtraction\nGRADE: 3\nTOPIC: Subtraction\nPROBLEM: 32 - 18\nCORRECT_ANSWER: 14\nVISUAL_STYLE: Colorful counters and blocks\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. **Introduction** (5 seconds, counters on screen, \"Let's learn subtraction!\", example: 32 counters appear)\n2. **Start with 32** (10 seconds, 32 counters on screen, \"We have 32 counters.\", example: show all 32 counters)\n3. **Remove 18** (15 seconds, remove 18 counters, \"Now, let's remove 18 counters.\", example: 18 counters disappear)\n4. **Count what's left** (10 seconds, 14 counters on screen, \"Let's count how many are left.\", example: count the remaining 14 counters)\n5. **Answer** (10 seconds, 14 counters and answer on screen, \"We have 14 counters left!\", example: show answer \"14\")\nCHECKPOINT_QUESTION: If I have 25 toys and I give 10 away, how many toys do I have left?\nPRACTICE_PROBLEM: 25 - 10 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "40 + 26"
+    },
+    "topic": "addition",
+    "verified_answer": "66",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Addition with Counters\nGRADE: 3\nTOPIC: Addition\nPROBLEM: 40 + 26\nCORRECT_ANSWER: 66\nVISUAL_STYLE: Colorful counters and blocks\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 40 counters, Narration: We have 40 counters, Practical example: Show 40 counters**\n2. **Duration: 10 seconds, On-screen visuals: Add 26 counters, Narration: Now we add 26 more counters, Practical example: Add 26 counters to the 40 counters**\n3. **Duration: 10 seconds, On-screen visuals: Count all 66 counters, Narration: Let's count them together, Practical example: Count all 66 counters**\n4. **Duration: 10 seconds, On-screen visuals: Show the answer 66, Narration: We have 66 counters now, Practical example: Write the answer 66**\n5. **Duration: 10 seconds, On-screen visuals: Review the problem and answer, Narration: So 40 + 26 is 66, Practical example: Review the problem on screen**\n6. **Duration: 10 seconds, On-screen visuals: Ask the question, Narration: Can you add 40 and 26?, Practical example: Pause for the child to think**\nCHECKPOINT_QUESTION: What is 40 + 26?\nPRACTICE_PROBLEM: 30 + 25 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Addition with Counters\nGRADE: 3\nTOPIC: Addition\nPROBLEM: 40 + 26\nCORRECT_ANSWER: 66\nVISUAL_STYLE: Colorful counters and blocks\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 40 counters, Narration: We have 40 counters, Practical example: Show 40 counters**\n2. **Duration: 10 seconds, On-screen visuals: Add 26 counters, Narration: Now we add 26 more counters, Practical example: Add 26 counters to the 40 counters**\n3. **Duration: 10 seconds, On-screen visuals: Count all 66 counters, Narration: Let's count them together, Practical example: Count all 66 counters**\n4. **Duration: 10 seconds, On-screen visuals: Show the answer 66, Narration: We have 66 counters now, Practical example: Write the answer 66**\n5. **Duration: 10 seconds, On-screen visuals: Review the problem and answer, Narration: So 40 + 26 is 66, Practical example: Review the problem on screen**\n6. **Duration: 10 seconds, On-screen visuals: Ask the question, Narration: Can you add 40 and 26?, Practical example: Pause for the child to think**\nCHECKPOINT_QUESTION: What is 40 + 26?\nPRACTICE_PROBLEM: 30 + 25 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "51 - 27"
+    },
+    "topic": "subtraction",
+    "verified_answer": "24",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Subtraction with Blocks\nGRADE: 3\nTOPIC: Subtraction\nPROBLEM: 51 - 27\nCORRECT_ANSWER: 24\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Clear and friendly\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 51 blocks, Narration: We have 51 blocks, Practical example: Show 51 blocks**\n2. **Duration: 10 seconds, On-screen visuals: Remove 27 blocks, Narration: If we take away 27 blocks, Practical example: Remove 27 blocks from the 51**\n3. **Duration: 10 seconds, On-screen visuals: 24 blocks left, Narration: How many blocks are left?, Practical example: Count the remaining blocks**\n4. **Duration: 10 seconds, On-screen visuals: Number line from 51 to 24, Narration: We subtracted 27 from 51, and have 24 left, Practical example: Move on the number line from 51 to 24**\n5. **Duration: 10 seconds, On-screen visuals: 24 blocks and the answer, Narration: The answer is 24, Practical example: Show the 24 blocks and the number 24**\n6. **Duration: 10 seconds, On-screen visuals: Smile and blocks, Narration: Yay! We did it!, Practical example: Fun ending with blocks**\nCHECKPOINT_QUESTION: If I have 35 pencils and I give 15 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 43 - 19 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Subtraction with Blocks\nGRADE: 3\nTOPIC: Subtraction\nPROBLEM: 51 - 27\nCORRECT_ANSWER: 24\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Clear and friendly\nSCENES:\n1. **Duration: 5 seconds, On-screen visuals: 51 blocks, Narration: We have 51 blocks, Practical example: Show 51 blocks**\n2. **Duration: 10 seconds, On-screen visuals: Remove 27 blocks, Narration: If we take away 27 blocks, Practical example: Remove 27 blocks from the 51**\n3. **Duration: 10 seconds, On-screen visuals: 24 blocks left, Narration: How many blocks are left?, Practical example: Count the remaining blocks**\n4. **Duration: 10 seconds, On-screen visuals: Number line from 51 to 24, Narration: We subtracted 27 from 51, and have 24 left, Practical example: Move on the number line from 51 to 24**\n5. **Duration: 10 seconds, On-screen visuals: 24 blocks and the answer, Narration: The answer is 24, Practical example: Show the 24 blocks and the number 24**\n6. **Duration: 10 seconds, On-screen visuals: Smile and blocks, Narration: Yay! We did it!, Practical example: Fun ending with blocks**\nCHECKPOINT_QUESTION: If I have 35 pencils and I give 15 away, how many pencils do I have left?\nPRACTICE_PROBLEM: 43 - 19 = ?"
+  },
+  {
+    "input": {
+      "grade": 4,
+      "question": "120 + 45"
+    },
+    "topic": "addition",
+    "verified_answer": "165",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Addition with Blocks\nGRADE: 4\nTOPIC: Addition\nPROBLEM: If I have 120 blocks and I get 45 more blocks, how many blocks do I have now?\nCORRECT_ANSWER: 165\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 120 blocks, Narration: Let's start with 120 blocks, Practical example: Counting 120 blocks on the screen\n2. Duration: 15 seconds, On-screen visuals: Adding 45 blocks to the 120 blocks, Narration: Now, let's add 45 more blocks, Practical example: Counting the additional 45 blocks\n3. Duration: 20 seconds, On-screen visuals: Number line jumping from 120 to 165, Narration: We can use a number line to help us count, starting from 120 and jumping to 165, Practical example: Moving a token on the number line from 120 to 165\n4. Duration: 25 seconds, On-screen visuals: Total of 165 blocks, Narration: Now we have a total of 165 blocks, Practical example: Counting the total 165 blocks on the screen\nCHECKPOINT_QUESTION: If I have 100 blocks and I get 25 more, how many blocks will I have?\nPRACTICE_PROBLEM: 90 + 32 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Addition with Blocks\nGRADE: 4\nTOPIC: Addition\nPROBLEM: If I have 120 blocks and I get 45 more blocks, how many blocks do I have now?\nCORRECT_ANSWER: 165\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 120 blocks, Narration: Let's start with 120 blocks, Practical example: Counting 120 blocks on the screen\n2. Duration: 15 seconds, On-screen visuals: Adding 45 blocks to the 120 blocks, Narration: Now, let's add 45 more blocks, Practical example: Counting the additional 45 blocks\n3. Duration: 20 seconds, On-screen visuals: Number line jumping from 120 to 165, Narration: We can use a number line to help us count, starting from 120 and jumping to 165, Practical example: Moving a token on the number line from 120 to 165\n4. Duration: 25 seconds, On-screen visuals: Total of 165 blocks, Narration: Now we have a total of 165 blocks, Practical example: Counting the total 165 blocks on the screen\nCHECKPOINT_QUESTION: If I have 100 blocks and I get 25 more, how many blocks will I have?\nPRACTICE_PROBLEM: 90 + 32 = ?"
+  },
+  {
+    "input": {
+      "grade": 4,
+      "question": "200 - 75"
+    },
+    "topic": "subtraction",
+    "verified_answer": "125",
+    "final_passed": true,
+    "final_score": 90,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Subtraction with Blocks\nGRADE: 4\nTOPIC: Subtraction\nPROBLEM: 200 - 75\nCORRECT_ANSWER: 125\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. **Introduction** (5 seconds, blocks and a number line on screen, \"Let's learn subtraction!\", a basket with 200 blocks)\n2. **Starting point** (10 seconds, 200 blocks on screen, \"We have 200 blocks, let's count them!\", counting 200 blocks)\n3. **Subtraction** (15 seconds, removing 75 blocks from the 200, \"Now, let's take away 75 blocks\", showing 75 blocks being removed)\n4. **Answer** (10 seconds, 125 blocks on screen, \"How many blocks are left? That's right, 125!\", counting the remaining 125 blocks)\n5. **Conclusion** (10 seconds, number line with 200 and 75 marked, \"We subtracted 75 from 200, and got 125\", moving along the number line from 200 to 125)\n6. **Practice** (20 seconds, a new set of blocks, \"Now it's your turn, try a similar problem!\", a basket with a hidden number of blocks)\nCHECKPOINT_QUESTION: If I have 150 blocks and I take away 25, how many blocks will I have left?\nPRACTICE_PROBLEM: 250 - 120 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": false,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 65,
+        "passed": false
+      },
+      {
+        "attempt": 2,
+        "prompt": "TITLE: Fun with Subtraction\nGRADE: 4\nTOPIC: subtraction\nPROBLEM: 200 - 75\nCORRECT_ANSWER: 125\nVISUAL_STYLE: Colorful counters and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. duration: 10 seconds, on-screen visuals: 200 counters, narration: We have 200 counters, let's count them together, practical example: Counting 200 counters on the screen.\n2. duration: 15 seconds, on-screen visuals: 75 counters being removed, narration: Now, let's take away 75 counters, practical example: Removing 75 counters from the 200 counters.\n3. duration: 20 seconds, on-screen visuals: 125 counters remaining, narration: How many counters are left? Let's count them, practical example: Counting the remaining 125 counters.\n4. duration: 25 seconds, on-screen visuals: Number line with 200, 75, and 125 marked, narration: We can also use a number line to find the answer, practical example: Moving backwards on the number line from 200 to 125.\nCHECKPOINT_QUESTION: If I have 150 counters and I take away 25, how many counters will I have left?\nPRACTICE_PROBLEM: 250 - 100 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 90,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Subtraction\nGRADE: 4\nTOPIC: subtraction\nPROBLEM: 200 - 75\nCORRECT_ANSWER: 125\nVISUAL_STYLE: Colorful counters and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. duration: 10 seconds, on-screen visuals: 200 counters, narration: We have 200 counters, let's count them together, practical example: Counting 200 counters on the screen.\n2. duration: 15 seconds, on-screen visuals: 75 counters being removed, narration: Now, let's take away 75 counters, practical example: Removing 75 counters from the 200 counters.\n3. duration: 20 seconds, on-screen visuals: 125 counters remaining, narration: How many counters are left? Let's count them, practical example: Counting the remaining 125 counters.\n4. duration: 25 seconds, on-screen visuals: Number line with 200, 75, and 125 marked, narration: We can also use a number line to find the answer, practical example: Moving backwards on the number line from 200 to 125.\nCHECKPOINT_QUESTION: If I have 150 counters and I take away 25, how many counters will I have left?\nPRACTICE_PROBLEM: 250 - 100 = ?"
+  },
+  {
+    "input": {
+      "grade": 5,
+      "question": "999 + 1"
+    },
+    "topic": "addition",
+    "verified_answer": "1000",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Adding 999 and 1\nGRADE: 5\nTOPIC: Addition\nPROBLEM: If I have 999 blocks and I get 1 more block, how many blocks do I have now?\nCORRECT_ANSWER: 1000\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. **Duration: 10 seconds, On-screen visuals: 999 blocks, Narration: We have 999 blocks, Practical example: Show 999 blocks on the screen**\n2. **Duration: 15 seconds, On-screen visuals: A number line with 999 marked, Narration: Let's use a number line to help us add 1 more, Practical example: Move one step to the right on the number line**\n3. **Duration: 20 seconds, On-screen visuals: 1000 blocks, Narration: Now we have 999 + 1 = 1000 blocks, Practical example: Show 1000 blocks on the screen**\n4. **Duration: 15 seconds, On-screen visuals: A big 1000 on the screen, Narration: So the answer is 1000, Practical example: Count the blocks again to confirm**\n5. **Duration: 10 seconds, On-screen visuals: A question mark, Narration: Let's check our answer, Practical example: Pause for a moment**\n6. **Duration: 10 seconds, On-screen visuals: The correct answer, Narration: Yes, we have 1000 blocks now, Practical example: Show the blocks one more time**\nCHECKPOINT_QUESTION: If I have 999 pencils and I get 1 more pencil, how many pencils do I have now?\nPRACTICE_PROBLEM: 998 + 2 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Adding 999 and 1\nGRADE: 5\nTOPIC: Addition\nPROBLEM: If I have 999 blocks and I get 1 more block, how many blocks do I have now?\nCORRECT_ANSWER: 1000\nVISUAL_STYLE: Colorful blocks and a number line\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. **Duration: 10 seconds, On-screen visuals: 999 blocks, Narration: We have 999 blocks, Practical example: Show 999 blocks on the screen**\n2. **Duration: 15 seconds, On-screen visuals: A number line with 999 marked, Narration: Let's use a number line to help us add 1 more, Practical example: Move one step to the right on the number line**\n3. **Duration: 20 seconds, On-screen visuals: 1000 blocks, Narration: Now we have 999 + 1 = 1000 blocks, Practical example: Show 1000 blocks on the screen**\n4. **Duration: 15 seconds, On-screen visuals: A big 1000 on the screen, Narration: So the answer is 1000, Practical example: Count the blocks again to confirm**\n5. **Duration: 10 seconds, On-screen visuals: A question mark, Narration: Let's check our answer, Practical example: Pause for a moment**\n6. **Duration: 10 seconds, On-screen visuals: The correct answer, Narration: Yes, we have 1000 blocks now, Practical example: Show the blocks one more time**\nCHECKPOINT_QUESTION: If I have 999 pencils and I get 1 more pencil, how many pencils do I have now?\nPRACTICE_PROBLEM: 998 + 2 = ?"
+  },
+  {
+    "input": {
+      "grade": 5,
+      "question": "1000 - 365"
+    },
+    "topic": "subtraction",
+    "verified_answer": "635",
+    "final_passed": true,
+    "final_score": 80,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun with Subtraction on a Number Line\nGRADE: 5\nTOPIC: Subtraction\nPROBLEM: If I have 1000 pencils and I give away 365 pencils, how many pencils do I have left?\nCORRECT_ANSWER: 635\nVISUAL_STYLE: Colorful number line with movable markers\nNARRATION_STYLE: Friendly and clear explanations\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: A number line with a marker at 1000, Narration: Let's start with 1000 pencils, Practical example: Showing 1000 blocks lined up.\n2. Duration: 15 seconds, On-screen visuals: The marker moves back 365 units on the number line, Narration: If I give away 365 pencils, I need to move back 365 steps on my number line, Practical example: Removing 365 blocks from the 1000 blocks.\n3. Duration: 20 seconds, On-screen visuals: The marker stops at 635 on the number line, Narration: Now, let's see where I landed. I have 635 pencils left, Practical example: Counting the remaining blocks to show 635.\n4. Duration: 15 seconds, On-screen visuals: A simple equation 1000 - 365 = 635 appears, Narration: So, when we subtract 365 from 1000, we get 635, Practical example: Writing the equation with the blocks.\n5. Duration: 20 seconds, On-screen visuals: The number line and blocks disappear, leaving the equation on the screen, Narration: Remember, subtraction is like finding the difference between two numbers, Practical example: None.\nCHECKPOINT_QUESTION: If you have 500 toys and you give away 200, how many toys will you have left?\nPRACTICE_PROBLEM: 750 - 421 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": false,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": false,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 80,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Subtraction on a Number Line\nGRADE: 5\nTOPIC: Subtraction\nPROBLEM: If I have 1000 pencils and I give away 365 pencils, how many pencils do I have left?\nCORRECT_ANSWER: 635\nVISUAL_STYLE: Colorful number line with movable markers\nNARRATION_STYLE: Friendly and clear explanations\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: A number line with a marker at 1000, Narration: Let's start with 1000 pencils, Practical example: Showing 1000 blocks lined up.\n2. Duration: 15 seconds, On-screen visuals: The marker moves back 365 units on the number line, Narration: If I give away 365 pencils, I need to move back 365 steps on my number line, Practical example: Removing 365 blocks from the 1000 blocks.\n3. Duration: 20 seconds, On-screen visuals: The marker stops at 635 on the number line, Narration: Now, let's see where I landed. I have 635 pencils left, Practical example: Counting the remaining blocks to show 635.\n4. Duration: 15 seconds, On-screen visuals: A simple equation 1000 - 365 = 635 appears, Narration: So, when we subtract 365 from 1000, we get 635, Practical example: Writing the equation with the blocks.\n5. Duration: 20 seconds, On-screen visuals: The number line and blocks disappear, leaving the equation on the screen, Narration: Remember, subtraction is like finding the difference between two numbers, Practical example: None.\nCHECKPOINT_QUESTION: If you have 500 toys and you give away 200, how many toys will you have left?\nPRACTICE_PROBLEM: 750 - 421 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "4 x 3"
+    },
+    "topic": "multiplication",
+    "verified_answer": "12",
+    "final_passed": true,
+    "final_score": 100,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun Multiplication with Arrays\nGRADE: 3\nTOPIC: Multiplication with Arrays\nPROBLEM: 4 x 3\nCORRECT_ANSWER: 12\nVISUAL_STYLE: Colorful group boxes with counters\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. **Introduction** (5 seconds, empty group boxes on screen, \"Let's learn multiplication!\", no example)\n2. **Showing groups** (10 seconds, 4 group boxes with 3 counters each, \"We have 4 groups with 3 counters in each.\", \"Each group has 3 counters.\")\n3. **Counting all** (15 seconds, all 12 counters on screen, \"Let's count all the counters.\", \"1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12\")\n4. **Answer** (10 seconds, \"4 x 3\" and \"12\" on screen, \"So, 4 x 3 is 12.\", \"We have 12 counters in total.\")\n5. **Conclusion** (15 seconds, all 12 counters and \"4 x 3 = 12\" on screen, \"Remember, multiplication is like adding groups.\", \"Practice and you'll be great at it!\")\nCHECKPOINT_QUESTION: If I have 3 groups with 4 counters in each, how many counters do I have?\nPRACTICE_PROBLEM: 3 x 4 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": true,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 100,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun Multiplication with Arrays\nGRADE: 3\nTOPIC: Multiplication with Arrays\nPROBLEM: 4 x 3\nCORRECT_ANSWER: 12\nVISUAL_STYLE: Colorful group boxes with counters\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. **Introduction** (5 seconds, empty group boxes on screen, \"Let's learn multiplication!\", no example)\n2. **Showing groups** (10 seconds, 4 group boxes with 3 counters each, \"We have 4 groups with 3 counters in each.\", \"Each group has 3 counters.\")\n3. **Counting all** (15 seconds, all 12 counters on screen, \"Let's count all the counters.\", \"1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12\")\n4. **Answer** (10 seconds, \"4 x 3\" and \"12\" on screen, \"So, 4 x 3 is 12.\", \"We have 12 counters in total.\")\n5. **Conclusion** (15 seconds, all 12 counters and \"4 x 3 = 12\" on screen, \"Remember, multiplication is like adding groups.\", \"Practice and you'll be great at it!\")\nCHECKPOINT_QUESTION: If I have 3 groups with 4 counters in each, how many counters do I have?\nPRACTICE_PROBLEM: 3 x 4 = ?"
+  },
+  {
+    "input": {
+      "grade": 3,
+      "question": "12 ÷ 3"
+    },
+    "topic": "division",
+    "verified_answer": "4",
+    "final_passed": true,
+    "final_score": 100,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Sharing Counters into Groups\nGRADE: 3\nTOPIC: Division\nPROBLEM: 12 ÷ 3\nCORRECT_ANSWER: 4\nVISUAL_STYLE: Colorful counters and groups\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. **(5 seconds)**: Show 12 counters, \"We have 12 counters.\"\n2. **(10 seconds)**: Divide counters into 3 groups, \"Let's share them into 3 groups.\"\n3. **(15 seconds)**: Show each group with 4 counters, \"Now we have 4 counters in each group.\"\n4. **(10 seconds)**: Review the groups, \"So when we share 12 counters into 3 groups, each group gets 4 counters.\"\n5. **(15 seconds)**: Summarize with numbers, \"12 ÷ 3 = 4\"\nCHECKPOINT_QUESTION: If we have 12 toys and we want to put them into 3 boxes, how many toys will each box get?\nPRACTICE_PROBLEM: 9 ÷ 3 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": false,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": true,
+          "mentions_share_word": true,
+          "includes_correct_answer": true
+        },
+        "score": 85,
+        "passed": false
+      },
+      {
+        "attempt": 2,
+        "prompt": "TITLE: Sharing Counters\nGRADE: 3\nTOPIC: Division\nPROBLEM: 12 ÷ 3\nCORRECT_ANSWER: 4\nVISUAL_STYLE: Colorful counters and groups\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 12 counters, Narration: We have 12 counters, Practical example: Show 12 counters on the screen\n2. Duration: 10 seconds, On-screen visuals: 3 empty groups, Narration: We will share them into 3 groups, Practical example: Show 3 empty groups\n3. Duration: 15 seconds, On-screen visuals: Counters being shared into 3 groups, Narration: Let's share them equally, Practical example: Distribute 12 counters equally into 3 groups, showing 4 counters in each group\n4. Duration: 10 seconds, On-screen visuals: 3 groups with 4 counters each, Narration: Now we have 4 counters in each group, Practical example: Count the counters in one group\n5. Duration: 5 seconds, On-screen visuals: Answer 4, Narration: So 12 ÷ 3 is 4, Practical example: Show the answer 4 on the screen\nCHECKPOINT_QUESTION: If we have 12 toys and we share them into 3 boxes, how many toys will each box have?\nPRACTICE_PROBLEM: 9 ÷ 3 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": true,
+          "mentions_share_word": true,
+          "includes_correct_answer": true
+        },
+        "score": 100,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Sharing Counters\nGRADE: 3\nTOPIC: Division\nPROBLEM: 12 ÷ 3\nCORRECT_ANSWER: 4\nVISUAL_STYLE: Colorful counters and groups\nNARRATION_STYLE: Clear and slow\nSCENES:\n1. Duration: 5 seconds, On-screen visuals: 12 counters, Narration: We have 12 counters, Practical example: Show 12 counters on the screen\n2. Duration: 10 seconds, On-screen visuals: 3 empty groups, Narration: We will share them into 3 groups, Practical example: Show 3 empty groups\n3. Duration: 15 seconds, On-screen visuals: Counters being shared into 3 groups, Narration: Let's share them equally, Practical example: Distribute 12 counters equally into 3 groups, showing 4 counters in each group\n4. Duration: 10 seconds, On-screen visuals: 3 groups with 4 counters each, Narration: Now we have 4 counters in each group, Practical example: Count the counters in one group\n5. Duration: 5 seconds, On-screen visuals: Answer 4, Narration: So 12 ÷ 3 is 4, Practical example: Show the answer 4 on the screen\nCHECKPOINT_QUESTION: If we have 12 toys and we share them into 3 boxes, how many toys will each box have?\nPRACTICE_PROBLEM: 9 ÷ 3 = ?"
+  },
+  {
+    "input": {
+      "grade": 4,
+      "question": "6 x 7"
+    },
+    "topic": "multiplication",
+    "verified_answer": "42",
+    "final_passed": true,
+    "final_score": 100,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Fun with Multiplication\nGRADE: 4\nTOPIC: Multiplication using Arrays\nPROBLEM: If I have 6 boxes and each box can hold 7 pencils, how many pencils can I hold in total?\nCORRECT_ANSWER: 42\nVISUAL_STYLE: Colorful group boxes with counters\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 6 empty group boxes, Narration: Let's say we have 6 boxes, and we want to put the same number of pencils in each box, Practical example: Show 6 empty boxes with labels \"Box 1\" to \"Box 6\"\n2. Duration: 15 seconds, On-screen visuals: Each box gets 7 counters (pencils), Narration: If each box can hold 7 pencils, we can count how many pencils we have in total by counting the pencils in each box, Practical example: Show 7 counters in each of the 6 boxes\n3. Duration: 20 seconds, On-screen visuals: Count the total number of counters (pencils) in all boxes, Narration: Let's count all the pencils together, 7 + 7 + 7 + 7 + 7 + 7 = ?, Practical example: Count the counters in each box and add them up to get 42\n4. Duration: 10 seconds, On-screen visuals: Show the total count of 42 counters, Narration: We have 42 pencils in total, Practical example: Show the total count of 42 counters\n5. Duration: 15 seconds, On-screen visuals: Review the multiplication equation 6 x 7 = 42, Narration: So, when we multiply 6 and 7, we get 42, Practical example: Show the equation 6 x 7 = 42 on screen\nCHECKPOINT_QUESTION: If I have 5 boxes and each box has 6 pencils, how many pencils do I have in total?\nPRACTICE_PROBLEM: 4 x 9 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": true,
+          "mentions_share_word": false,
+          "includes_correct_answer": true
+        },
+        "score": 100,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Fun with Multiplication\nGRADE: 4\nTOPIC: Multiplication using Arrays\nPROBLEM: If I have 6 boxes and each box can hold 7 pencils, how many pencils can I hold in total?\nCORRECT_ANSWER: 42\nVISUAL_STYLE: Colorful group boxes with counters\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 6 empty group boxes, Narration: Let's say we have 6 boxes, and we want to put the same number of pencils in each box, Practical example: Show 6 empty boxes with labels \"Box 1\" to \"Box 6\"\n2. Duration: 15 seconds, On-screen visuals: Each box gets 7 counters (pencils), Narration: If each box can hold 7 pencils, we can count how many pencils we have in total by counting the pencils in each box, Practical example: Show 7 counters in each of the 6 boxes\n3. Duration: 20 seconds, On-screen visuals: Count the total number of counters (pencils) in all boxes, Narration: Let's count all the pencils together, 7 + 7 + 7 + 7 + 7 + 7 = ?, Practical example: Count the counters in each box and add them up to get 42\n4. Duration: 10 seconds, On-screen visuals: Show the total count of 42 counters, Narration: We have 42 pencils in total, Practical example: Show the total count of 42 counters\n5. Duration: 15 seconds, On-screen visuals: Review the multiplication equation 6 x 7 = 42, Narration: So, when we multiply 6 and 7, we get 42, Practical example: Show the equation 6 x 7 = 42 on screen\nCHECKPOINT_QUESTION: If I have 5 boxes and each box has 6 pencils, how many pencils do I have in total?\nPRACTICE_PROBLEM: 4 x 9 = ?"
+  },
+  {
+    "input": {
+      "grade": 4,
+      "question": "20 / 5"
+    },
+    "topic": "division",
+    "verified_answer": "4",
+    "final_passed": true,
+    "final_score": 100,
+    "attempts": [
+      {
+        "attempt": 1,
+        "prompt": "TITLE: Sharing Counters into Equal Groups\nGRADE: 4\nTOPIC: Division\nPROBLEM: If we have 20 counters and we want to share them equally into 5 groups, how many counters will each group get?\nCORRECT_ANSWER: 4\nVISUAL_STYLE: Colorful counters and groups\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 20 counters, Narration: We have 20 counters and we want to share them into 5 groups, Practical example: Show 20 counters on the screen\n2. Duration: 20 seconds, On-screen visuals: Sharing the 20 counters into 5 groups, Narration: Let's share them equally, we put the same number of counters in each group, Practical example: Show the counters being distributed into 5 groups\n3. Duration: 20 seconds, On-screen visuals: 5 groups with 4 counters in each, Narration: Now we can see that each group has the same number of counters, and that's 4 counters in each group, Practical example: Highlight the 4 counters in each group\n4. Duration: 20 seconds, On-screen visuals: 5 groups with 4 counters in each and the equation 20 / 5 = 4, Narration: So when we share 20 counters into 5 groups, each group gets 4 counters, that's why 20 divided by 5 is 4, Practical example: Show the equation on the screen\nCHECKPOINT_QUESTION: If we have 15 counters and we want to share them into 3 groups, how many counters will each group get?\nPRACTICE_PROBLEM: 18 / 3 = ?",
+        "checks": {
+          "has_all_sections": true,
+          "mentions_objects": true,
+          "mentions_objects_first": true,
+          "mentions_practical_example": true,
+          "mentions_fraction_visual": false,
+          "mentions_groups_word": true,
+          "mentions_share_word": true,
+          "includes_correct_answer": true
+        },
+        "score": 100,
+        "passed": true
+      }
+    ],
+    "final_prompt": "TITLE: Sharing Counters into Equal Groups\nGRADE: 4\nTOPIC: Division\nPROBLEM: If we have 20 counters and we want to share them equally into 5 groups, how many counters will each group get?\nCORRECT_ANSWER: 4\nVISUAL_STYLE: Colorful counters and groups\nNARRATION_STYLE: Friendly and clear\nSCENES:\n1. Duration: 10 seconds, On-screen visuals: 20 counters, Narration: We have 20 counters and we want to share them into 5 groups, Practical example: Show 20 counters on the screen\n2. Duration: 20 seconds, On-screen visuals: Sharing the 20 counters into 5 groups, Narration: Let's share them equally, we put the same number of counters in each group, Practical example: Show the counters being distributed into 5 groups\n3. Duration: 20 seconds, On-screen visuals: 5 groups with 4 counters in each, Narration: Now we can see that each group has the same number of counters, and that's 4 counters in each group, Practical example: Highlight the 4 counters in each group\n4. Duration: 20 seconds, On-screen visuals: 5 groups with 4 counters in each and the equation 20 / 5 = 4, Narration: So when we share 20 counters into 5 groups, each group gets 4 counters, that's why 20 divided by 5 is 4, Practical example: Show the equation on the screen\nCHECKPOINT_QUESTION: If we have 15 counters and we want to share them into 3 groups, how many counters will each group get?\nPRACTICE_PROBLEM: 18 / 3 = ?"
+  }
+]

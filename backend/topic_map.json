@@ -1,0 +1,110 @@
+{
+  "addition": {
+    "templates": ["counters_add", "number_line_jump"],
+    "prerequisites": ["counting", "numbers"],
+    "intro_hint": "We can add by putting groups together.",
+    "min_grade": 1
+  },
+  "subtraction": {
+    "templates": ["counters_remove", "number_line_back"],
+    "prerequisites": ["counting", "numbers"],
+    "intro_hint": "We can subtract by taking away.",
+    "min_grade": 1
+  },
+  "comparison": {
+    "templates": ["number_line_compare", "bigger_smaller"],
+    "prerequisites": ["numbers"],
+    "intro_hint": "We compare to see which number is bigger or smaller.",
+    "min_grade": 1
+  },
+  "counting": {
+    "templates": ["count_objects"],
+    "prerequisites": [],
+    "intro_hint": "Counting means saying numbers in order.",
+    "min_grade": 1
+  },
+  "numbers": {
+    "templates": ["number_cards"],
+    "prerequisites": [],
+    "intro_hint": "Numbers help us count and measure.",
+    "min_grade": 1
+  },
+  "place_value": {
+    "templates": ["tens_ones_blocks", "place_value_chart"],
+    "prerequisites": ["numbers"],
+    "intro_hint": "Place value tells us what each digit means.",
+    "min_grade": 1
+  },
+  "multiplication": {
+    "templates": ["group_boxes", "arrays"],
+    "prerequisites": ["addition"],
+    "intro_hint": "Multiplication means equal groups.",
+    "min_grade": 2
+  },
+  "division": {
+    "templates": ["sharing_groups", "equal_groups"],
+    "prerequisites": ["multiplication"],
+    "intro_hint": "Division means sharing equally.",
+    "min_grade": 3
+  },
+  "fractions": {
+    "templates": ["fraction_pie", "fraction_bar"],
+    "prerequisites": ["division"],
+    "intro_hint": "Fractions mean equal parts of a whole.",
+    "min_grade": 3
+  },
+  "geometry": {
+    "templates": ["shape_highlight", "angle_demo"],
+    "prerequisites": [],
+    "intro_hint": "Geometry is about shapes and space.",
+    "min_grade": 1
+  },
+  "patterns": {
+    "templates": ["pattern_sequence"],
+    "prerequisites": ["numbers"],
+    "intro_hint": "Patterns repeat in a special order.",
+    "min_grade": 1
+  },
+  "measurement": {
+    "templates": ["ruler_length", "scale_weight", "clock_time", "liquid_volume"],
+    "prerequisites": ["numbers"],
+    "intro_hint": "Measurement tells us how long, heavy, or how much.",
+    "min_grade": 2
+  },
+  "currency": {
+    "templates": ["coins_notes", "making_change"],
+    "prerequisites": ["addition", "subtraction"],
+    "intro_hint": "Money problems use adding and subtracting.",
+    "min_grade": 1
+  },
+  "data": {
+    "templates": ["tally_marks", "bar_chart_simple"],
+    "prerequisites": ["numbers"],
+    "intro_hint": "Data means collecting and organizing information.",
+    "min_grade": 2
+  },
+  "decimals": {
+    "templates": ["place_value_decimal", "money_decimal"],
+    "prerequisites": ["place_value", "fractions"],
+    "intro_hint": "Decimals are another way to write parts of a whole.",
+    "min_grade": 4
+  },
+  "percentages": {
+    "templates": ["percent_grid", "real_life_discount"],
+    "prerequisites": ["fractions", "decimals"],
+    "intro_hint": "Percent means out of 100.",
+    "min_grade": 5
+  },
+  "averages": {
+    "templates": ["equal_share_average"],
+    "prerequisites": ["addition", "division"],
+    "intro_hint": "Average means sharing equally.",
+    "min_grade": 5
+  },
+  "multiples_factors": {
+    "templates": ["skip_count_multiples", "factor_pairs"],
+    "prerequisites": ["multiplication", "division"],
+    "intro_hint": "Multiples are skip-counting results. Factors make a number.",
+    "min_grade": 5
+  }
+}

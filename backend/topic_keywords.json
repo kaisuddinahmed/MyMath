@@ -1,0 +1,11 @@
+{
+  "comparison": ["greater", "less", "bigger", "smaller", "compare", ">", "<"],
+  "place_value": ["place value", "tens", "ones", "hundreds", "thousands"],
+  "measurement": ["cm", "m", "kg", "g", "litre", "ml", "time", "clock", "hours", "minutes"],
+  "currency": ["taka", "৳", "money", "coin", "note", "change"],
+  "data": ["table", "chart", "bar", "tally", "graph", "data"],
+  "patterns": ["pattern", "repeat", "next", "sequence"],
+  "fractions": ["1/2", "1/4", "half", "quarter", "fraction"],
+  "multiplication": ["times", "x", "*", "groups of", "each"],
+  "division": ["divide", "÷", "/", "shared", "equally", "per"]
+}
