@@ -4,6 +4,6 @@
   "scripts": {
     "dev:frontend": "npm --prefix frontend run dev",
     "dev:backend": ".venv/bin/python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233 --reload-dir backend --reload-exclude '.venv/*'",
-    "dev:all": "bash -lc '.venv/bin/python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233 --reload-dir backend --reload-exclude \".venv/*\" & BACK_PID=$!; trap \"kill $BACK_PID\" EXIT INT TERM; npm --prefix frontend run dev'"
+    "dev:all": "bash ./scripts/dev-all.sh"
   }
 }
