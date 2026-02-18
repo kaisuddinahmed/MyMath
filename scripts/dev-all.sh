@@ -70,4 +70,9 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
+if [[ ! -x "frontend/node_modules/.bin/next" ]]; then
+  echo "[dev:all] Frontend dependencies missing. Installing..."
+  npm --prefix frontend install
+fi
+
 npm --prefix frontend run dev
