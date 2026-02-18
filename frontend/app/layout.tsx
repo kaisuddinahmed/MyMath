@@ -1,18 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, Nunito } from "next/font/google";
-import "@/app/globals.css";
-
-const display = Baloo_2({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["600", "700", "800"]
-});
-
-const body = Nunito({
-  subsets: ["latin"],
-  variable: "--font-body",
-  weight: ["400", "600", "700", "800"]
-});
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MyMath",
@@ -29,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${display.variable} ${body.variable} min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50`}>
+      <body className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
         {children}
       </body>
     </html>

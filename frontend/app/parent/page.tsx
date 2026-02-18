@@ -31,6 +31,24 @@ const CREATE_DEFAULT: ChildFormState = {
   strict_class_level: false
 };
 
+const CURRICULUM_OPTIONS = ["NCTB", "Cambridge", "Edexcel"] as const;
+const AGE_OPTIONS = ["4", "5", "6", "7", "8", "9", "10", "11", "12"] as const;
+
+function normalizeCurriculum(value: string | null | undefined): string {
+  const cleaned = (value || "").trim();
+  if (!cleaned) return "";
+  const matched = CURRICULUM_OPTIONS.find((option) => option.toLowerCase() === cleaned.toLowerCase());
+  return matched || "";
+}
+
+function normalizeAge(value: string | number | null | undefined): string {
+  const age = Number(value);
+  if (Number.isFinite(age) && age >= 4 && age <= 12) {
+    return String(Math.round(age));
+  }
+  return CREATE_DEFAULT.age;
+}
+
 function mergeChildren(children: ChildProfile[], metaMap: Record<string, ChildMeta>): ChildView[] {
   return children.map((child) => ({
     ...child,
@@ -150,9 +168,9 @@ export default function ParentPage() {
     setEditing(child);
     setEditForm({
       child_name: child.child_name,
-      age: String(child.age),
+      age: normalizeAge(child.age),
       class_level: String(child.class_level),
-      preferred_curriculum: child.preferred_curriculum || "",
+      preferred_curriculum: normalizeCurriculum(child.preferred_curriculum),
       strict_class_level: Boolean(child.strict_class_level)
     });
   }
@@ -288,16 +306,18 @@ export default function ParentPage() {
 
             <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
               Age (4-12)
-              <input
-                type="number"
-                min={4}
-                max={12}
+              <select
                 className="min-h-11 rounded-2xl border border-slate-300 px-4 text-base dark:border-slate-700 dark:bg-slate-800"
                 value={form.age}
                 onChange={(e) => updateCreateForm("age", e.target.value)}
-                required
                 aria-label="Child age"
-              />
+              >
+                {AGE_OPTIONS.map((ageOption) => (
+                  <option key={ageOption} value={ageOption}>
+                    {ageOption}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
@@ -318,13 +338,19 @@ export default function ParentPage() {
 
             <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
               Preferred Curriculum (optional)
-              <input
+              <select
                 className="min-h-11 rounded-2xl border border-slate-300 px-4 text-base dark:border-slate-700 dark:bg-slate-800"
                 value={form.preferred_curriculum}
                 onChange={(e) => updateCreateForm("preferred_curriculum", e.target.value)}
-                placeholder="NCTB / Cambridge / Edexcel"
                 aria-label="Preferred curriculum"
-              />
+              >
+                <option value="">No preference</option>
+                {CURRICULUM_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
 
@@ -408,15 +434,18 @@ export default function ParentPage() {
 
               <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
                 Age
-                <input
-                  type="number"
-                  min={4}
-                  max={12}
+                <select
                   className="min-h-11 rounded-2xl border border-slate-300 px-4 text-base dark:border-slate-700 dark:bg-slate-800"
                   value={editForm.age}
                   onChange={(e) => updateEditForm("age", e.target.value)}
-                  required
-                />
+                  aria-label="Edit child age"
+                >
+                  {AGE_OPTIONS.map((ageOption) => (
+                    <option key={ageOption} value={ageOption}>
+                      {ageOption}
+                    </option>
+                  ))}
+                </select>
               </label>
 
               <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
@@ -436,12 +465,19 @@ export default function ParentPage() {
 
               <label className="grid gap-1 text-sm font-bold text-slate-700 dark:text-slate-300">
                 Curriculum
-                <input
+                <select
                   className="min-h-11 rounded-2xl border border-slate-300 px-4 text-base dark:border-slate-700 dark:bg-slate-800"
                   value={editForm.preferred_curriculum}
                   onChange={(e) => updateEditForm("preferred_curriculum", e.target.value)}
-                  placeholder="Optional"
-                />
+                  aria-label="Edit preferred curriculum"
+                >
+                  <option value="">No preference</option>
+                  {CURRICULUM_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </label>
             </div>
 

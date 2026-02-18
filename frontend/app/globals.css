@@ -11,11 +11,11 @@ html.dark {
 }
 
 body {
-  font-family: var(--font-body), sans-serif;
+  font-family: "Nunito", "Trebuchet MS", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 .font-display {
-  font-family: var(--font-display), cursive;
+  font-family: "Baloo 2", "Trebuchet MS", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
