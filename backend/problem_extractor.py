@@ -3,6 +3,7 @@ from __future__ import annotations
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from collections import Counter
 import math
 import re
 
@@ -10,6 +11,7 @@ from PIL import Image, ImageOps
 
 MAX_PDF_PAGES = 4
 MAX_IMAGE_SIDE = 2200
+_NUM_RE = r"\d[\d,]*(?:\.\d+)?"
 
 
 def _clean_text(text: str) -> str:
@@ -31,6 +33,11 @@ def _score_question_line(line: str) -> int:
 
     if len(line) < 6 or len(line) > 260:
         return -100
+
+    if re.match(r"^\s*[a-dA-D][\).:-]\s*", line):
+        score -= 4
+    if len(re.findall(r"\b[a-dA-D]\)", line)) >= 2:
+        score -= 2
 
     if "?" in line:
         score += 4
@@ -68,6 +75,165 @@ def _pick_question(text: str) -> str:
     if len(flat) > 220 and " " in clipped:
         clipped = clipped.rsplit(" ", 1)[0]
     return clipped
+
+
+def _cleanup_question_text(text: str) -> str:
+    s = _clean_text(text)
+    s = re.sub(r"([A-Za-z])(\d)", r"\1 \2", s)
+    s = re.sub(r"(\d)([A-Za-z])", r"\1 \2", s)
+    s = re.sub(
+        r"\b(The)(product|sum|difference|quotient|perimeter|area|mean|average|multiple|factor)\b",
+        r"\1 \2",
+        s,
+        flags=re.I,
+    )
+    s = re.sub(r"\s*,\s*", ",", s)
+    s = re.sub(r",(?=\D)", ", ", s)
+    s = re.sub(r"\s*([=+\-x/])\s*", r" \1 ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    s = re.sub(r"\s+([?.!])", r"\1", s)
+    s = re.sub(r"[_]{2,}", "__", s)
+    return s
+
+
+def _normalize_spacing_math(text: str) -> str:
+    t = _clean_text(text)
+    t = (
+        t.replace("×", "x")
+        .replace("X", "x")
+        .replace("÷", "/")
+        .replace("−", "-")
+        .replace("–", "-")
+        .replace("—", "-")
+    )
+    t = re.sub(r"\s*=\s*", " = ", t)
+    t = re.sub(r"\s*x\s*", " x ", t)
+    t = re.sub(r"\s*/\s*", " / ", t)
+    t = re.sub(r"\s*\+\s*", " + ", t)
+    t = re.sub(r"\s*-\s*", " - ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
+
+def _insert_blank_in_side(side: str) -> Tuple[str, bool]:
+    s = _normalize_spacing_math(side)
+    if "__" in s:
+        return s, False
+
+    if re.search(r"([+\-x/])\s*([+\-x/])", s):
+        fixed = re.sub(r"([+\-x/])\s*([+\-x/])", r"\1 __ \2", s, count=1)
+        return _normalize_spacing_math(fixed), True
+
+    m = re.match(r"^([+\-x/])\s*(.+)$", s)
+    if m:
+        op, right = m.group(1), m.group(2)
+        return _normalize_spacing_math(f"__ {op} {right}"), True
+
+    m = re.match(r"^(.+?)\s*([+\-x/])$", s)
+    if m:
+        left, op = m.group(1), m.group(2)
+        return _normalize_spacing_math(f"{left} {op} __"), True
+
+    return s, False
+
+
+def _commutative_operator(side: str) -> str:
+    s = f" {side} "
+    if " + " in s and " - " not in s and " / " not in s:
+        return "+"
+    if " x " in s and " - " not in s and " / " not in s:
+        return "x"
+    return ""
+
+
+def _repair_equation_question(question: str, extracted_text: str) -> str:
+    q = _normalize_spacing_math(question)
+    text = _normalize_spacing_math(extracted_text)
+
+    q = re.sub(r"[_]{2,}", "__", q)
+    q = re.sub(r"[□▢⬜]+", "__", q)
+
+    has_blank_marker = bool(re.search(r"[_-]{3,}|[□▢⬜]", (extracted_text or "") + " " + (question or "")))
+    has_gap_hint = bool(re.search(r"([+\-x/])\s*([+\-x/])", q)) or bool(re.search(r"[+\-x/]\s*$", q))
+
+    # Multiplication/division blanks without reliable "=".
+    m = re.match(fr"^[x*]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q)
+    if m:
+        a, b = m.group(1), m.group(2)
+        return f"Find the missing number: __ x {a} = {b}"
+
+    m = re.match(fr"^[/]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q)
+    if m:
+        a, b = m.group(1), m.group(2)
+        return f"Find the missing number: __ / {a} = {b}"
+
+    if "=" not in q:
+        m = re.search(fr"\b([x/])\s*({_NUM_RE})\s*({_NUM_RE})\b", q)
+        if m and (has_blank_marker or q.startswith("x ") or q.startswith("/ ") or "find" in q.lower() or "missing" in q.lower()):
+            op, a, b = m.group(1), m.group(2), m.group(3)
+            return f"Find the missing number: __ {op} {a} = {b}"
+
+    if "=" in q:
+        lhs_raw, rhs_raw = [part.strip() for part in q.split("=", 1)]
+
+        if not lhs_raw and rhs_raw:
+            return f"Find the missing number: __ = {rhs_raw}"
+        if lhs_raw and not rhs_raw:
+            return f"Find the missing number: {lhs_raw} = __"
+
+        # Side-level insertion for leading/trailing/double operators.
+        lhs_fixed, lhs_changed = _insert_blank_in_side(lhs_raw)
+        rhs_fixed, rhs_changed = _insert_blank_in_side(rhs_raw)
+        if lhs_changed or rhs_changed:
+            return f"Find the missing number: {lhs_fixed} = {rhs_fixed}"
+
+        # Commutative (+, x) side has one missing term.
+        lhs_op = _commutative_operator(lhs_raw)
+        rhs_op = _commutative_operator(rhs_raw)
+        if lhs_op and rhs_op and lhs_op == rhs_op:
+            lhs_terms = re.findall(_NUM_RE, lhs_raw)
+            rhs_terms = re.findall(_NUM_RE, rhs_raw)
+            if lhs_terms and rhs_terms and len(lhs_terms) == len(rhs_terms) + 1 and (has_blank_marker or has_gap_hint):
+                lhs_count = Counter(x.replace(",", "") for x in lhs_terms)
+                rhs_count = Counter(x.replace(",", "") for x in rhs_terms)
+                missing = lhs_count - rhs_count
+                if sum(missing.values()) == 1:
+                    return f"Find the missing number: {lhs_raw} = {rhs_raw} {lhs_op} __"
+
+    return q
+
+
+def _repair_mcq_question(question: str, extracted_text: str) -> str:
+    q = _cleanup_question_text(question)
+    text = extracted_text or ""
+
+    option_pattern = re.compile(r"\b([a-dA-D])\s*[\)\.]")
+
+    candidate = q
+    if len(re.findall(option_pattern, text)) >= 2 and len(text) > len(candidate):
+        candidate = _cleanup_question_text(text)
+
+    candidate = re.sub(r"\b([a-dA-D])\s*[\)\.]", r" \1) ", candidate)
+    option_match = re.search(r"\b[a-dA-D]\)\s*", candidate)
+    if not option_match:
+        return q
+
+    stem = candidate[:option_match.start()].strip(" :;-")
+    if not stem:
+        return q
+
+    if "__" not in stem and not re.search(r"\b(blank|missing)\b", stem, re.I):
+        if re.search(r"\b(is|are|was|were|equals?|equal to|is called)\s*$", stem, re.I):
+            stem = f"{stem} __"
+        elif re.search(r"[=+\-x/]\s*$", stem):
+            stem = f"{stem} __"
+        else:
+            stem = f"{stem} __"
+
+    if not re.search(r"[.?!]$", stem):
+        stem = f"{stem}."
+
+    return _cleanup_question_text(stem)
 
 
 def _resize_image(image: Image.Image) -> Image.Image:
@@ -256,7 +422,8 @@ def _analyze_geometry(image: Image.Image, text: str) -> Dict[str, Any]:
     )
     circle_count = 0 if circles is None else int(circles.shape[1])
 
-    has_diagram = line_count >= 3 or circle_count >= 1
+    geometry_words = any(k in low for k in ["triangle", "circle", "rectangle", "square", "angle", "radius", "diameter", "perimeter", "area"])
+    has_diagram = line_count >= 5 or parallel_pairs >= 1 or perpendicular_pairs >= 1 or (circle_count >= 1 and geometry_words)
 
     summary.update(
         {
@@ -270,7 +437,7 @@ def _analyze_geometry(image: Image.Image, text: str) -> Dict[str, Any]:
     )
 
     shape_hints = _shape_hints_from_text(low, summary["point_labels"])  # type: ignore[index]
-    if circle_count > 0 and "circle" not in shape_hints:
+    if circle_count > 0 and (geometry_words or circle_count >= 2) and "circle" not in shape_hints:
         shape_hints.append("circle")
     if line_count >= 3 and "triangle" not in shape_hints and "triangle" in low:
         shape_hints.append("triangle")
@@ -338,11 +505,14 @@ def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[st
     except Exception as exc:
         raise ValueError("Could not open image file.") from exc
 
-    text, ocr_engine = _ocr_image(image)
-    text = _clean_text(text)
+    raw_text, ocr_engine = _ocr_image(image)
+    extracted_text = _clean_text(raw_text)
 
-    geometry = _analyze_geometry(image, text)
-    question = _pick_question(text)
+    geometry = _analyze_geometry(image, raw_text)
+    question = _pick_question(raw_text)
+    question = _repair_equation_question(question, raw_text)
+    question = _repair_mcq_question(question, raw_text)
+    question = _cleanup_question_text(question)
 
     notes: List[str] = []
     if ocr_engine == "none":
@@ -353,13 +523,14 @@ def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[st
     if not question:
         raise ValueError("Could not extract a math question from the uploaded image.")
 
-    return question, text, ocr_engine, geometry, notes
+    return question, extracted_text, ocr_engine, geometry, notes
 
 
 def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
     notes: List[str] = []
 
-    extracted_text = _extract_pdf_text(file_bytes)
+    raw_text = _extract_pdf_text(file_bytes)
+    extracted_text = _clean_text(raw_text)
     ocr_engine = "pdf-text"
     geometry: Dict[str, Any] = {
         "analysis_available": False,
@@ -368,11 +539,14 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
         "circles": 0,
         "parallel_pairs": 0,
         "perpendicular_pairs": 0,
-        "point_labels": _extract_point_labels(extracted_text),
-        "shape_hints": _shape_hints_from_text(extracted_text.lower(), _extract_point_labels(extracted_text)),
+        "point_labels": _extract_point_labels(raw_text),
+        "shape_hints": _shape_hints_from_text(raw_text.lower(), _extract_point_labels(raw_text)),
     }
 
-    question = _pick_question(extracted_text)
+    question = _pick_question(raw_text)
+    question = _repair_equation_question(question, raw_text)
+    question = _repair_mcq_question(question, raw_text)
+    question = _cleanup_question_text(question)
 
     # If native text is weak, render pages and OCR.
     if len(_clean_text(question)) < 8:
@@ -389,19 +563,23 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
             if engine != "none":
                 used_engine = engine
 
-        extracted_text = _clean_text("\n".join(ocr_chunks))
-        question = _pick_question(extracted_text)
+        raw_text = "\n".join(ocr_chunks)
+        extracted_text = _clean_text(raw_text)
+        question = _pick_question(raw_text)
+        question = _repair_equation_question(question, raw_text)
+        question = _repair_mcq_question(question, raw_text)
+        question = _cleanup_question_text(question)
         ocr_engine = used_engine if used_engine != "none" else "none"
 
         if pages:
-            geometry = _analyze_geometry(pages[0], extracted_text)
+            geometry = _analyze_geometry(pages[0], raw_text)
 
         notes.append("Used OCR on rendered PDF pages.")
 
     if not question:
         raise ValueError("Could not extract a math question from the uploaded PDF.")
 
-    return question, _clean_text(extracted_text), ocr_engine, geometry, notes
+    return question, extracted_text, ocr_engine, geometry, notes
 
 
 def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_type: str) -> Dict[str, Any]:
