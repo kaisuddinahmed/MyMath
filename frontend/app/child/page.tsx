@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ChildCard from "@/components/child-card";
@@ -25,7 +25,7 @@ function normalizeQuestion(question: string): string {
   return question.replace(/×/g, "x").replace(/÷/g, "/").trim();
 }
 
-const QUICK_EXAMPLES = ["12 + 5", "4 × 3", "1/4 of 12"];
+type InputMode = "type" | "upload" | null;
 
 export default function ChildPage() {
   const router = useRouter();
@@ -34,6 +34,8 @@ export default function ChildPage() {
   const [selectedChildId, setSelectedChildIdState] = useState<string | null>(null);
   const [loadingProfiles, setLoadingProfiles] = useState(true);
   const [question, setQuestion] = useState("");
+  const [inputMode, setInputMode] = useState<InputMode>(null);
+  const [uploadNote, setUploadNote] = useState("");
   const [attempts, setAttempts] = useState<ActivityRecord[]>([]);
   const [loadingAttempts, setLoadingAttempts] = useState(false);
   const [error, setError] = useState("");
@@ -96,6 +98,33 @@ export default function ChildPage() {
     setSelectedChildId(child.child_id);
   }
 
+  async function handleFileUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setError("");
+    setUploadNote("");
+    setLoadingLabel("Analyzing your file...");
+
+    try {
+      const extracted = await api.extractProblem(file);
+      setQuestion(extracted.question);
+      setInputMode("type");
+      const shapeHints = extracted.geometry?.shape_hints || [];
+      const shapeNote = shapeHints.length > 0 ? ` Geometry hints: ${shapeHints.join(", ")}.` : "";
+      setUploadNote(
+        `I found this question from ${file.name} (confidence ${Math.round(extracted.confidence * 100)}%).` +
+          `${shapeNote} You can edit it before explaining.`
+      );
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Could not read that file.";
+      setError(msg);
+    } finally {
+      setLoadingLabel(null);
+    }
+  }
+
   async function handleExplain() {
     if (!selectedChildId) {
       setError("Please pick your profile first.");
@@ -104,7 +133,7 @@ export default function ChildPage() {
 
     const cleaned = normalizeQuestion(question);
     if (!cleaned) {
-      setError("Type a math question first.");
+      setError("Enter a math question first.");
       return;
     }
 
@@ -207,48 +236,95 @@ export default function ChildPage() {
         {selectedChild ? (
           <>
             <section className="rounded-3xl border border-emerald-100 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-slate-900">
-              <label htmlFor="question" className="mb-2 block text-lg font-extrabold text-slate-800 dark:text-slate-100">
-                Type your math question
-              </label>
-              <textarea
-                id="question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Example: 12 + 5"
-                className="min-h-32 w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg dark:border-slate-700 dark:bg-slate-800"
-                aria-label="Math question"
-              />
+              <h2 className="mb-3 font-display text-2xl font-extrabold text-slate-900 dark:text-slate-50">How do you want to ask?</h2>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                {QUICK_EXAMPLES.map((example) => (
-                  <button
-                    key={example}
-                    className="min-h-11 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-base font-bold text-emerald-900 dark:border-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-100"
-                    onClick={() => setQuestion(example)}
-                    aria-label={`Use example ${example}`}
-                  >
-                    {example}
-                  </button>
-                ))}
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <button
-                  className="min-h-12 rounded-2xl bg-emerald-500 px-5 text-lg font-extrabold text-white disabled:opacity-60"
-                  onClick={handleExplain}
-                  disabled={Boolean(loadingLabel)}
-                  aria-label="Explain with video"
+                  type="button"
+                  className={`min-h-12 rounded-2xl px-4 text-lg font-extrabold ${
+                    inputMode === "type"
+                      ? "bg-emerald-500 text-white"
+                      : "border-2 border-emerald-200 text-emerald-900 dark:border-emerald-700 dark:text-emerald-100"
+                  }`}
+                  onClick={() => {
+                    setInputMode("type");
+                    setError("");
+                  }}
+                  aria-pressed={inputMode === "type"}
                 >
-                  Explain with Video
+                  Type a math question
                 </button>
+
                 <button
-                  className="min-h-12 rounded-2xl border-2 border-emerald-200 px-5 text-lg font-extrabold text-emerald-900 dark:border-emerald-700 dark:text-emerald-100"
-                  onClick={() => setQuestion("")}
-                  aria-label="Try another question"
+                  type="button"
+                  className={`min-h-12 rounded-2xl px-4 text-lg font-extrabold ${
+                    inputMode === "upload"
+                      ? "bg-emerald-500 text-white"
+                      : "border-2 border-emerald-200 text-emerald-900 dark:border-emerald-700 dark:text-emerald-100"
+                  }`}
+                  onClick={() => {
+                    setInputMode("upload");
+                    setError("");
+                  }}
+                  aria-pressed={inputMode === "upload"}
                 >
-                  Try Another Question
+                  Upload a math problem
                 </button>
               </div>
+
+              {inputMode === "upload" ? (
+                <div className="mt-4 rounded-2xl border border-dashed border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-700 dark:bg-emerald-900/20">
+                  <p className="mb-3 text-sm font-bold text-emerald-900 dark:text-emerald-100">
+                    Upload image or PDF. I will read it and fill the question box for you.
+                  </p>
+                  <label className="flex min-h-12 cursor-pointer items-center justify-center rounded-2xl bg-emerald-500 px-4 text-lg font-extrabold text-white">
+                    Choose File
+                    <input
+                      type="file"
+                      accept="image/*,.pdf,application/pdf"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                      aria-label="Upload image or PDF math problem"
+                    />
+                  </label>
+                  <p className="mt-3 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                    Best results: clear photo, straight angle, high contrast. For geometry diagrams, include both diagram and text labels.
+                  </p>
+                </div>
+              ) : null}
+
+              {inputMode === "type" ? (
+                <>
+                  <label htmlFor="question" className="mb-2 mt-4 block text-lg font-extrabold text-slate-800 dark:text-slate-100">
+                    Math question
+                  </label>
+                  <textarea
+                    id="question"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    placeholder="Example: Find the perimeter of a rectangle with length 8 cm and width 5 cm"
+                    className="min-h-32 w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg dark:border-slate-700 dark:bg-slate-800"
+                    aria-label="Math question"
+                  />
+
+                  {uploadNote ? (
+                    <p className="mt-3 rounded-2xl bg-emerald-50 p-3 text-sm font-bold text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100">
+                      {uploadNote}
+                    </p>
+                  ) : null}
+
+                  <div className="mt-4">
+                    <button
+                      className="min-h-12 w-full rounded-2xl bg-emerald-500 px-5 text-lg font-extrabold text-white disabled:opacity-60"
+                      onClick={handleExplain}
+                      disabled={Boolean(loadingLabel)}
+                      aria-label="Explain with video"
+                    >
+                      Explain with Video
+                    </button>
+                  </div>
+                </>
+              ) : null}
 
               {error ? <p className="mt-3 text-sm font-bold text-rose-700 dark:text-rose-300">{error}</p> : null}
             </section>

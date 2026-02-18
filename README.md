@@ -114,6 +114,7 @@ Open:
   - verified answer/steps
   - retrieved curriculum chunk ids (if used)
   - validated JSON video plan + score
+- `POST /extract-problem` → upload image/PDF and get extracted math question text + geometry hints
 - `POST /render-video` → returns MP4 path/URL (from JSON plan)
 - `GET /coverage` → topic coverage status
 - `GET /analytics/*` → prompt/quality analytics

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Literal, Optional
 from backend.llm import get_client, get_model
 from backend.config import TOPIC_MAP, GRADE_STYLE, TOPIC_KEYWORDS, load_json
 from backend.coverage import coverage_report
+from backend.problem_extractor import extract_math_problem_from_upload
 from jsonschema import validate, ValidationError
 from pathlib import Path
 from datetime import datetime, timezone
@@ -113,6 +114,27 @@ class RenderVideoResponse(BaseModel):
     duration_seconds: int
     used_template: str
     audio_generated: bool
+
+
+class GeometryParseSummary(BaseModel):
+    analysis_available: bool
+    has_diagram: bool
+    line_segments: int
+    circles: int
+    parallel_pairs: int
+    perpendicular_pairs: int
+    point_labels: List[str]
+    shape_hints: List[str]
+
+
+class ExtractProblemResponse(BaseModel):
+    question: str
+    extracted_text: str
+    source_type: Literal["image", "pdf"]
+    ocr_engine: str
+    confidence: float
+    geometry: GeometryParseSummary
+    notes: List[str]
 
 
 # -----------------------------
@@ -431,6 +453,53 @@ def get_activity(child_id: Optional[str] = None, limit: int = 20):
         records = [r for r in records if r.get("child_id") == child_id]
     limit = max(1, min(limit, 200))
     return records[-limit:][::-1]
+
+
+@app.post("/extract-problem", response_model=ExtractProblemResponse)
+async def extract_problem_endpoint(request: Request):
+    try:
+        form = await request.form()
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Could not parse uploaded form data. Send multipart/form-data with field 'file'. "
+                "If server dependency is missing, install: python-multipart."
+            ),
+        )
+
+    file = form.get("file")
+    if file is None:
+        raise HTTPException(status_code=400, detail="Missing file field. Use form field name 'file'.")
+
+    filename = getattr(file, "filename", None) or "upload"
+    content_type = getattr(file, "content_type", None) or ""
+    read_fn = getattr(file, "read", None)
+    if read_fn is None:
+        raise HTTPException(status_code=400, detail="Invalid upload object.")
+
+    try:
+        file_bytes = await read_fn()
+    except TypeError:
+        file_bytes = read_fn()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Could not read uploaded file: {exc}")
+
+    if not isinstance(file_bytes, (bytes, bytearray)):
+        raise HTTPException(status_code=400, detail="Uploaded file content is invalid.")
+
+    try:
+        parsed = extract_math_problem_from_upload(
+            file_bytes=bytes(file_bytes),
+            filename=filename,
+            content_type=content_type,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Extraction failed: {exc}")
+
+    return ExtractProblemResponse(**parsed)
 
 @app.post("/render-video", response_model=RenderVideoResponse)
 def render_video_endpoint(req: RenderVideoRequest):

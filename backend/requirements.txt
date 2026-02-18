@@ -8,3 +8,10 @@ jsonschema
 moviepy
 pillow
 pyttsx3
+python-multipart
+numpy
+opencv-python-headless
+pypdf
+pymupdf
+rapidocr-onnxruntime
+pytesseract

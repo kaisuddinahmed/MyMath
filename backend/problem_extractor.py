@@ -1,0 +1,440 @@
+from __future__ import annotations
+
+from io import BytesIO
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+import math
+import re
+
+from PIL import Image, ImageOps
+
+MAX_PDF_PAGES = 4
+MAX_IMAGE_SIDE = 2200
+
+
+def _clean_text(text: str) -> str:
+    return re.sub(r"\s+", " ", (text or "").replace("\u00a0", " ")).strip()
+
+
+def _split_candidate_lines(text: str) -> List[str]:
+    lines = []
+    for raw in re.split(r"\r?\n", text or ""):
+        line = _clean_text(raw)
+        if line:
+            lines.append(line)
+    return lines
+
+
+def _score_question_line(line: str) -> int:
+    low = line.lower()
+    score = 0
+
+    if len(line) < 6 or len(line) > 260:
+        return -100
+
+    if "?" in line:
+        score += 4
+    if re.search(r"\d", line):
+        score += 3
+    if re.search(r"[+\-xX*÷/=]", line):
+        score += 3
+    if re.search(r"\b(find|what|calculate|solve|how many|determine|area|perimeter|volume|angle|fraction|ratio)\b", low):
+        score += 3
+    if re.search(r"\b(cm|mm|m|km|degrees|inch|ft|kg|g|ml|l)\b", low):
+        score += 1
+    if re.search(r"\b(triangle|circle|rectangle|square|polygon|diameter|radius|arc|chord|parallel|perpendicular)\b", low):
+        score += 2
+
+    return score
+
+
+def _pick_question(text: str) -> str:
+    lines = _split_candidate_lines(text)
+    if not lines:
+        return ""
+
+    scored = sorted(((line, _score_question_line(line)) for line in lines), key=lambda x: x[1], reverse=True)
+    best_line, best_score = scored[0]
+
+    if best_score >= 4:
+        return best_line
+
+    flat = _clean_text(text)
+    if not flat:
+        return ""
+
+    # Fallback to first sentence-sized chunk.
+    clipped = flat[:220]
+    if len(flat) > 220 and " " in clipped:
+        clipped = clipped.rsplit(" ", 1)[0]
+    return clipped
+
+
+def _resize_image(image: Image.Image) -> Image.Image:
+    image = image.convert("RGB")
+    w, h = image.size
+    longest = max(w, h)
+    if longest <= MAX_IMAGE_SIDE:
+        return image
+
+    scale = MAX_IMAGE_SIDE / float(longest)
+    return image.resize((max(1, int(w * scale)), max(1, int(h * scale))))
+
+
+def _prepare_for_ocr(image: Image.Image) -> Image.Image:
+    gray = ImageOps.grayscale(_resize_image(image))
+    return ImageOps.autocontrast(gray)
+
+
+_RAPID_OCR: Any = None
+
+
+def _ocr_with_rapidocr(image: Image.Image) -> Tuple[str, Optional[str]]:
+    global _RAPID_OCR
+
+    try:
+        import numpy as np
+        from rapidocr_onnxruntime import RapidOCR
+    except Exception:
+        return "", None
+
+    try:
+        if _RAPID_OCR is None:
+            _RAPID_OCR = RapidOCR()
+
+        arr = np.array(image.convert("RGB"))
+        result, _ = _RAPID_OCR(arr)
+        if not result:
+            return "", "rapidocr"
+
+        lines: List[str] = []
+        for item in result:
+            if not isinstance(item, (list, tuple)) or len(item) < 2:
+                continue
+            text = item[1]
+            if isinstance(text, str) and text.strip():
+                lines.append(text.strip())
+
+        return "\n".join(lines), "rapidocr"
+    except Exception:
+        return "", "rapidocr"
+
+
+def _ocr_with_tesseract(image: Image.Image) -> Tuple[str, Optional[str]]:
+    try:
+        import pytesseract
+    except Exception:
+        return "", None
+
+    try:
+        text = pytesseract.image_to_string(image, config="--oem 3 --psm 6")
+        return text or "", "tesseract"
+    except Exception:
+        return "", "tesseract"
+
+
+def _ocr_image(image: Image.Image) -> Tuple[str, str]:
+    prepared = _prepare_for_ocr(image)
+
+    for fn in (_ocr_with_rapidocr, _ocr_with_tesseract):
+        text, engine = fn(prepared)
+        if _clean_text(text):
+            return text, engine or "unknown"
+
+    return "", "none"
+
+
+def _extract_pdf_text(file_bytes: bytes) -> str:
+    try:
+        from pypdf import PdfReader
+    except Exception:
+        return ""
+
+    try:
+        reader = PdfReader(BytesIO(file_bytes))
+        parts: List[str] = []
+        page_count = min(len(reader.pages), MAX_PDF_PAGES)
+        for i in range(page_count):
+            text = reader.pages[i].extract_text() or ""
+            if _clean_text(text):
+                parts.append(text)
+        return "\n".join(parts)
+    except Exception:
+        return ""
+
+
+def _render_pdf_pages(file_bytes: bytes) -> List[Image.Image]:
+    try:
+        import fitz
+    except Exception:
+        return []
+
+    pages: List[Image.Image] = []
+    try:
+        doc = fitz.open(stream=file_bytes, filetype="pdf")
+        page_count = min(doc.page_count, MAX_PDF_PAGES)
+        for i in range(page_count):
+            page = doc.load_page(i)
+            pix = page.get_pixmap(alpha=False, matrix=fitz.Matrix(2, 2))
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            pages.append(img)
+        doc.close()
+    except Exception:
+        return []
+
+    return pages
+
+
+def _extract_point_labels(text: str) -> List[str]:
+    labels = sorted(set(re.findall(r"\b[A-Z]{1,2}\b", text or "")))
+    # Filter common units that look like labels.
+    blocked = {"CM", "MM", "KM", "KG", "ML", "FT", "IN"}
+    return [x for x in labels if x not in blocked][:12]
+
+
+def _analyze_geometry(image: Image.Image, text: str) -> Dict[str, Any]:
+    summary: Dict[str, Any] = {
+        "analysis_available": False,
+        "has_diagram": False,
+        "line_segments": 0,
+        "circles": 0,
+        "parallel_pairs": 0,
+        "perpendicular_pairs": 0,
+        "point_labels": _extract_point_labels(text),
+        "shape_hints": [],
+    }
+
+    low = (text or "").lower()
+
+    try:
+        import cv2
+        import numpy as np
+    except Exception:
+        summary["shape_hints"] = _shape_hints_from_text(low, summary["point_labels"])  # type: ignore[index]
+        return summary
+
+    arr = np.array(_resize_image(image).convert("RGB"))
+    gray = cv2.cvtColor(arr, cv2.COLOR_RGB2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    edges = cv2.Canny(blurred, 70, 170)
+
+    h, w = gray.shape[:2]
+    min_len = max(18, int(min(w, h) * 0.12))
+    lines = cv2.HoughLinesP(edges, 1, math.pi / 180, threshold=80, minLineLength=min_len, maxLineGap=12)
+
+    line_count = int(lines.shape[0]) if lines is not None else 0
+    angles: List[float] = []
+
+    if lines is not None:
+        sample = lines[:35]
+        for line in sample:
+            x1, y1, x2, y2 = line[0]
+            angle = abs(math.degrees(math.atan2(y2 - y1, x2 - x1)))
+            if angle > 90:
+                angle = 180 - angle
+            angles.append(angle)
+
+    parallel_pairs = 0
+    perpendicular_pairs = 0
+    for i in range(len(angles)):
+        for j in range(i + 1, len(angles)):
+            diff = abs(angles[i] - angles[j])
+            if diff <= 8:
+                parallel_pairs += 1
+            if abs(diff - 90) <= 10:
+                perpendicular_pairs += 1
+
+    circles = cv2.HoughCircles(
+        blurred,
+        cv2.HOUGH_GRADIENT,
+        dp=1.2,
+        minDist=max(20, int(min(w, h) * 0.12)),
+        param1=120,
+        param2=28,
+        minRadius=max(8, int(min(w, h) * 0.04)),
+        maxRadius=max(20, int(min(w, h) * 0.45)),
+    )
+    circle_count = 0 if circles is None else int(circles.shape[1])
+
+    has_diagram = line_count >= 3 or circle_count >= 1
+
+    summary.update(
+        {
+            "analysis_available": True,
+            "has_diagram": has_diagram,
+            "line_segments": line_count,
+            "circles": circle_count,
+            "parallel_pairs": parallel_pairs,
+            "perpendicular_pairs": perpendicular_pairs,
+        }
+    )
+
+    shape_hints = _shape_hints_from_text(low, summary["point_labels"])  # type: ignore[index]
+    if circle_count > 0 and "circle" not in shape_hints:
+        shape_hints.append("circle")
+    if line_count >= 3 and "triangle" not in shape_hints and "triangle" in low:
+        shape_hints.append("triangle")
+    if line_count >= 4 and perpendicular_pairs > 0 and "rectangle" in low and "rectangle" not in shape_hints:
+        shape_hints.append("rectangle")
+    if perpendicular_pairs > 0 and "right-angle" not in shape_hints:
+        if "right angle" in low or "90" in low:
+            shape_hints.append("right-angle")
+
+    summary["shape_hints"] = shape_hints
+    return summary
+
+
+def _shape_hints_from_text(low_text: str, labels: List[str]) -> List[str]:
+    hints: List[str] = []
+
+    key_map = {
+        "triangle": "triangle",
+        "circle": "circle",
+        "rectangle": "rectangle",
+        "square": "square",
+        "parallelogram": "parallelogram",
+        "trapez": "trapezium",
+        "polygon": "polygon",
+        "angle": "angles",
+        "perimeter": "perimeter",
+        "area": "area",
+        "radius": "radius",
+        "diameter": "diameter",
+        "chord": "chord",
+    }
+
+    for key, value in key_map.items():
+        if key in low_text and value not in hints:
+            hints.append(value)
+
+    if len(labels) >= 3 and "labeled-points" not in hints:
+        hints.append("labeled-points")
+
+    return hints
+
+
+def _estimate_confidence(extracted_text: str, question: str, geometry: Dict[str, Any]) -> float:
+    score = 0.2
+
+    if len(_clean_text(extracted_text)) >= 25:
+        score += 0.25
+    if len(_clean_text(question)) >= 12:
+        score += 0.2
+    if re.search(r"\d", question or ""):
+        score += 0.15
+    if re.search(r"[+\-xX*÷/=]", question or ""):
+        score += 0.1
+    if re.search(r"\b(area|perimeter|angle|triangle|circle|rectangle|fraction|ratio)\b", question or "", flags=re.I):
+        score += 0.1
+    if geometry.get("has_diagram"):
+        score += 0.1
+
+    return max(0.05, min(0.99, round(score, 3)))
+
+
+def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
+    try:
+        image = Image.open(BytesIO(file_bytes))
+    except Exception as exc:
+        raise ValueError("Could not open image file.") from exc
+
+    text, ocr_engine = _ocr_image(image)
+    text = _clean_text(text)
+
+    geometry = _analyze_geometry(image, text)
+    question = _pick_question(text)
+
+    notes: List[str] = []
+    if ocr_engine == "none":
+        notes.append("OCR engine unavailable on server. Install rapidocr-onnxruntime or pytesseract.")
+    else:
+        notes.append(f"OCR engine used: {ocr_engine}.")
+
+    if not question:
+        raise ValueError("Could not extract a math question from the uploaded image.")
+
+    return question, text, ocr_engine, geometry, notes
+
+
+def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
+    notes: List[str] = []
+
+    extracted_text = _extract_pdf_text(file_bytes)
+    ocr_engine = "pdf-text"
+    geometry: Dict[str, Any] = {
+        "analysis_available": False,
+        "has_diagram": False,
+        "line_segments": 0,
+        "circles": 0,
+        "parallel_pairs": 0,
+        "perpendicular_pairs": 0,
+        "point_labels": _extract_point_labels(extracted_text),
+        "shape_hints": _shape_hints_from_text(extracted_text.lower(), _extract_point_labels(extracted_text)),
+    }
+
+    question = _pick_question(extracted_text)
+
+    # If native text is weak, render pages and OCR.
+    if len(_clean_text(question)) < 8:
+        pages = _render_pdf_pages(file_bytes)
+        if not pages:
+            raise ValueError("Could not read text from PDF. Try a clearer PDF or image.")
+
+        ocr_chunks: List[str] = []
+        used_engine = "none"
+        for page in pages:
+            page_text, engine = _ocr_image(page)
+            if _clean_text(page_text):
+                ocr_chunks.append(page_text)
+            if engine != "none":
+                used_engine = engine
+
+        extracted_text = _clean_text("\n".join(ocr_chunks))
+        question = _pick_question(extracted_text)
+        ocr_engine = used_engine if used_engine != "none" else "none"
+
+        if pages:
+            geometry = _analyze_geometry(pages[0], extracted_text)
+
+        notes.append("Used OCR on rendered PDF pages.")
+
+    if not question:
+        raise ValueError("Could not extract a math question from the uploaded PDF.")
+
+    return question, _clean_text(extracted_text), ocr_engine, geometry, notes
+
+
+def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_type: str) -> Dict[str, Any]:
+    if not file_bytes:
+        raise ValueError("Uploaded file is empty.")
+
+    if len(file_bytes) > 12 * 1024 * 1024:
+        raise ValueError("File too large. Please upload a file under 12 MB.")
+
+    suffix = Path(filename or "").suffix.lower()
+    ctype = (content_type or "").lower()
+
+    is_pdf = suffix == ".pdf" or ctype == "application/pdf"
+    is_image = ctype.startswith("image/") or suffix in {".png", ".jpg", ".jpeg", ".bmp", ".webp", ".gif"}
+
+    if not is_pdf and not is_image:
+        raise ValueError("Unsupported file type. Upload an image or PDF.")
+
+    if is_pdf:
+        question, extracted_text, ocr_engine, geometry, notes = _extract_from_pdf_bytes(file_bytes)
+        source_type = "pdf"
+    else:
+        question, extracted_text, ocr_engine, geometry, notes = _extract_from_image_bytes(file_bytes)
+        source_type = "image"
+
+    confidence = _estimate_confidence(extracted_text, question, geometry)
+
+    return {
+        "question": question,
+        "extracted_text": extracted_text,
+        "source_type": source_type,
+        "ocr_engine": ocr_engine,
+        "confidence": confidence,
+        "geometry": geometry,
+        "notes": notes,
+    }

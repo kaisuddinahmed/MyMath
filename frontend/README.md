@@ -36,8 +36,14 @@ Then open:
 ## User Flows
 - Landing: choose Parent or Child mode.
 - Parent: create/list/edit child profiles, set curriculum and strict mode, select child.
-- Child: pick profile, ask question, generate explanation + video, see last attempts.
+- Child: pick profile, choose `Type a math question` or `Upload a math problem` (image/PDF), generate explanation + video, see last attempts.
 - Result: answer, short steps, video playback, practice question, try similar.
+
+## Upload Notes
+- Uploads are sent to backend `POST /extract-problem` for server-side extraction.
+- Images use server OCR + geometry feature detection (lines/circles/shape hints).
+- PDFs use server text extraction first, then OCR fallback for scanned pages.
+- For diagram-heavy geometry photos, include both the figure and text labels clearly; the extracted question is editable before you submit.
 
 ## Notes on Backend Compatibility
 - This frontend calls `PATCH /children/{child_id}` for edits.
