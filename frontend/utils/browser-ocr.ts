@@ -3,6 +3,8 @@ export type BrowserExtractResult = {
   rawText: string;
 };
 
+const NUM_RE = "(\\d[\\d,]*(?:\\.\\d+)?)";
+
 function scoreLineForMath(line: string): number {
   let score = 0;
   if (/\d/.test(line)) score += 3;
@@ -38,6 +40,70 @@ function cleanupMathSpacing(text: string): string {
   return s.trim();
 }
 
+function stripSerialPrefix(text: string): string {
+  const withoutSerial = text.replace(/^\s*\d{1,3}\s*[\).:\-]\s*/, "");
+  return withoutSerial.replace(/^[\s,.;:]+/, "").trim();
+}
+
+function repairMissingNumberEquation(input: string): string {
+  const original = (input || "").trim();
+  if (!original) return original;
+
+  const hasBlankMarker = /__|[_-]{3,}|[□▢⬜]/.test(original);
+  const core = stripSerialPrefix(original);
+  if (!core) return original;
+
+  if (!core.includes("=")) {
+    // "+ 44 64" / "__ + 44 64"
+    let m = core.match(new RegExp(`^(?:__\\s*)?([+\\-x/])\\s*${NUM_RE}\\s*${NUM_RE}$`));
+    if (m && (hasBlankMarker || core !== original)) {
+      const op = m[1];
+      const a = m[2];
+      const b = m[3];
+      return `Find the missing number: __ ${op} ${a} = ${b}`;
+    }
+
+    // ". + 44 64"
+    m = core.match(new RegExp(`^[.:-]?\\s*([+\\-x/])\\s*${NUM_RE}\\s*${NUM_RE}$`));
+    if (m && (hasBlankMarker || core !== original)) {
+      const op = m[1];
+      const a = m[2];
+      const b = m[3];
+      return `Find the missing number: __ ${op} ${a} = ${b}`;
+    }
+
+    return core;
+  }
+
+  const parts = core.split("=");
+  if (parts.length < 2) return core;
+  const lhsRaw = parts[0].trim();
+  const rhsRaw = parts.slice(1).join("=").trim();
+
+  let m = lhsRaw.match(new RegExp(`^(?:__|\\?)\\s*([+\\-x/])\\s*${NUM_RE}$`));
+  if (m) {
+    const op = m[1];
+    const a = m[2];
+    return `Find the missing number: __ ${op} ${a} = ${rhsRaw}`;
+  }
+
+  m = lhsRaw.match(new RegExp(`^([+\\-x/])\\s*${NUM_RE}$`));
+  if (m) {
+    const op = m[1];
+    const a = m[2];
+    return `Find the missing number: __ ${op} ${a} = ${rhsRaw}`;
+  }
+
+  if (!lhsRaw && rhsRaw) {
+    return `Find the missing number: __ = ${rhsRaw}`;
+  }
+  if (lhsRaw && !rhsRaw) {
+    return `Find the missing number: ${lhsRaw} = __`;
+  }
+
+  return core;
+}
+
 export function normalizeExtractedQuestion(input: string): string {
   let s = (input || "")
     .replace(/\r/g, "\n")
@@ -57,6 +123,7 @@ export function normalizeExtractedQuestion(input: string): string {
   s = s.replace(/_{2,}|-{4,}|—{2,}/g, "__");
   s = s.replace(/\s{2,}/g, " ");
 
+  s = repairMissingNumberEquation(s);
   return s.trim();
 }
 

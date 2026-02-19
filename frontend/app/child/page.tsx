@@ -22,7 +22,12 @@ function mergeChildren(children: ChildProfile[], metaMap: Record<string, ChildMe
 }
 
 function normalizeQuestion(question: string): string {
-  return question.replace(/×/g, "x").replace(/÷/g, "/").trim();
+  return question
+    .replace(/^\s*find the missing number\s*:?\s*/i, "")
+    .replace(/×/g, "x")
+    .replace(/÷/g, "/")
+    .replace(/[–—]/g, "-")
+    .trim();
 }
 
 type InputMode = "type" | "upload" | null;

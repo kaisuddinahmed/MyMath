@@ -152,29 +152,50 @@ def _repair_equation_question(question: str, extracted_text: str) -> str:
 
     q = re.sub(r"[_]{2,}", "__", q)
     q = re.sub(r"[□▢⬜]+", "__", q)
+    # Remove common serial prefixes (e.g., "7. ___ + 44 = 64")
+    q_core = re.sub(r"^\s*\d{1,3}\s*[\).:\-]\s*", "", q).strip()
+    q_core = re.sub(r"^[\s,.;:]+", "", q_core).strip()
 
     has_blank_marker = bool(re.search(r"[_-]{3,}|[□▢⬜]", (extracted_text or "") + " " + (question or "")))
-    has_gap_hint = bool(re.search(r"([+\-x/])\s*([+\-x/])", q)) or bool(re.search(r"[+\-x/]\s*$", q))
+    has_gap_hint = bool(re.search(r"([+\-x/])\s*([+\-x/])", q_core)) or bool(re.search(r"[+\-x/]\s*$", q_core))
 
     # Multiplication/division blanks without reliable "=".
-    m = re.match(fr"^[x*]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q)
+    m = re.match(fr"^[x*]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q_core)
     if m:
         a, b = m.group(1), m.group(2)
         return f"Find the missing number: __ x {a} = {b}"
 
-    m = re.match(fr"^[/]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q)
+    m = re.match(fr"^[/]\s*({_NUM_RE})\s*=?\s*({_NUM_RE})$", q_core)
     if m:
         a, b = m.group(1), m.group(2)
         return f"Find the missing number: __ / {a} = {b}"
 
-    if "=" not in q:
-        m = re.search(fr"\b([x/])\s*({_NUM_RE})\s*({_NUM_RE})\b", q)
-        if m and (has_blank_marker or q.startswith("x ") or q.startswith("/ ") or "find" in q.lower() or "missing" in q.lower()):
+    if "=" not in q_core:
+        # Handles OCR like: "+ 44 64", "__ + 44 64", "x 100 6800"
+        m = re.match(fr"^(__\s*)?([+\-x/])\s*({_NUM_RE})\s*({_NUM_RE})$", q_core)
+        if m and (has_blank_marker or "find" in q_core.lower() or "missing" in q_core.lower() or q_core != q):
+            op, a, b = m.group(2), m.group(3), m.group(4)
+            return f"Find the missing number: __ {op} {a} = {b}"
+
+        # Handles OCR like: ". + 44 64" after weak serial cleanup.
+        m = re.match(fr"^[.:\-]?\s*([+\-x/])\s*({_NUM_RE})\s*({_NUM_RE})$", q_core)
+        if m and (has_blank_marker or q_core != q):
             op, a, b = m.group(1), m.group(2), m.group(3)
             return f"Find the missing number: __ {op} {a} = {b}"
 
-    if "=" in q:
-        lhs_raw, rhs_raw = [part.strip() for part in q.split("=", 1)]
+        m = re.search(fr"\b([x/])\s*({_NUM_RE})\s*({_NUM_RE})\b", q_core)
+        if m and (has_blank_marker or q_core.startswith("x ") or q_core.startswith("/ ") or "find" in q_core.lower() or "missing" in q_core.lower()):
+            op, a, b = m.group(1), m.group(2), m.group(3)
+            return f"Find the missing number: __ {op} {a} = {b}"
+
+    if "=" in q_core:
+        lhs_raw, rhs_raw = [part.strip() for part in q_core.split("=", 1)]
+
+        # Handles OCR like: "+ 44 = 64"
+        m = re.match(fr"^([+\-x/])\s*({_NUM_RE})$", lhs_raw)
+        if m:
+            op, a = m.group(1), m.group(2)
+            return f"Find the missing number: __ {op} {a} = {rhs_raw}"
 
         if not lhs_raw and rhs_raw:
             return f"Find the missing number: __ = {rhs_raw}"
@@ -200,7 +221,7 @@ def _repair_equation_question(question: str, extracted_text: str) -> str:
                 if sum(missing.values()) == 1:
                     return f"Find the missing number: {lhs_raw} = {rhs_raw} {lhs_op} __"
 
-    return q
+    return q_core or q
 
 
 def _repair_mcq_question(question: str, extracted_text: str) -> str:
