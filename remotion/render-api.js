@@ -14,7 +14,7 @@ const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 
-const RENDER_PORT = Number(process.env.REMOTION_PORT || 1234);
+const RENDER_PORT = Number(process.env.REMOTION_PORT || 1235);
 const OUTPUT_DIR = path.resolve(__dirname, "..", "backend", "video_engine", "output");
 
 // Ensure output directory exists

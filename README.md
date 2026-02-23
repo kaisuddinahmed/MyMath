@@ -16,9 +16,13 @@ For each question:
 
 1. **Robust extraction:** Uploads (Image/PDF) are pre-processed (upscaled/sharpened), OCR'd, and automatically corrected via LLM to fix typos and scrambled words.
 2. Verified answer + kid-friendly step-by-step explanation
-3. A **strict JSON video plan** (LLM output, schema-validated)
-4. A deterministic **MP4** rendered from templates
-5. Practice question(s) via `/try-similar/by-child`
+3. A **Director Script JSON** (LLM output, schema-validated) — action-based cues like `ADD_ITEMS`, `GROUP_ITEMS`, `SHOW_EQUATION`
+4. **Deepgram Aura TTS** narration audio (~$0.015/1K chars) with a warm teacher-like voice
+5. A polished **animated MP4** rendered by **Remotion** (React-based, bouncing SVGs, pie charts, group boxes)
+6. **Video cache** — same question + grade = instant playback, $0
+7. Practice question(s) via `/try-similar/by-child`
+
+**Estimated cost per new video: ~$0.02. Cached video: $0.**
 
 ---
 
@@ -29,7 +33,7 @@ For each question:
 | Core         | `backend/core/`         | LLM client, config, prompt validator — no business logic |
 | Math Engine  | `backend/math_engine/`  | All math — only layer touched for class upgrades         |
 | Knowledge    | `backend/knowledge/`    | Activity log, future Vector DB + RAG                     |
-| Video Engine | `backend/video_engine/` | JSON plan → MP4 (unchanged)                              |
+| Video Engine | `backend/video_engine/` | Director Script → Deepgram TTS → Remotion → cached MP4   |
 | API          | `backend/api/`          | HTTP routes + Pydantic schemas only                      |
 
 `backend/main.py` — 17-line thin entrypoint.
@@ -78,11 +82,24 @@ backend/
   knowledge/
     activity.py
     ingestion/               # Offline CLIs (PDF → embeddings)
-  video_engine/              # renderer.py + templates (unchanged)
+  video_engine/
+    renderer.py              # legacy PIL renderer (fallback)
+    tts.py                   # Deepgram Aura TTS
+    video_cache.py           # SHA-256 cache (output/cache_index.json)
+    templates/
+    output/                  # MP4 files + cache_index.json + TTS .wav
   api/
     app.py
     schemas.py
     routes/                  # children, solve, video, extract, analytics
+
+remotion/                    # Remotion animated video renderer
+  render-api.js              # Express server (port 1235) — POST /render
+  src/
+    Root.tsx                 # Remotion entry
+    compositions/MathVideo.tsx
+    components/Scenes.tsx    # CounterScene, GroupScene, FractionScene, EquationScene
+    assets/items/ItemSvgs.tsx # Apple, Block, Star, Counter SVGs
 
 frontend/
   app/                       # page.tsx, parent/, child/, result/
@@ -106,12 +123,14 @@ pip install -r backend/requirements.txt
 # .env
 GROQ_API_KEY=your_key_here
 GROQ_MODEL=llama-3.3-70b-versatile
+DEEPGRAM_API_KEY=your_deepgram_key_here   # Get $200 free at deepgram.com
 ```
 
 ```bash
-npm run dev:all          # Backend :1233 + Frontend :1234
+npm run dev:all   # Backend :1233 + Remotion render server :1235 + Frontend :1234
 # OR separately:
 uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233
+node remotion/render-api.js
 cd frontend && npm run dev
 ```
 
@@ -121,16 +140,22 @@ cd frontend && npm run dev
 
 ### Core flow
 
-| Method  | Endpoint                           | Description                 |
-| ------- | ---------------------------------- | --------------------------- |
-| `POST`  | `/children`                        | Create child profile        |
-| `GET`   | `/children`                        | List all children           |
-| `GET`   | `/children/{child_id}`             | Get child                   |
-| `PATCH` | `/children/{child_id}`             | Update child                |
-| `POST`  | `/solve-and-video-prompt/by-child` | Solve + LLM video plan      |
-| `POST`  | `/render-video`                    | Render MP4                  |
-| `POST`  | `/extract-problem`                 | Upload image/PDF → question |
-| `POST`  | `/try-similar/by-child`            | Generate practice question  |
+| Method  | Endpoint                     | Description                                                   |
+| ------- | ---------------------------- | ------------------------------------------------------------- |
+| `POST`  | `/children`                  | Create child profile                                          |
+| `GET`   | `/children`                  | List all children                                             |
+| `GET`   | `/children/{child_id}`       | Get child                                                     |
+| `PATCH` | `/children/{child_id}`       | Update child                                                  |
+| `POST`  | `/solve-and-render/by-child` | **V2** Solve + TTS + render in one call (returns `video_url`) |
+| `POST`  | `/extract-problem`           | Upload image/PDF → question                                   |
+| `POST`  | `/try-similar/by-child`      | Generate practice question                                    |
+
+### Legacy (still supported)
+
+| Method | Endpoint                           | Description                 |
+| ------ | ---------------------------------- | --------------------------- |
+| `POST` | `/solve-and-video-prompt/by-child` | Solve + LLM video plan only |
+| `POST` | `/render-video`                    | Render MP4 from JSON plan   |
 
 ### Utility
 
@@ -182,15 +207,14 @@ cd frontend && npm run dev
 
 ## Remaining Work
 
-| Priority | Item                                                            |
-| -------- | --------------------------------------------------------------- |
-| High     | Class 4 & 5 curriculum profiles + solver expansion              |
-| Medium   | Word-problem parser: multi-step problems                        |
-| Medium   | Additional video templates (place value, measurement, ordinals) |
-| Medium   | Cambridge / Edexcel curriculum profiles                         |
-| Lower    | Persist child profiles to DB (models ready, wiring needed)      |
-| Lower    | LLM fallback solver (`math_engine/llm_fallback.py`)             |
-| Lower    | CI eval gating per class                                        |
+| Priority | Item                                                       |
+| -------- | ---------------------------------------------------------- |
+| High     | Class 4 & 5 curriculum profiles + solver expansion         |
+| Medium   | Word-problem parser: multi-step problems                   |
+| Medium   | Cambridge / Edexcel curriculum profiles                    |
+| Lower    | Persist child profiles to DB (models ready, wiring needed) |
+| Lower    | LLM fallback solver (`math_engine/llm_fallback.py`)        |
+| Lower    | CI eval gating per class                                   |
 
 ---
 

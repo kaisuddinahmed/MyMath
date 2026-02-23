@@ -78,5 +78,21 @@
     "template": "arrays",
     "score": 60,
     "timestamp": "2026-02-19T10:14:52.214432+00:00"
+  },
+  {
+    "child_id": "0ec86744-cf87-4808-ab07-d396a569b3b0",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "multiplication",
+    "template": "group_boxes",
+    "score": 60,
+    "timestamp": "2026-02-23T06:00:21.514898+00:00"
+  },
+  {
+    "child_id": "61bfbce4-a9d3-42ea-9076-6a7477961023",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 85,
+    "timestamp": "2026-02-23T06:29:40.276231+00:00"
   }
 ]

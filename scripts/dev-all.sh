@@ -85,8 +85,8 @@ if [[ -d "remotion" ]]; then
     echo "[dev:all] Remotion dependencies missing. Installing..."
     npm --prefix remotion install
   fi
-  echo "[dev:all] Starting Remotion render server on port 1234..."
-  node remotion/render-api.js &
+  echo "[dev:all] Starting Remotion render server on port 1235..."
+  REMOTION_PORT=1235 node remotion/render-api.js &
   REMOTION_PID=$!
   echo "[dev:all] Remotion render server started (pid ${REMOTION_PID})."
 fi

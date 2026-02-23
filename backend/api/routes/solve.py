@@ -4,6 +4,7 @@ Core solve endpoints — delegates all math to math_engine.engine.
 """
 import json
 import logging
+import os
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -31,7 +32,7 @@ from backend.video_engine.tts import synthesize as tts_synthesize
 
 logger = logging.getLogger(__name__)
 
-ROUTER_REMOTION_URL = "http://localhost:1234"
+ROUTER_REMOTION_URL = f"http://localhost:{os.environ.get('REMOTION_PORT', '1235')}"
 
 router = APIRouter()
 

@@ -14,7 +14,7 @@ __pycache__/
 .mypy_cache/
 
 # Frontend build / deps
-frontend/node_modules/
+node_modules/
 frontend/.next/
 frontend/out/
 frontend/tsconfig.tsbuildinfo
