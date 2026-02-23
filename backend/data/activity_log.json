@@ -62,5 +62,13 @@
     "template": "arrays",
     "score": 95,
     "timestamp": "2026-02-17T14:25:12.373561+00:00"
+  },
+  {
+    "child_id": "35888d08-e4de-4b97-a82c-5ed20f0b1498",
+    "question": "__ + 44 = 64",
+    "topic": "unknown",
+    "template": "generic",
+    "score": 0,
+    "timestamp": "2026-02-19T04:16:31.020724+00:00"
   }
 ]
