@@ -70,5 +70,13 @@
     "template": "generic",
     "score": 0,
     "timestamp": "2026-02-19T04:16:31.020724+00:00"
+  },
+  {
+    "child_id": "f5f881db-7078-42c7-8e4c-db83180d511c",
+    "question": "There ore 45 students in a class. The teacher makes 5 teams with equal rwmber of students? How many students are there in each team?",
+    "topic": "multiplication",
+    "template": "arrays",
+    "score": 60,
+    "timestamp": "2026-02-19T10:14:52.214432+00:00"
   }
 ]

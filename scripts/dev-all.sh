@@ -2,6 +2,7 @@
 set -euo pipefail
 
 BACK_PID=""
+REMOTION_PID=""
 
 port_pids() {
   lsof -tiTCP:1233 -sTCP:LISTEN 2>/dev/null || true
@@ -63,6 +64,9 @@ if [[ "${BACKEND_READY}" -ne 1 ]]; then
 fi
 
 cleanup() {
+  if [[ -n "${REMOTION_PID}" ]] && kill -0 "${REMOTION_PID}" >/dev/null 2>&1; then
+    kill "${REMOTION_PID}" >/dev/null 2>&1 || true
+  fi
   if [[ -n "${BACK_PID}" ]] && kill -0 "${BACK_PID}" >/dev/null 2>&1; then
     kill "${BACK_PID}" >/dev/null 2>&1 || true
   fi
@@ -73,6 +77,18 @@ trap cleanup EXIT INT TERM
 if [[ ! -x "frontend/node_modules/.bin/next" ]]; then
   echo "[dev:all] Frontend dependencies missing. Installing..."
   npm --prefix frontend install
+fi
+
+# Start Remotion render server
+if [[ -d "remotion" ]]; then
+  if [[ ! -d "remotion/node_modules" ]]; then
+    echo "[dev:all] Remotion dependencies missing. Installing..."
+    npm --prefix remotion install
+  fi
+  echo "[dev:all] Starting Remotion render server on port 1234..."
+  node remotion/render-api.js &
+  REMOTION_PID=$!
+  echo "[dev:all] Remotion render server started (pid ${REMOTION_PID})."
 fi
 
 npm --prefix frontend run dev

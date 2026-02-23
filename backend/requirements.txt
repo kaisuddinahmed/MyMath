@@ -4,6 +4,7 @@ pydantic
 groq
 python-dotenv
 requests
+httpx
 jsonschema
 moviepy
 pillow

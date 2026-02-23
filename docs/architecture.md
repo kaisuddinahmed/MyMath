@@ -1,77 +1,203 @@
-# MyMath Architecture
+# MyMath — Architecture
 
 ## Goal
-Generate curriculum-aware, age-appropriate **visual math explanations** (MP4) for primary learners while guaranteeing **math correctness** via deterministic solvers.
+
+Generate curriculum-aware, age-appropriate **visual math explanations (MP4)** for primary learners (Grades 1–5), while guaranteeing **math correctness** via deterministic solvers.
 
 ---
 
-## System Overview
+## Runtime Flow (Question → Video)
 
-### Runtime (User Question → Video)
-1. **Input**: question + child_id (profile includes class_level + optional preferred curriculum)
-2. **Topic detection**: regex + keyword map
-3. **Curriculum retrieval (RAG)**:
-   - embed question
-   - retrieve top K chunks filtered by curriculum_id and class_level (strict/relaxed)
-4. **Deterministic solve**:
-   - compute verified answer + steps
-5. **LLM video plan generation**:
-   - LLM produces **strict JSON** conforming to schema
-   - inject: verified answer, chosen visual template, grade style, curriculum hints
-6. **Validation & scoring**:
-   - JSON schema validation
-   - topic-specific constraints
-   - prompt score (0–100), regen once if invalid
-7. **Renderer**:
-   - template engine converts plan → frames
-   - TTS generates narration
-   - movie composer merges into MP4
-8. **Logging**:
-   - audit log: question, retrieved_chunk_ids, score, schema_valid, video_path
-
----
-
-## Key Design Choices
-
-### Deterministic correctness
-- LLM is used for *pedagogy and sequencing*, not for the final numeric answer.
-- Solver layer is extended topic-by-topic (place value, measurement, currency, etc.).
-
-### Strict video prompt contract
-- LLM output must be JSON-only.
-- Schema validation + targeted checks prevent unusable plans.
-
-### Deterministic rendering
-- Avoids AI text-to-video inconsistency (object counts, layouts).
-- Templates map 1:1 to primary math visuals.
-
-### Curriculum-aware, not curriculum-locked
-- Child can ask anything.
-- Curriculum influences vocabulary, pacing, and examples.
-- Strict class level is optional.
+```
+Child question
+      │
+      ▼
+[API Layer]  backend/api/routes/solve.py
+      │  Receives request, calls math engine
+      │
+      ▼
+[Math Engine]  backend/math_engine/engine.solve()
+      │  Cascading solver pipeline (see below)
+      │
+      ▼
+[Knowledge Layer]  backend/knowledge/retrieval.py  (opt-in)
+      │  curriculum_hints from Vector DB
+      │
+      ▼
+[LLM — Groq]  backend/core/llm.py
+      │  Strict JSON video plan (up to 2 attempts)
+      │
+      ▼
+[Prompt Validator]  backend/core/prompt_validator.py
+      │  Schema + hard topic checks + score (0–100)
+      │
+      ▼
+[Video Engine]  backend/video_engine/renderer.py
+      │  JSON plan → frames → TTS → MP4
+      │
+      ▼
+      MP4 served via /videos static mount
+```
 
 ---
 
-## Data Model (Core)
-- **Curriculum**: board/country/language
-- **Book**: curriculum_id + class_level + metadata
-- **Chunk**: book_id + pages + text + tags (topic/subtopic/difficulty/keywords)
-- **Embedding**: chunk_id + vector + metadata (stored in vector DB)
-- **ChildProfile**: class_level + preferred_curriculum_id + strict_class_level
-- **AuditLog**: request trace + quality metrics
+## The 5 Layers
+
+### Layer 1 — `backend/core/` — Shared Infrastructure
+
+| File                  | Purpose                                      |
+| --------------------- | -------------------------------------------- |
+| `llm.py`              | Groq client                                  |
+| `config.py`           | Loads topic_map, grade_style, topic_keywords |
+| `prompt_validator.py` | Schema validation + hard checks + scoring    |
+| `coverage.py`         | `coverage_report()` — 20/21 topics ready     |
+
+**Rule:** No business logic.
 
 ---
 
-## Curriculum Ingestion Pipeline (Offline)
-PDF → raw pages → chunks → DB upsert → tagging → embeddings
-Outputs:
-- per-book load summary (pages/chunks/embedded)
-- searchable retrieval index per curriculum
+### Layer 2 — `backend/math_engine/` — Math Logic ← only layer touched for class upgrades
+
+```
+math_engine/
+  engine.py               # solve(question, grade) → SolveResult
+  topic_detector.py       # scored classifier
+  grade_style.py          # grade → vocab/pace/objects
+  word_problem_parser.py  # sentence → numbers + operation
+  topics/
+    arithmetic.py         # add, subtract, multiply, divide ✅
+    fractions.py          # N/D of whole, add/sub fractions ✅
+    place_value.py        # digit value, expanded form ✅
+    comparison.py         # >, <, between, which is bigger ✅
+    counting.py           # skip-count, ordinals ✅
+    patterns.py           # arithmetic + geometric sequences ✅
+    measurement.py        # length/weight/volume/time conversion ✅
+    currency.py           # add/subtract money, change ✅
+    geometry.py           # shape facts, perimeter, area ✅
+    averages.py           # mean ✅
+    factors_multiples.py  # factors, LCM, GCD, is-prime ✅
+    decimals.py           # add, subtract, round ✅
+    percentages.py        # % of N, what %, discount ✅
+    ratio.py              # simplify, divide in ratio, unitary ✅
+    data.py               # mode, range ✅
+  class_profiles/
+    class_1.json  ✅  class_2.json  ✅  class_3.json  ✅
+    class_4.json  🔲  class_5.json  🔲
+```
+
+**Solver cascade (engine.py):**
+
+```
+Arithmetic regex (highest confidence)
+  → fractions, factors, percentages, decimals, ratio, averages
+  → measurement, geometry, data, currency, patterns, place_value
+  → comparison, counting  (broadest patterns — run last)
+  → word_problem_parser   (sentence fallback)
+  → AI-assisted           (returns topic + signals LLM)
+```
+
+**Public interface (never breaks other layers):**
+
+```python
+def solve(question: str, grade: int, curriculum_hints: list[str] = []) -> SolveResult
+```
 
 ---
 
-## Extensibility Roadmap (Technical)
-- Add topic engines: place value, measurement (time/length/weight), currency, data, patterns, geometry, decimals, percentages, averages, factors.
-- Add word-problem parser and unit normalization (taka, cm, kg, time).
-- Add UI (Next.js/React) with parent dashboard + child mode.
-- Add evaluation sets per curriculum/class and CI gating (accuracy + schema valid rate + score thresholds).
+### Layer 3 — `backend/knowledge/` — Curriculum & Data
+
+**Adding a book only touches this layer.**
+
+```
+knowledge/
+  activity.py    # bounded activity log (300 records, file-based)
+  retrieval.py   # retrieve_hints(question, curriculum_id, class_level)
+  db.py / models.py  # ORM — ChildProfile, Book, Chunk, Embedding, AuditLog
+  ingestion/     # offline CLIs only
+    ingest_book.py → chunk_book.py → load_chunks.py → tag_chunks.py → embed_chunks.py
+```
+
+---
+
+### Layer 4 — `backend/video_engine/` — Video Renderer (unchanged)
+
+```
+video_engine/
+  renderer.py         # render_video(plan_json, output) → MP4
+  templates/          # counters.py, groups.py, fraction.py
+  output/             # served as /videos
+```
+
+---
+
+### Layer 5 — `backend/api/` — HTTP Interface
+
+```
+api/
+  app.py        # FastAPI factory — middleware + router wiring
+  schemas.py    # all Pydantic models
+  routes/
+    children.py   GET/POST/PATCH /children
+    solve.py      /solve, /solve-and-video-prompt, /by-child, /try-similar/by-child
+    video.py      /render-video
+    extract.py    /extract-problem  (Upload → Pre-process → OCR → LLM Repair → Pick Question)
+    analytics.py  /activity, /coverage, /analytics/*
+```
+
+---
+
+## Data Model
+
+| Model                                      | Status                       |
+| ------------------------------------------ | ---------------------------- |
+| `ChildProfile`                             | ✅ in-memory; DB model ready |
+| `Curriculum`, `Book`, `Chunk`, `Embedding` | ✅ DB models built           |
+| `AuditLog`                                 | ✅ DB model built            |
+
+---
+
+## NCTB Curriculum Profiles
+
+| Class   | Status     | Regression |
+| ------- | ---------- | ---------- |
+| Class 1 | ✅         | 31/31      |
+| Class 2 | ✅         | 36/36      |
+| Class 3 | ✅         | 32/32      |
+| Class 4 | 🔲 planned | —          |
+| Class 5 | 🔲 planned | —          |
+
+---
+
+## Extensibility Patterns
+
+### Add a topic solver
+
+1. Create `math_engine/topics/<topic>.py`
+2. Wire into `engine.py` solver list (high-specificity first)
+3. Add keywords to `topic_keywords.json`
+4. Update `core/coverage.py` IMPLEMENTED_SOLVERS
+5. Add regression cases → run eval
+
+### Upgrade a class
+
+1. Edit `math_engine/class_profiles/class_N.json`
+2. Extend topic solvers as needed
+3. Add regression cases → 100% required
+
+### Add a curriculum book
+
+1. Run ingestion CLIs — zero code changes
+
+---
+
+## What Remains
+
+| Priority | Item                                                               |
+| -------- | ------------------------------------------------------------------ |
+| High     | Class 4 & 5 rule packs + solver expansion                          |
+| High     | Multi-step word-problem parser                                     |
+| Medium   | Additional video templates (place value, measurement, ordinals)    |
+| Medium   | Cambridge / Edexcel curriculum profiles                            |
+| Lower    | Wire child profiles to DB                                          |
+| Lower    | `math_engine/llm_fallback.py` — structured LLM solver for unknowns |
+| Lower    | CI eval gating per class                                           |

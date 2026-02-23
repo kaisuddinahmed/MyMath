@@ -143,20 +143,24 @@ export default function ChildPage() {
     }
 
     setError("");
-    setLoadingLabel("Thinking...");
+    setLoadingLabel("Thinking & making your video...");
 
     try {
-      const solve = await api.solveAndVideoPromptByChild({
+      const solve = await api.solveAndRenderByChild({
         child_id: selectedChildId,
         question: cleaned
       });
 
-      if (!solve.video_prompt_json) {
-        throw new Error("I could not build a video plan for that question. Try a simpler one.");
-      }
-
-      setLoadingLabel("Making your video...");
-      const render = await api.renderVideo(solve.video_prompt_json, `child-${selectedChildId}-${Date.now()}.mp4`);
+      // V2: video_url comes directly from the unified endpoint
+      const render = solve.video_url
+        ? {
+            output_path: "",
+            output_url: solve.video_url,
+            duration_seconds: 0,
+            used_template: solve.video_generated_by || "remotion",
+            audio_generated: true,
+          }
+        : null;
 
       setLastResult({
         childId: selectedChildId,

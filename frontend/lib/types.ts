@@ -39,6 +39,10 @@ export type SolveAndPromptResponse = {
   final_score: number;
   video_prompt_json: Record<string, unknown> | null;
   schema_valid: boolean;
+  // V2 video delivery fields
+  video_url?: string | null;
+  video_cached?: boolean;
+  video_generated_by?: string;
 };
 
 export type RenderVideoResponse = {

@@ -26,10 +26,27 @@
       "minItems": 3,
       "items": {
         "type": "object",
-        "required": ["duration", "visual", "narration"],
+        "required": ["duration", "action", "animation_style", "narration"],
         "properties": {
-          "duration": { "type": "integer" },
-          "visual": { "type": "string" },
+          "duration": { "type": "integer", "minimum": 1 },
+          "action": {
+            "type": "string",
+            "enum": ["ADD_ITEMS", "REMOVE_ITEMS", "GROUP_ITEMS", "SPLIT_ITEM", "SHOW_EQUATION", "HIGHLIGHT"]
+          },
+          "item_type": {
+            "type": "string",
+            "enum": ["APPLE_SVG", "BLOCK_SVG", "STAR_SVG", "COUNTER", "PIE_CHART", "BAR_CHART"]
+          },
+          "count": { "type": "integer", "minimum": 1 },
+          "groups": { "type": "integer", "minimum": 1 },
+          "per_group": { "type": "integer", "minimum": 1 },
+          "numerator": { "type": "integer", "minimum": 0 },
+          "denominator": { "type": "integer", "minimum": 1 },
+          "equation": { "type": "string" },
+          "animation_style": {
+            "type": "string",
+            "enum": ["BOUNCE_IN", "FADE_IN", "SLIDE_LEFT", "POP", "NONE"]
+          },
           "narration": { "type": "string" }
         }
       }

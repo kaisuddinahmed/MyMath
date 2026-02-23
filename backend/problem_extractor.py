@@ -55,32 +55,117 @@ def _score_question_line(line: str) -> int:
     return score
 
 
+def _build_paragraph_segments(text: str) -> List[str]:
+    """Join consecutive non-blank lines into paragraph chunks (separated by blank lines)."""
+    segments: List[str] = []
+    current: List[str] = []
+    for raw in re.split(r"\r?\n", text or ""):
+        line = _clean_text(raw)
+        if line:
+            current.append(line)
+        else:
+            if current:
+                segments.append(" ".join(current))
+                current = []
+    if current:
+        segments.append(" ".join(current))
+    return [s for s in segments if s]
+
+
+# Short words used to split OCR-merged lowercase runs (e.g. 'eweresittingon' -> 'e were sitting on')
+# MUST be sorted by length (longest first) to prevent substring matches (e.g. 'standing' match before 'and')
+_SPLIT_WORDS_LIST = (
+    "were", "sitting", "standing", "people", "tables", "chairs", "each", "many",
+    "there", "have", "that", "with", "from", "they", "this", "into", "than",
+    "them", "some", "what", "also", "when", "which", "will", "your", "more",
+    "then", "been", "does", "make", "like", "time", "just", "know", "take",
+    "long", "even", "place", "give", "most", "very", "after", "thing", "only",
+    "come", "think", "find", "here", "much", "before", "right", "look", "going",
+    "well", "because", "same", "tell", "boys", "girls", "ball", "book", "left",
+    "total", "price", "cost", "money", "taka", "rupee", "pound", "dollar",
+    "table", "hall", "big", "room", "school", "class", "group", "shop",
+    "how", "who", "why", "the", "and", "are", "was", "its", "his", "her",
+    "has", "had", "but", "for", "you", "all", "can", "not", "one", "two",
+    "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "on", "in", "it", "is", "if", "or", "of", "to", "at", "by", "up",
+)
+# Case-insensitive regex that matches any of the words, biased towards longer matches first
+_SPLIT_WORDS_RE = re.compile(
+    r"(" + "|".join(sorted(_SPLIT_WORDS_LIST, key=len, reverse=True)) + r")",
+    re.IGNORECASE,
+)
+
+
+def _split_merged_word(token: str) -> str:
+    """If a token looks like merged words (>10 chars, no spaces), try to split it safely."""
+    if len(token) <= 10 or " " in token or not token.islower():
+        return token
+    # Use the regex to inject spaces around recognized words
+    # e.g. "eweresittingon" -> "e were sitting on"
+    # "werestanding" -> "were standing" (standing matches first so 'and' inside doesn't fire)
+    split = _SPLIT_WORDS_RE.sub(r" \1 ", token)
+    # Clean up double spaces
+    return re.sub(r"\s+", " ", split).strip()
+
+
+def _strip_serial_prefix(line: str) -> str:
+    """Remove leading serial numbers like '1)', '2.', 'Q1:', or OCR-mangled lone digits."""
+    # Standard prefix: 1) / 2. / Q3: / Q
+    cleaned = re.sub(r"^\s*(?:[Qq]?\d{1,3}\s*[\).\-:\]]\s*|[Qq]\s*)", "", line).strip()
+    # OCR artifact: lone 1-2 digit token before the real content (e.g. "3 300 people")
+    # Safe to strip ONLY when it's followed by a larger number (the actual question number)
+    cleaned = re.sub(r"^(\d{1,2})\s+(?=\d{2,})", "", cleaned).strip()
+    return cleaned
+
+
 def _pick_question(text: str) -> str:
-    lines = _split_candidate_lines(text)
-    if not lines:
+    raw_lines = _split_candidate_lines(text)
+    if not raw_lines:
         return ""
 
-    scored = sorted(((line, _score_question_line(line)) for line in lines), key=lambda x: x[1], reverse=True)
+    # Build candidates: individual lines + paragraph segments
+    # Paragraph segments get priority because they contain full context
+    para_segments = _build_paragraph_segments(text)
+    all_candidates: List[str] = []
+    for seg in para_segments:
+        all_candidates.append(seg)           # full paragraph
+    for line in raw_lines:
+        if line not in all_candidates:       # individual lines (deduped)
+            all_candidates.append(line)
+
+    # Score every candidate; paragraph segments that have both context AND a '?'
+    # will naturally outscore individual fragments
+    scored = sorted(
+        ((c, _score_question_line(c)) for c in all_candidates),
+        key=lambda x: x[1],
+        reverse=True,
+    )
     best_line, best_score = scored[0]
 
     if best_score >= 4:
-        return best_line
+        # Strip serial prefix (e.g. "1) 300 people...") before returning
+        cleaned = _strip_serial_prefix(best_line)
+        return cleaned if cleaned else best_line
 
+    # Fallback: first sentence-sized chunk of flat text
     flat = _clean_text(text)
     if not flat:
         return ""
-
-    # Fallback to first sentence-sized chunk.
     clipped = flat[:220]
     if len(flat) > 220 and " " in clipped:
         clipped = clipped.rsplit(" ", 1)[0]
-    return clipped
+    return _strip_serial_prefix(clipped)
+
 
 
 def _cleanup_question_text(text: str) -> str:
     s = _clean_text(text)
     s = re.sub(r"([A-Za-z])(\d)", r"\1 \2", s)
     s = re.sub(r"(\d)([A-Za-z])", r"\1 \2", s)
+
+    # Restore ordinal suffixes that got split: "5 th" -> "5th", "3 rd" -> "3rd"
+    s = re.sub(r"(\d)\s+(st|nd|rd|th)\b", r"\1\2", s, flags=re.IGNORECASE)
+
     s = re.sub(
         r"\b(The)(product|sum|difference|quotient|perimeter|area|mean|average|multiple|factor)\b",
         r"\1 \2",
@@ -89,28 +174,47 @@ def _cleanup_question_text(text: str) -> str:
     )
     s = re.sub(r"\s*,\s*", ",", s)
     s = re.sub(r",(?=\D)", ", ", s)
-    s = re.sub(r"\s*([=+\-x/])\s*", r" \1 ", s)
+
+    # Protect known words that contain operator characters before spacing them:
+    # 'x' appears in: expanded, maximum, next, exact, example, hex, etc.
+    # Save these by replacing with a placeholder, apply operator spacing, then restore.
+    WORD_X_RE = re.compile(
+        r"\b(e x panded|ma x imum|ne x t|e x act|e x ample|he x|conte x t|comple x)\b",
+        re.IGNORECASE,
+    )
+    # Pre-clean: normalize operator spacing only for standalone operators (not inside words)
+    s = re.sub(r"(?<=[\d\s])=(?=[\d\s?_])", " = ", s)  # = between numbers
+    s = re.sub(r"(?<=[\d])([+\-])(?=[\d])", r" \1 ", s)  # +/- between digits
+    s = re.sub(r"(?<=[\d])([*])(?=[\d])", r" \1 ", s)   # * between digits
+    # 'x' only as multiplication: digit x digit or standalone ' x '
+    s = re.sub(r"(?<=[\d])\s*[xX]\s*(?=[\d])", " x ", s)  # 4x9 -> 4 x 9
+    s = re.sub(r"(?<=[\d])\s*/\s*(?=[\d])", " / ", s)   # 48/6 -> 48 / 6
+
     s = re.sub(r"\s+", " ", s).strip()
     s = re.sub(r"\s+([?.!])", r"\1", s)
     s = re.sub(r"[_]{2,}", "__", s)
     return s
 
 
+
 def _normalize_spacing_math(text: str) -> str:
     t = _clean_text(text)
     t = (
         t.replace("×", "x")
-        .replace("X", "x")
         .replace("÷", "/")
         .replace("−", "-")
         .replace("–", "-")
         .replace("—", "-")
     )
+    # Capital X as multiplication only between digits (4X9 -> 4 x 9)
+    t = re.sub(r"(?<=\d)\s*X\s*(?=\d)", " x ", t)
+    # Lowercase x as multiplication only between digits (not inside words like expanded)
+    t = re.sub(r"(?<=\d)\s*x\s*(?=\d)", " x ", t)
+    # Slash as division only between digits
+    t = re.sub(r"(?<=\d)\s*/\s*(?=\d)", " / ", t)
     t = re.sub(r"\s*=\s*", " = ", t)
-    t = re.sub(r"\s*x\s*", " x ", t)
-    t = re.sub(r"\s*/\s*", " / ", t)
     t = re.sub(r"\s*\+\s*", " + ", t)
-    t = re.sub(r"\s*-\s*", " - ", t)
+    t = re.sub(r"(?<!-)\s*-\s*(?!-)", " - ", t)
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
@@ -268,9 +372,35 @@ def _resize_image(image: Image.Image) -> Image.Image:
     return image.resize((max(1, int(w * scale)), max(1, int(h * scale))))
 
 
+MIN_OCR_SIDE = 800   # minimum side length for good OCR accuracy
+
+
 def _prepare_for_ocr(image: Image.Image) -> Image.Image:
-    gray = ImageOps.grayscale(_resize_image(image))
-    return ImageOps.autocontrast(gray)
+    """Resize, sharpen and binarise an image for best OCR accuracy."""
+    from PIL import ImageFilter, ImageEnhance
+
+    # 1. Convert to RGB then grayscale
+    img = _resize_image(image).convert("L")
+
+    # 2. Upscale small images — OCR accuracy degrades sharply on small text
+    w, h = img.size
+    shortest = min(w, h)
+    if shortest < MIN_OCR_SIDE:
+        scale = MIN_OCR_SIDE / shortest
+        img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+
+    # 3. Sharpen to make character edges crisp
+    img = img.filter(ImageFilter.SHARPEN)
+    img = img.filter(ImageFilter.SHARPEN)   # twice for faint text
+
+    # 4. Boost contrast before thresholding
+    img = ImageOps.autocontrast(img, cutoff=2)
+
+    # 5. Simple global binarisation via point threshold
+    #    (Pillow doesn't have Otsu, but autocontrast + threshold is close)
+    img = img.point(lambda p: 255 if p > 140 else 0)
+
+    return img.convert("RGB")
 
 
 _RAPID_OCR: Any = None
@@ -314,10 +444,45 @@ def _ocr_with_tesseract(image: Image.Image) -> Tuple[str, Optional[str]]:
         return "", None
 
     try:
-        text = pytesseract.image_to_string(image, config="--oem 3 --psm 6")
+        text = pytesseract.image_to_string(
+            image,
+            config="--oem 3 --psm 4",  # PSM 4: single column of variable-size text
+        )
         return text or "", "tesseract"
     except Exception:
         return "", "tesseract"
+
+
+def _repair_ocr_text(raw: str) -> str:
+    """
+    Post-OCR text cleanup for common artifacts:
+    - Missing space after sentence-ending punctuation (e.g. 'hall.How')
+    - Missing space before capital after lowercase ('tableHow' -> 'table How')
+    - Lowercase word merging via greedy dictionary split ('eweresittingon' -> 'e were sitting on')
+    """
+    if not raw:
+        return raw
+
+    lines = raw.split("\n")
+    cleaned: List[str] = []
+    for line in lines:
+        s = line.strip()
+        if not s:
+            cleaned.append("")
+            continue
+        # Insert space after '.', '!', '?' when immediately followed by a letter
+        s = re.sub(r"([.!?])([A-Za-z])", r"\1 \2", s)
+        # Insert space before a capital letter that follows a lowercase letter
+        s = re.sub(r"([a-z])([A-Z])", r"\1 \2", s)
+        # Try to split long all-lowercase merged tokens
+        tokens = s.split(" ")
+        tokens = [_split_merged_word(t) for t in tokens]
+        s = " ".join(tokens)
+        # Collapse accidental double-spaces
+        s = re.sub(r" {2,}", " ", s).strip()
+        cleaned.append(s)
+
+    return "\n".join(cleaned)
 
 
 def _ocr_image(image: Image.Image) -> Tuple[str, str]:
@@ -326,7 +491,7 @@ def _ocr_image(image: Image.Image) -> Tuple[str, str]:
     for fn in (_ocr_with_rapidocr, _ocr_with_tesseract):
         text, engine = fn(prepared)
         if _clean_text(text):
-            return text, engine or "unknown"
+            return _repair_ocr_text(text), engine or "unknown"
 
     return "", "none"
 
@@ -520,6 +685,55 @@ def _estimate_confidence(extracted_text: str, question: str, geometry: Dict[str,
     return max(0.05, min(0.99, round(score, 3)))
 
 
+def llm_fix_ocr_question(raw_ocr: str) -> str:
+    """
+    Use the LLM to reconstruct the clean math question from noisy OCR text.
+    Called for every image upload — catches subtle typos, wrong word order,
+    spurious punctuation and mistaken capitalisation that heuristics miss.
+    Returns the corrected question string, or raw_ocr unchanged if LLM fails.
+    """
+    if not raw_ocr or not raw_ocr.strip():
+        return raw_ocr
+
+    try:
+        from backend.core.llm import get_client, get_model
+        client = get_client()
+        model = get_model()
+    except Exception:
+        return raw_ocr  # No LLM available — degrade gracefully
+
+    prompt = (
+        "You are helping fix OCR errors in text extracted from a primary school math worksheet.\n"
+        "The OCR may have:\n"
+        "  - Misspelled words (e.g. 'ore' → 'are', 'rwmber' → 'number', 'toble' → 'table')\n"
+        "  - Scrambled word order within a line\n"
+        "  - Spurious punctuation ('How many : were' → 'How many people were')\n"
+        "  - Wrong capitalisation mid-sentence ('Or' → 'on')\n"
+        "  - Numbers misread as letters or vice versa\n\n"
+        "Using context clues (it is a math question for children), reconstruct the correct, "
+        "natural-sounding question. Preserve all numbers exactly. "
+        "Return ONLY the corrected question text — no explanation, no prefix.\n\n"
+        f"OCR TEXT:\n{raw_ocr.strip()}"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=300,
+        )
+        fixed = response.choices[0].message.content.strip()
+        # Sanity check: must still contain at least one digit (it's a math question)
+        if fixed and re.search(r"\d", fixed):
+            return fixed
+    except Exception:
+        pass
+
+    return raw_ocr
+
+
+
 def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
     try:
         image = Image.open(BytesIO(file_bytes))
@@ -527,6 +741,8 @@ def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[st
         raise ValueError("Could not open image file.") from exc
 
     raw_text, ocr_engine = _ocr_image(image)
+    # LLM-based OCR correction: fix typos like 'ore'→'are', 'rwmber'→'number'
+    raw_text = llm_fix_ocr_question(raw_text)
     extracted_text = _clean_text(raw_text)
 
     geometry = _analyze_geometry(image, raw_text)

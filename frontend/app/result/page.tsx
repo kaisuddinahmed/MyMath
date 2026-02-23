@@ -118,6 +118,10 @@ export default function ResultPage() {
   const steps = useMemo(() => (result?.solve.verified_steps || []).slice(0, 3), [result]);
   const practice = useMemo(() => getPractice(result), [result]);
   const videoUrl = useMemo(() => {
+    // V2: prefer video_url from solve response
+    if (result?.solve.video_url) {
+      return toAbsoluteVideoUrl(result.solve.video_url);
+    }
     if (!result?.render?.output_url) return "";
     return toAbsoluteVideoUrl(result.render.output_url);
   }, [result]);
@@ -127,24 +131,28 @@ export default function ResultPage() {
 
     setError("");
     setRevealPractice(false);
-    setLoadingLabel("Thinking...");
+    setLoadingLabel("Thinking & making your video...");
 
     try {
       const backendSimilar = await api.trySimilarFromBackend(selectedChildId, result.question);
       const localSimilar = buildLocalSimilarQuestion(result.question, selectedChild?.class_level || 3);
       const nextQuestion = normalizeQuestion(backendSimilar || localSimilar);
 
-      const solve = await api.solveAndVideoPromptByChild({
+      // V2: unified endpoint — solve + render in one call
+      const solve = await api.solveAndRenderByChild({
         child_id: selectedChildId,
         question: nextQuestion
       });
 
-      if (!solve.video_prompt_json) {
-        throw new Error("Could not create a video plan for a similar question.");
-      }
-
-      setLoadingLabel("Making your video...");
-      const render = await api.renderVideo(solve.video_prompt_json, `similar-${selectedChildId}-${Date.now()}.mp4`);
+      const render = solve.video_url
+        ? {
+            output_path: "",
+            output_url: solve.video_url,
+            duration_seconds: 0,
+            used_template: solve.video_generated_by || "remotion",
+            audio_generated: true,
+          }
+        : null;
 
       const updated: StoredResult = {
         childId: selectedChildId,

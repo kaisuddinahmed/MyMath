@@ -8,7 +8,7 @@ import {
 import { extractProblemInBrowser, normalizeExtractedQuestion } from "@/utils/browser-ocr";
 
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:1233";
-const DEFAULT_API_TIMEOUT_MS = 12000;
+const DEFAULT_API_TIMEOUT_MS = 120000; // V2: increased for video rendering
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
 const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || DEFAULT_API_TIMEOUT_MS);
@@ -127,6 +127,14 @@ export const api = {
 
   solveAndVideoPromptByChild(payload: SolveByChildPayload) {
     return request<SolveAndPromptResponse>("/solve-and-video-prompt/by-child", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /** V2: Unified solve + render in one call */
+  solveAndRenderByChild(payload: SolveByChildPayload) {
+    return request<SolveAndPromptResponse>("/solve-and-render/by-child", {
       method: "POST",
       body: JSON.stringify(payload)
     });

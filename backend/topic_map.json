@@ -105,6 +105,25 @@
     "templates": ["skip_count_multiples", "factor_pairs"],
     "prerequisites": ["multiplication", "division"],
     "intro_hint": "Multiples are skip-counting results. Factors make a number.",
-    "min_grade": 5
+    "min_grade": 4
+  },
+  "ratio": {
+    "templates": ["ratio_blocks", "sharing_groups"],
+    "prerequisites": ["division", "multiplication"],
+    "intro_hint": "Ratio compares two quantities.",
+    "min_grade": 4
+  },
+  "ordinals": {
+    "templates": ["count_objects"],
+    "prerequisites": ["counting"],
+    "intro_hint": "Ordinals show position: 1st, 2nd, 3rd...",
+    "min_grade": 1
+  },
+  "word_problem": {
+    "templates": ["counters_add", "group_boxes"],
+    "prerequisites": ["addition", "subtraction"],
+    "intro_hint": "Word problems tell a story with numbers.",
+    "min_grade": 2
   }
 }
+
