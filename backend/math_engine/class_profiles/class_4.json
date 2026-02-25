@@ -1,0 +1,59 @@
+{
+  "class_level": 4,
+  "curriculum": "NCTB",
+  "constraints": {
+    "max_number": 9999999,
+    "negative_allowed": false,
+    "decimal_max_places": 2,
+    "fraction_mixing": false,
+    "fraction_unequal_denom": false
+  },
+  "topics": {
+    "number_system": {
+      "range": "up to 9,99,99,999 (Bangladeshi comma style)",
+      "operations": ["read", "write", "expanded_form", "place_value_chart"],
+      "notes": "Introduce crore and lakh explicitly"
+    },
+    "math_sentences": {
+      "bodmas_level": "lite",
+      "bracket_types": ["()"],
+      "notes": "Only round brackets. No nested brackets. Simple operator precedence."
+    },
+    "fractions": {
+      "types": ["proper", "same_denominator"],
+      "operations": ["add", "subtract"],
+      "denominator_rule": "must_match",
+      "notes": "Only same-denominator addition/subtraction. No mixed numbers."
+    },
+    "decimals": {
+      "max_places": 2,
+      "operations": ["add", "subtract", "place_value"],
+      "notes": "Tenths and hundredths only. Stress column alignment."
+    },
+    "geometry": {
+      "concepts": ["angle_types", "triangles_by_angle", "triangles_by_side"],
+      "angle_types": ["acute", "right", "obtuse", "straight", "reflex"],
+      "notes": "Classification only. No measurement with protractor."
+    },
+    "factors_multiples": {
+      "concepts": ["LCM", "HCF", "factor_pairs"],
+      "notes": "LCM and HCF introduced. Factor trees optional."
+    },
+    "measurement": {
+      "units": ["cm", "m", "km", "g", "kg", "mL", "L"],
+      "operations": ["conversion", "word_problems"],
+      "notes": "Two-step word problems involving unit conversion."
+    },
+    "data": {
+      "chart_types": ["bar_chart", "pictograph"],
+      "operations": ["read", "interpret", "draw"],
+      "notes": "Draw from given data. One-step interpretation."
+    }
+  },
+  "narration_style": {
+    "tone": "explain-like-I-am-10",
+    "vocab": "simple",
+    "sentence_length": "short-medium",
+    "pace": "medium"
+  }
+}

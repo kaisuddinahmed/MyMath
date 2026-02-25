@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api.routes import children, solve, video, extract, analytics
+from backend.api.routes import children, solve, video, extract, analytics, curricula
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 VIDEO_OUTPUT_DIR = BASE_DIR / "video_engine" / "output"
@@ -38,6 +38,7 @@ def create_app() -> FastAPI:
     app.include_router(video.router, tags=["Video"])
     app.include_router(extract.router, tags=["Extract"])
     app.include_router(analytics.router, tags=["Analytics"])
+    app.include_router(curricula.router)
 
     @app.get("/health")
     def health():

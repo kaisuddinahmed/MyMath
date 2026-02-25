@@ -34,6 +34,42 @@ logger = logging.getLogger(__name__)
 
 ROUTER_REMOTION_URL = f"http://localhost:{os.environ.get('REMOTION_PORT', '1235')}"
 
+
+def _get_curriculum_hints(child: dict, question: str) -> list[str]:
+    """
+    Try to retrieve curriculum-specific textbook hints for this child's question.
+    Returns an empty list if the knowledge DB isn't set up or has no matching data.
+    This function is intentionally safe — it never breaks the existing solve flow.
+    """
+    curriculum = child.get("preferred_curriculum")
+    if not curriculum:
+        return []
+    try:
+        from backend.knowledge.retrieval import retrieve_chunks
+        from backend.knowledge.db import get_session_factory
+        from backend.knowledge.models import Curriculum as CurriculumModel
+
+        factory = get_session_factory()
+        with factory() as db:
+            row = db.query(CurriculumModel).filter(
+                CurriculumModel.name == curriculum
+            ).first()
+            if not row:
+                return []
+            curriculum_id = row.id
+
+        chunks = retrieve_chunks(
+            question=question,
+            curriculum_id=curriculum_id,
+            class_level=child.get("class_level"),
+            top_k=3,
+            strict_class_level=child.get("strict_class_level", False),
+        )
+        return [c["text"] for c in chunks if c.get("text")]
+    except Exception as exc:
+        logger.debug(f"Curriculum hint retrieval skipped: {exc}")
+        return []
+
 router = APIRouter()
 
 
@@ -71,7 +107,8 @@ def solve_and_video_prompt_by_child(req: SolveByChildRequest):
     if not child:
         raise HTTPException(status_code=404, detail="Child not found")
 
-    result = _run_solve_and_prompt(req.question, child["class_level"])
+    hints = _get_curriculum_hints(child, req.question)
+    result = _run_solve_and_prompt(req.question, child["class_level"], curriculum_hints=hints)
     append_activity(
         child_id=req.child_id,
         question=req.question,
@@ -97,7 +134,8 @@ def solve_and_render_by_child(req: SolveByChildRequest):
     if not child:
         raise HTTPException(status_code=404, detail="Child not found")
 
-    result = _run_solve_and_render(req.question, child["class_level"])
+    hints = _get_curriculum_hints(child, req.question)
+    result = _run_solve_and_render(req.question, child["class_level"], curriculum_hints=hints)
     append_activity(
         child_id=req.child_id,
         question=req.question,
@@ -161,9 +199,9 @@ def try_similar_by_child(req: SolveByChildRequest):
 # Internal: run full solve + LLM video prompt pipeline
 # ---------------------------------------------------------------------------
 
-def _run_solve_and_prompt(question: str, grade: int) -> SolveAndPromptResponse:
+def _run_solve_and_prompt(question: str, grade: int, curriculum_hints: list[str] | None = None) -> SolveAndPromptResponse:
     # Step 1: Deterministic solve via math engine
-    result = engine_solve(question, grade)
+    result = engine_solve(question, grade, curriculum_hints=curriculum_hints)
     topic = result.topic
     template = result.template
     review_data = build_review(topic, template, result.is_above_grade, [])
@@ -205,6 +243,23 @@ def _run_solve_and_prompt(question: str, grade: int) -> SolveAndPromptResponse:
     # Build topic-specific guidance for the LLM director
     topic_guidance = _build_topic_guidance(topic, verified_answer)
 
+    # Adjust constraints based on whether a smaller example is forced
+    scene_rules = (
+        "- Limit the total number of scenes to 5-7 maximum (Small Example -> Equation -> Main Problem -> Equation).\n"
+        f"- CRITICAL: The smaller example MUST use the exact same math operation ({topic}) as the main problem. Do not explain {topic} using the wrong terminology.\n"
+        if level_note else
+        "- DO NOT create 'smaller starter examples' or invent your own problems. Solve ONLY the exact problem provided.\n"
+        "- Limit the total number of scenes to 3-4 maximum. A 3-scene video is best (Setup -> Action/Math -> Equation).\n"
+    )
+
+    pedagogy_note = (
+        "PEDAGOGY & TIMING RULES:\n"
+        "- Do NOT rush to the answer. The goal is to help children UNDERSTAND math, not memorize it.\n"
+        f"- Explicitly state that we are doing {topic} by name (e.g. 'Since we are sharing equally, this is a division problem'). Explain the 'why' behind the math operation.\n"
+        "- Do NOT use phrasing like 'secret code' or 'magic trick' for equations. Equations are just a way to write what we did visually.\n"
+        "- Your narration dictates how long a scene stays on screen. To give visual animations time to play out, do not rush your words. You can use pauses (like commas or periods) when many items are appearing.\n"
+    )
+
     base_content = f"""
 You are a video director for a children's math learning app.
 Generate a Director Script as STRICT JSON for this problem.
@@ -242,10 +297,13 @@ Correct answer (must match): {verified_answer}
 
 {level_note}
 
+{pedagogy_note}
+
 Rules:
-- Use warm, encouraging narration suitable for children.
-- Always end with a SHOW_EQUATION scene showing the complete equation.
-- Narration should guide the child step by step.
+- STRICT STORYBOARD: Do not repeat steps or jump back and forth. Follow a logical progression.
+{scene_rules}
+- Make sure narration matches the action perfectly.
+- ALWAYS end with a SHOW_EQUATION scene showing the final answer to the main problem.
 - Return ONLY valid JSON matching the schema exactly.
 - No markdown. No extra text.
 """
@@ -327,15 +385,19 @@ Retry with stricter enforcement:
 def _build_topic_guidance(topic: str, verified_answer: str) -> str:
     if topic == "multiplication":
         return (
-            "Topic guidance: Use GROUP_ITEMS action to show equal groups.\n"
-            "Use BLOCK_SVG as item_type. Set groups and per_group fields.\n"
-            'Narration must mention "groups".'
+            "Topic guidance: Sequence MUST be:\n"
+            "1. ADD_ITEMS to show a single group of objects.\n"
+            "2. GROUP_ITEMS to show all groups together.\n"
+            "3. SHOW_EQUATION for the final answer.\n"
+            "Use BLOCK_SVG. Set groups and per_group fields."
         )
     elif topic == "division":
         return (
-            "Topic guidance: Use GROUP_ITEMS to show sharing/distributing equally.\n"
-            "Use COUNTER as item_type. Set groups and per_group fields.\n"
-            'Narration must mention "share".'
+            "Topic guidance: Sequence MUST be:\n"
+            "1. ADD_ITEMS to show the starting total number of items.\n"
+            "2. GROUP_ITEMS to show them shared/divided into groups.\n"
+            "3. SHOW_EQUATION for the final answer.\n"
+            "Use COUNTER as item_type. Set groups and per_group."
         )
     elif topic == "fractions":
         return (
@@ -362,15 +424,19 @@ def _build_topic_guidance(topic: str, verified_answer: str) -> str:
 # V2: Unified solve + render pipeline
 # ---------------------------------------------------------------------------
 
-def _render_via_remotion(prompt_json: dict, audio_path: Optional[Path] = None) -> Optional[dict]:
-    """Call the Remotion render API service."""
+def _render_via_remotion(prompt_json: dict, audio_paths: list[Path] | None) -> dict | None:
+    """Send the JSON script and audio files to the Remotion Express server to render."""
     import httpx
 
     try:
         body: dict = {"script": prompt_json}
-        if audio_path and audio_path.exists():
-            # Remotion expects a URL — for local, we serve it via FastAPI's static mount
-            body["audioUrl"] = f"http://localhost:1233/videos/{audio_path.name}"
+        if audio_paths:
+            # Remotion expects an array of URLs — for local, we serve them via FastAPI static mount
+            # We preserve exactly the same array length, placing empty strings for missing audios
+            body["audioUrls"] = [
+                f"http://localhost:1233/videos/{p.name}" if p and p.exists() else ""
+                for p in audio_paths
+            ]
 
         key = cache_key(prompt_json.get("problem", ""), prompt_json.get("grade", 0))
         body["outputName"] = f"{key}.mp4"
@@ -384,7 +450,7 @@ def _render_via_remotion(prompt_json: dict, audio_path: Optional[Path] = None) -
         return None
 
 
-def _run_solve_and_render(question: str, grade: int) -> SolveAndPromptResponse:
+def _run_solve_and_render(question: str, grade: int, curriculum_hints: list[str] | None = None) -> SolveAndPromptResponse:
     """
     Full pipeline: solve → LLM script → cache check → TTS → Remotion render → cache.
     Returns a SolveAndPromptResponse with video_url populated.
@@ -402,35 +468,37 @@ def _run_solve_and_render(question: str, grade: int) -> SolveAndPromptResponse:
         return solve_result
 
     # Step 2: Run the full solve + LLM prompt pipeline
-    solve_result = _run_solve_and_prompt(question, grade)
+    solve_result = _run_solve_and_prompt(question, grade, curriculum_hints=curriculum_hints)
 
     if not solve_result.video_prompt_json:
         logger.warning("No video prompt JSON generated — skipping render")
         return solve_result
 
-    # Step 3: Generate TTS narration
-    narration_text = " ".join(
-        str(s.get("narration", "")).strip()
-        for s in solve_result.video_prompt_json.get("scenes", [])
-        if s.get("narration")
-    )
+    # Step 3: Generate TTS narration per scene
+    audio_paths = []
+    tmp_dir = Path(tempfile.mkdtemp(prefix="mymath_tts_"))
+    from backend.video_engine.video_cache import OUTPUT_DIR
+    import shutil
 
-    audio_path = None
-    if narration_text.strip():
-        tmp_dir = Path(tempfile.mkdtemp(prefix="mymath_tts_"))
-        audio_output = tmp_dir / f"{key}.wav"
-        audio_path = tts_synthesize(narration_text, audio_output)
-
-        # Copy audio to output dir so Remotion can access it via static serving
+    scenes = solve_result.video_prompt_json.get("scenes", [])
+    for i, scene in enumerate(scenes):
+        narration = str(scene.get("narration", "")).strip()
+        if not narration:
+            audio_paths.append(None)
+            continue
+            
+        audio_output = tmp_dir / f"{key}_scene{i}.wav"
+        audio_path = tts_synthesize(narration, audio_output)
+        
         if audio_path and audio_path.exists():
-            from backend.video_engine.video_cache import OUTPUT_DIR
             dest = OUTPUT_DIR / audio_path.name
-            import shutil
             shutil.copy2(str(audio_path), str(dest))
-            audio_path = dest
+            audio_paths.append(dest)
+        else:
+            audio_paths.append(None)
 
     # Step 4: Render via Remotion
-    render_result = _render_via_remotion(solve_result.video_prompt_json, audio_path)
+    render_result = _render_via_remotion(solve_result.video_prompt_json, audio_paths)
 
     if render_result and render_result.get("outputName"):
         filename = render_result["outputName"]

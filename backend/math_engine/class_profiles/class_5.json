@@ -1,0 +1,68 @@
+{
+  "class_level": 5,
+  "curriculum": "NCTB",
+  "constraints": {
+    "max_number": 999999999,
+    "negative_allowed": false,
+    "decimal_max_places": 3,
+    "fraction_mixing": true,
+    "fraction_unequal_denom": true
+  },
+  "topics": {
+    "number_system": {
+      "range": "up to 99,99,99,999 (Bangladeshi comma style)",
+      "operations": ["read", "write", "expanded_form", "roman_numerals"],
+      "notes": "Introduce crore and arab-level reading explicitly"
+    },
+    "bodmas": {
+      "bodmas_level": "full",
+      "bracket_types": ["()", "{}", "[]"],
+      "nesting": true,
+      "notes": "Full BODMAS with nested bracket evaluation. Innermost brackets first."
+    },
+    "fractions": {
+      "types": ["proper", "improper", "mixed_number"],
+      "operations": ["add", "subtract", "multiply", "divide", "simplify"],
+      "denominator_rule": "LCM_required",
+      "notes": "Unequal denominators. Mixed number conversion. LCM-based alignment."
+    },
+    "decimals": {
+      "max_places": 3,
+      "operations": ["add", "subtract", "multiply", "divide", "convert_fraction"],
+      "notes": "Decimal division (align quotient decimal point). Fraction ↔ decimal conversions."
+    },
+    "percentages": {
+      "concepts": ["fraction_to_percent", "percent_of_number", "profit_loss", "discount"],
+      "notes": "Profit/loss and discount word problems. Always express as % of base."
+    },
+    "averages": {
+      "formula": "sum / count",
+      "notes": "Simple arithmetic mean. Missing-value problems (find one score given average)."
+    },
+    "geometry": {
+      "concepts": ["quadrilateral_types", "parallelogram", "rhombus", "trapezium", "perimeter", "area_rectangle"],
+      "area_formulas": {"rectangle": "length × width"},
+      "notes": "Quadrilateral classification by sides and angles. Area of rectangles only."
+    },
+    "factors_multiples": {
+      "concepts": ["LCM", "HCF", "prime_factorization"],
+      "notes": "Prime factorization method for LCM/HCF."
+    },
+    "measurement": {
+      "units": ["cm", "m", "km", "g", "kg", "mL", "L", "seconds", "minutes", "hours"],
+      "operations": ["conversion", "multi_step_word_problems"],
+      "notes": "Three-step word problems with unit conversion chains."
+    },
+    "data": {
+      "chart_types": ["bar_chart", "pie_chart", "frequency_table"],
+      "operations": ["read", "interpret", "compare", "draw"],
+      "notes": "Frequency tables introduced. Two-step interpretation questions."
+    }
+  },
+  "narration_style": {
+    "tone": "explain-like-I-am-11",
+    "vocab": "simple-medium",
+    "sentence_length": "medium",
+    "pace": "medium"
+  }
+}

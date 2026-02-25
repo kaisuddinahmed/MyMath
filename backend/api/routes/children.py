@@ -26,6 +26,8 @@ def create_child(profile: ChildProfileCreate):
         "child_name": profile.child_name,
         "age": profile.age,
         "class_level": profile.class_level,
+        "preferred_curriculum": getattr(profile, "preferred_curriculum", None),
+        "strict_class_level": getattr(profile, "strict_class_level", False),
     }
     CHILDREN[child_id] = data
     return data
@@ -49,5 +51,9 @@ def patch_child(child_id: str, patch: ChildProfilePatch):
         data["age"] = patch.age
     if patch.class_level is not None:
         data["class_level"] = patch.class_level
+    if getattr(patch, "preferred_curriculum", None) is not None:
+        data["preferred_curriculum"] = patch.preferred_curriculum
+    if getattr(patch, "strict_class_level", None) is not None:
+        data["strict_class_level"] = patch.strict_class_level
     CHILDREN[child_id] = data
     return data

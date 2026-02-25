@@ -16,12 +16,16 @@ class ChildProfileCreate(BaseModel):
     child_name: str
     age: int = Field(..., ge=4, le=12)
     class_level: int = Field(..., ge=1, le=5)
+    preferred_curriculum: Optional[str] = None
+    strict_class_level: bool = False
 
 
 class ChildProfilePatch(BaseModel):
     child_name: Optional[str] = None
     age: Optional[int] = Field(None, ge=4, le=12)
     class_level: Optional[int] = Field(None, ge=1, le=5)
+    preferred_curriculum: Optional[str] = None
+    strict_class_level: Optional[bool] = None
 
 
 class ChildProfile(BaseModel):
@@ -29,6 +33,8 @@ class ChildProfile(BaseModel):
     child_name: str
     age: int
     class_level: int
+    preferred_curriculum: Optional[str] = None
+    strict_class_level: bool = False
 
 
 # --- Solve ---

@@ -1,0 +1,108 @@
+{
+  "topics": {
+    "addition": {
+      "keywords": ["addition", "add", "plus", "sum", "total", "altogether", "in all"],
+      "subtopics": {
+        "basic_addition": ["add", "plus", "sum", "total"],
+        "regrouping_addition": ["carry", "regroup", "ones and tens"]
+      }
+    },
+    "subtraction": {
+      "keywords": ["subtraction", "subtract", "minus", "take away", "difference", "left"],
+      "subtopics": {
+        "basic_subtraction": ["subtract", "minus", "difference"],
+        "regrouping_subtraction": ["borrow", "regroup", "decompose"]
+      }
+    },
+    "multiplication": {
+      "keywords": ["multiplication", "multiply", "times", "product", "groups of", "array"],
+      "subtopics": {
+        "equal_groups": ["groups of", "equal groups", "array"],
+        "times_table": ["times table", "facts", "product"]
+      }
+    },
+    "division": {
+      "keywords": ["division", "divide", "shared equally", "equal groups", "quotient", "remainder"],
+      "subtopics": {
+        "sharing": ["share", "shared equally", "equal groups"],
+        "division_facts": ["quotient", "remainder", "divide"]
+      }
+    },
+    "fractions": {
+      "keywords": ["fraction", "fractions", "half", "quarter", "one fourth", "one half", "numerator", "denominator", "equal parts"],
+      "subtopics": {
+        "fraction_basics": ["half", "quarter", "equal parts", "fraction"],
+        "equivalent_fractions": ["equivalent", "same value", "simplify"]
+      }
+    },
+    "place_value": {
+      "keywords": ["place value", "ones", "tens", "hundreds", "thousands", "digit value", "expanded form"],
+      "subtopics": {
+        "ones_tens_hundreds": ["ones", "tens", "hundreds"],
+        "expanded_form": ["expanded form", "place value chart", "digit value"]
+      }
+    },
+    "measurement": {
+      "keywords": ["measurement", "length", "weight", "mass", "capacity", "time", "clock", "cm", "m", "kg", "litre", "ml"],
+      "subtopics": {
+        "length_measurement": ["length", "cm", "m", "ruler"],
+        "time_measurement": ["time", "clock", "hour", "minute"],
+        "mass_capacity": ["weight", "mass", "kg", "litre", "ml", "capacity"]
+      }
+    },
+    "geometry": {
+      "keywords": ["geometry", "shape", "angle", "triangle", "rectangle", "square", "circle", "perimeter", "area"],
+      "subtopics": {
+        "2d_shapes": ["triangle", "rectangle", "square", "circle", "shape"],
+        "angles_perimeter_area": ["angle", "perimeter", "area"]
+      }
+    },
+    "data": {
+      "keywords": ["data", "table", "chart", "bar graph", "bar chart", "tally", "pictograph"],
+      "subtopics": {
+        "data_collection": ["data", "table", "tally"],
+        "data_interpretation": ["bar graph", "bar chart", "pictograph", "interpret"]
+      }
+    },
+    "patterns": {
+      "keywords": ["pattern", "sequence", "repeat", "next term", "rule"],
+      "subtopics": {
+        "number_patterns": ["pattern", "sequence", "next term"],
+        "shape_patterns": ["repeat", "rule", "shape pattern"]
+      }
+    },
+    "decimals": {
+      "keywords": ["decimal", "tenths", "hundredths", "decimal point", "0."],
+      "subtopics": {
+        "decimal_place_value": ["tenths", "hundredths", "decimal point"],
+        "decimal_operations": ["add decimals", "subtract decimals", "decimal"]
+      }
+    },
+    "percentages": {
+      "keywords": ["percent", "percentage", "%", "out of 100", "discount"],
+      "subtopics": {
+        "percent_basics": ["percent", "out of 100", "%"],
+        "percent_applications": ["discount", "sale", "percentage"]
+      }
+    },
+    "averages": {
+      "keywords": ["average", "mean", "equal share", "total divided by"],
+      "subtopics": {
+        "mean_average": ["mean", "average", "total divided by"],
+        "equal_share_average": ["equal share", "average"]
+      }
+    },
+    "factors": {
+      "keywords": ["factor", "factors", "multiple", "multiples", "prime", "composite", "factor pairs"],
+      "subtopics": {
+        "factors_and_multiples": ["factor", "multiple", "factor pairs"],
+        "prime_composite": ["prime", "composite"]
+      }
+    }
+  },
+  "difficulty": {
+    "easy_keywords": ["count", "basic", "simple", "identify", "name"],
+    "medium_keywords": ["word problem", "compare", "explain", "model", "multi-step"],
+    "hard_keywords": ["justify", "reason", "prove", "complex", "challenge", "higher order"]
+  }
+}
