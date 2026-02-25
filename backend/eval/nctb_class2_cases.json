@@ -1,0 +1,290 @@
+{
+  "meta": {
+    "name": "NCTB Class 2 Regression Suite",
+    "curriculum": "nctb",
+    "class_level": 2
+  },
+  "solve_cases": [
+    {
+      "id": "ch1_num_to_words",
+      "chapter": "1",
+      "grade": 2,
+      "question": "Write 45 in words",
+      "expected_topic": "numbers",
+      "answer_contains": "forty five"
+    },
+    {
+      "id": "ch1_even",
+      "chapter": "1",
+      "grade": 2,
+      "question": "Is 28 even?",
+      "expected_topic": "numbers",
+      "answer_equals": "Even"
+    },
+    {
+      "id": "ch1_ordinal",
+      "chapter": "1",
+      "grade": 2,
+      "question": "Who is in 3rd position?",
+      "expected_topic": "ordinal_numbers",
+      "answer_equals": "3rd"
+    },
+    {
+      "id": "ch1_place_value",
+      "chapter": "1",
+      "grade": 2,
+      "question": "How many hundreds tens and ones in 345?",
+      "expected_topic": "place_value",
+      "answer_contains": "3 hundreds, 4 tens and 5 ones"
+    },
+    {
+      "id": "ch1_blocks_total",
+      "chapter": "1",
+      "grade": 2,
+      "question": "2 hundreds 4 tens 5 ones",
+      "expected_topic": "numbers",
+      "answer_equals": "245"
+    },
+    {
+      "id": "ch2_add_carry",
+      "chapter": "2",
+      "grade": 2,
+      "question": "58 + 27",
+      "expected_topic": "addition",
+      "answer_equals": "85",
+      "step_contains": "carry"
+    },
+    {
+      "id": "ch2_sub_borrow",
+      "chapter": "2",
+      "grade": 2,
+      "question": "82 - 19",
+      "expected_topic": "subtraction",
+      "answer_equals": "63",
+      "step_contains": "borrow"
+    },
+    {
+      "id": "ch3_multiplication_repeated_add",
+      "chapter": "3",
+      "grade": 2,
+      "question": "7 x 3",
+      "expected_topic": "multiplication",
+      "answer_equals": "21",
+      "step_contains": "3 + 3 + 3 + 3 + 3 + 3 + 3"
+    },
+    {
+      "id": "ch4_geometry",
+      "chapter": "4",
+      "grade": 2,
+      "question": "Which shape has 4 sides? quadrilateral",
+      "expected_topic": "geometry",
+      "answer_contains": "Quadrilateral"
+    },
+    {
+      "id": "ch4_pattern",
+      "chapter": "4",
+      "grade": 2,
+      "question": "Complete the pattern: O, A, O, ?",
+      "expected_topic": "patterns",
+      "answer_equals": "A"
+    },
+    {
+      "id": "ch5_measure_days",
+      "chapter": "5",
+      "grade": 2,
+      "question": "How many days in a week?",
+      "expected_topic": "measurement",
+      "answer_equals": "7"
+    },
+    {
+      "id": "ch5_measure_length",
+      "chapter": "5",
+      "grade": 2,
+      "question": "Length of pencil?",
+      "expected_topic": "measurement",
+      "answer_equals": "cm"
+    },
+    {
+      "id": "ch5_measure_clock",
+      "chapter": "5",
+      "grade": 2,
+      "question": "The short hand is on 4 and long hand is on 12.",
+      "expected_topic": "measurement",
+      "answer_equals": "4:00"
+    },
+    {
+      "id": "ch6_currency_taka",
+      "chapter": "6",
+      "grade": 2,
+      "question": "50 taka + 20 taka",
+      "expected_topic": "currency",
+      "answer_contains": "70 taka"
+    },
+    {
+      "id": "ch6_currency_taka_poisa",
+      "chapter": "6",
+      "grade": 2,
+      "question": "2 taka 50 poisa and 75 poisa",
+      "expected_topic": "currency",
+      "answer_contains": "3 taka 25 poisa"
+    },
+    {
+      "id": "ch7_data_kv",
+      "chapter": "7",
+      "grade": 2,
+      "question": "Mango 5, Apple 3",
+      "expected_topic": "data",
+      "answer_contains": "Mango: 5"
+    },
+    {
+      "id": "ch7_data_target",
+      "chapter": "7",
+      "grade": 2,
+      "question": "How many mangoes? Mango 5 Apple 3",
+      "expected_topic": "data",
+      "answer_equals": "5"
+    },
+    {
+      "id": "edge_fraction_out_of_scope",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "1/2 of 8",
+      "expected_topic": "fractions",
+      "answer_contains": "Fractions are not in NCTB Class 2 scope here."
+    },
+    {
+      "id": "edge_decimal_out_of_scope",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "12.5 + 3",
+      "expected_topic": "addition",
+      "answer_contains": "Decimals are not in NCTB Class 2 scope here."
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "3 - 5",
+      "expected_topic": "subtraction",
+      "answer_contains": "cannot take 5 away from 3"
+    },
+    {
+      "id": "edge_above_1000",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "1001 + 2",
+      "expected_topic": "addition",
+      "answer_contains": "numbers up to 1000"
+    },
+    {
+      "id": "edge_times_table_out_of_range",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "12 x 3",
+      "expected_topic": "multiplication",
+      "answer_contains": "use multiplication tables from 1 to 10"
+    },
+    {
+      "id": "edge_ordinal_out_of_range",
+      "chapter": "edge",
+      "grade": 2,
+      "question": "Who is in 11th position?",
+      "expected_topic": "ordinal_numbers",
+      "answer_contains": "ordinal numbers go from 1st to 10th"
+    }
+  ],
+  "by_child_cases": [
+    {
+      "id": "child_fraction_block",
+      "question": "1/2 of 8",
+      "verified_answer_contains": "Fractions are not in NCTB Class 2 scope here.",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_decimal_block",
+      "question": "12.5 + 3",
+      "verified_answer_contains": "Decimals are not in NCTB Class 2 scope here.",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_table_out_block",
+      "question": "12 x 3",
+      "verified_answer_contains": "use multiplication tables from 1 to 10",
+      "expect_attempts": 0
+    }
+  ],
+  "similar_cases": [
+    {
+      "id": "similar_fallback_from_fraction",
+      "question": "1/2 of 8",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    },
+    {
+      "id": "similar_fallback_from_decimal",
+      "question": "12.5 + 3",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    }
+  ],
+  "extract_cases": [
+    {
+      "id": "extract_pdf_num_words",
+      "kind": "pdf_text",
+      "text": "Write 45 in words",
+      "expected_status": 200,
+      "question_contains": "Write 45 in words"
+    },
+    {
+      "id": "extract_pdf_even_odd",
+      "kind": "pdf_text",
+      "text": "Is 28 even?",
+      "expected_status": 200,
+      "question_contains": "Is 28 even"
+    },
+    {
+      "id": "extract_pdf_ordinal_queue",
+      "kind": "pdf_text",
+      "text": "The cat is 3rd position in line",
+      "expected_status": 200,
+      "question_contains": "3rd position",
+      "notes_contains": "ordinal_queue"
+    },
+    {
+      "id": "extract_pdf_place_blocks",
+      "kind": "pdf_text",
+      "text": "3 hundred blocks 4 tens strips 5 ones",
+      "expected_status": 200,
+      "question_contains": "3 hundreds 4 tens 5 ones",
+      "notes_contains": "hundreds_block"
+    },
+    {
+      "id": "extract_pdf_measurement_clock",
+      "kind": "pdf_text",
+      "text": "Clock: short hand on 4 and long hand on 12",
+      "expected_status": 200,
+      "question_contains": "Short hand 4, long hand 12",
+      "notes_contains": "measurement_clock"
+    },
+    {
+      "id": "extract_pdf_data_tally",
+      "kind": "pdf_text",
+      "text": "Tally marks: ||||/ ||",
+      "expected_status": 200,
+      "notes_contains": "data_tally_marks"
+    },
+    {
+      "id": "extract_pdf_currency_visual",
+      "kind": "pdf_text",
+      "text": "Bangabandhu note 50 taka",
+      "expected_status": 200,
+      "question_contains": "50 taka",
+      "notes_contains": "currency_note"
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "kind": "image_text",
+      "text": "1O + 2",
+      "expected_status": 200,
+      "allow_ocr_unavailable": true
+    }
+  ]
+}

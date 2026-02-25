@@ -1,0 +1,127 @@
+{
+  "curriculum": "nctb",
+  "class_level": 2,
+  "topics_in_scope": [
+    "numbers",
+    "counting",
+    "comparison",
+    "place_value",
+    "ordinal_numbers",
+    "patterns",
+    "addition",
+    "subtraction",
+    "multiplication",
+    "geometry",
+    "measurement",
+    "currency",
+    "data",
+    "word_problems",
+    "relation_add_sub",
+    "practice"
+  ],
+  "constraints": {
+    "max_number": 1000,
+    "allow_negative": false,
+    "allow_fractions": false,
+    "allow_decimals": false,
+    "geometry_dimension": "2d_only"
+  },
+  "topic_constraints": {
+    "counting": {
+      "min": 0,
+      "max": 1000
+    },
+    "ordinal_numbers": {
+      "min": 1,
+      "max": 10
+    },
+    "place_value": {
+      "max_place": "hundreds"
+    },
+    "addition": {
+      "require_carry_explanation": true
+    },
+    "subtraction": {
+      "min_result": 0,
+      "require_borrow_explanation": true
+    },
+    "multiplication": {
+      "table_min": 1,
+      "table_max": 10,
+      "model": "repeated_addition"
+    },
+    "measurement": {
+      "allowed_units": ["m", "cm", "kg", "gm", "g", "l", "litre", "liter", "ml", "hour", "minute"],
+      "days_in_week": 7
+    },
+    "currency": {
+      "poisa_per_taka": 100,
+      "allow_taka_poisa_format": true
+    },
+    "geometry": {
+      "dimension": "2d",
+      "allowed_shapes": ["triangle", "quadrilateral", "rectangle", "square", "circle"]
+    }
+  },
+  "chapter_rules": [
+    {
+      "chapter": 1,
+      "topic": "numbers_place_value",
+      "input_pattern": "number words, even/odd, ordinal position, place value blocks",
+      "logic": "num2word, even/odd via last digit, ordinal 1st-10th, place value up to hundreds"
+    },
+    {
+      "chapter": 2,
+      "topic": "addition_subtraction",
+      "input_pattern": "2-digit/3-digit add-sub, relation, word problems",
+      "logic": "deterministic add/sub with carry (hate rekhe) and borrow (dhar kore) explanations"
+    },
+    {
+      "chapter": 3,
+      "topic": "multiplication",
+      "input_pattern": "times table and repeated groups",
+      "logic": "a*b with repeated addition model, table range 1-10"
+    },
+    {
+      "chapter": 4,
+      "topic": "geometry_patterns",
+      "input_pattern": "2D shape naming and sequence completion",
+      "logic": "triangle/quadrilateral/circle classification and repeating pattern continuation"
+    },
+    {
+      "chapter": 5,
+      "topic": "measurement",
+      "input_pattern": "length, weight, volume, clock and calendar basics",
+      "logic": "unit recognition (m, cm, kg, gm, L), time reading (hour:min), 7 days per week"
+    },
+    {
+      "chapter": 6,
+      "topic": "currency",
+      "input_pattern": "notes/coins and money totals",
+      "logic": "taka-poisa conversion using 100 poisa = 1 taka"
+    },
+    {
+      "chapter": 7,
+      "topic": "data",
+      "input_pattern": "object table, tally marks, mixed-object counting",
+      "logic": "count by object category and return key-value totals"
+    }
+  ],
+  "visual_metaphors": {
+    "numbers_place_value": ["hundreds square block", "tens strip", "ones single", "ordinal queue"],
+    "geometry": ["triangle", "quadrilateral", "circle", "rectangle", "square"],
+    "patterns": ["shape sequence", "color repeat"],
+    "measurement": ["ruler", "weighing scale", "measuring cup", "clock face"],
+    "currency": ["water lily", "bangabandhu", "tiger", "deer", "note", "coin"],
+    "data": ["tally marks", "object table", "count chart"]
+  },
+  "messages": {
+    "out_of_scope_topic": "This topic is outside NCTB Class 2 right now.",
+    "fraction_out_of_scope": "Fractions are not in NCTB Class 2 scope here.",
+    "decimal_out_of_scope": "Decimals are not in NCTB Class 2 scope here.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "Please use Class 2 numbers up to {max_number}.",
+    "ordinal_range": "For this lesson, ordinal numbers go from 1st to 10th.",
+    "times_table_range": "For this lesson, use multiplication tables from 1 to 10."
+  }
+}

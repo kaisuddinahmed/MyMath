@@ -1,0 +1,821 @@
+{
+  "cases_file": "/Users/kaisuddinahmed/Desktop/Projects/MyMath/backend/eval/nctb_class2_cases.json",
+  "summary": {
+    "total": 36,
+    "passed": 36,
+    "failed": 0,
+    "pass_rate_percent": 100.0
+  },
+  "failures": [],
+  "details": [
+    {
+      "id": "ch1_num_to_words",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "numbers",
+        "answer": "forty five",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "We read the number 45."
+          },
+          {
+            "title": "Step 2",
+            "text": "Write it in words: forty five."
+          },
+          {
+            "title": "Step 3",
+            "text": "Great job reading numbers in words."
+          }
+        ],
+        "smaller_example": "Smaller example: 23 in words is twenty three."
+      }
+    },
+    {
+      "id": "ch1_even",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "numbers",
+        "answer": "Even",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Look at the number 28. The last digit is 8."
+          },
+          {
+            "title": "Step 2",
+            "text": "Can we make pairs? Yes."
+          },
+          {
+            "title": "Step 3",
+            "text": "So, it is Even."
+          }
+        ],
+        "smaller_example": "Smaller example: 14 is Even."
+      }
+    },
+    {
+      "id": "ch1_ordinal",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "ordinal_numbers",
+        "answer": "3rd",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Ordinal numbers tell position in a line."
+          },
+          {
+            "title": "Step 2",
+            "text": "The position is 3rd."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the ordinal form is 3rd."
+          }
+        ],
+        "smaller_example": "Smaller example: 2nd means second position."
+      }
+    },
+    {
+      "id": "ch1_place_value",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "place_value",
+        "answer": "3 hundreds, 4 tens and 5 ones",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Look at 345."
+          },
+          {
+            "title": "Step 2",
+            "text": "Hundreds digit gives 3 hundreds, tens digit gives 4 tens."
+          },
+          {
+            "title": "Step 3",
+            "text": "Ones digit gives 5 ones. So: 3 hundreds, 4 tens and 5 ones."
+          }
+        ],
+        "smaller_example": "Smaller example: 245 has 2 hundreds, 4 tens and 5 ones."
+      }
+    },
+    {
+      "id": "ch1_blocks_total",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "numbers",
+        "answer": "245",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Hundreds: 2, tens: 4, ones: 5."
+          },
+          {
+            "title": "Step 2",
+            "text": "2 hundred = 200, 4 tens = 40."
+          },
+          {
+            "title": "Step 3",
+            "text": "Total = 200 + 40 + 5 = 245."
+          }
+        ],
+        "smaller_example": "Smaller example: 1 ten and 3 ones = 13."
+      }
+    },
+    {
+      "id": "ch2_add_carry",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "85",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Add the ones: 8 + 7 = 15."
+          },
+          {
+            "title": "Step 2",
+            "text": "Write 5 in the ones place and carry 1 ten to the tens place (hate rekhe)."
+          },
+          {
+            "title": "Step 3",
+            "text": "Now add the tens (and hundreds if needed). The total is 85."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "ch2_sub_borrow",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "63",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Subtract the ones: 2 - 9."
+          },
+          {
+            "title": "Step 2",
+            "text": "The top ones are smaller, so borrow 1 ten from the tens place (dhar kore)."
+          },
+          {
+            "title": "Step 3",
+            "text": "Now subtract tens (and hundreds if needed). The answer is 63."
+          }
+        ],
+        "smaller_example": "Smaller example: 7 - 2 = 5"
+      }
+    },
+    {
+      "id": "ch3_multiplication_repeated_add",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "multiplication",
+        "answer": "21",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "7 x 3 means adding 3, 7 times."
+          },
+          {
+            "title": "Step 2",
+            "text": "3 + 3 + 3 + 3 + 3 + 3 + 3 = 21."
+          },
+          {
+            "title": "Step 3",
+            "text": "So, 7 x 3 = 21."
+          }
+        ],
+        "smaller_example": "Smaller example: 3 x 2 = 6"
+      }
+    },
+    {
+      "id": "ch4_geometry",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "geometry",
+        "answer": "Quadrilateral",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "We check the shape sides and corners."
+          },
+          {
+            "title": "Step 2",
+            "text": "We identify: Quadrilateral."
+          },
+          {
+            "title": "Step 3",
+            "text": "These are 2D shapes from Class 2 geometry."
+          }
+        ],
+        "smaller_example": "Smaller example: A shape with 3 sides is a Triangle."
+      }
+    },
+    {
+      "id": "ch4_pattern",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "patterns",
+        "answer": "A",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "We read the sequence: O, A, O."
+          },
+          {
+            "title": "Step 2",
+            "text": "We find the repeating rule."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the next item is A."
+          }
+        ],
+        "smaller_example": "Smaller example: O, A, O, ? -> A."
+      }
+    },
+    {
+      "id": "ch5_measure_days",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "measurement",
+        "answer": "7",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Think about one full week."
+          },
+          {
+            "title": "Step 2",
+            "text": "A week has 7 days."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the answer is 7."
+          }
+        ],
+        "smaller_example": "Smaller example: 1 week = 7 days."
+      }
+    },
+    {
+      "id": "ch5_measure_length",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "measurement",
+        "answer": "cm",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "We choose the suitable measuring unit."
+          },
+          {
+            "title": "Step 2",
+            "text": "For this type of item we use cm."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the best unit here is cm."
+          }
+        ],
+        "smaller_example": "Smaller example: Pencil length is measured in cm."
+      }
+    },
+    {
+      "id": "ch5_measure_clock",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "measurement",
+        "answer": "4:00",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "The short hand points to 4."
+          },
+          {
+            "title": "Step 2",
+            "text": "The long hand points to 12."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the time is 4:00."
+          }
+        ],
+        "smaller_example": "Smaller example: short hand 4 and long hand 12 means 4:00."
+      }
+    },
+    {
+      "id": "ch6_currency_taka",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "currency",
+        "answer": "70 taka",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Convert all taka to poisa."
+          },
+          {
+            "title": "Step 2",
+            "text": "100 poisa = 1 taka, so total poisa = 7000."
+          },
+          {
+            "title": "Step 3",
+            "text": "Convert back to taka-poisa: 70 taka."
+          }
+        ],
+        "smaller_example": "Smaller example: 2 taka + 3 taka = 5 taka."
+      }
+    },
+    {
+      "id": "ch6_currency_taka_poisa",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "currency",
+        "answer": "3 taka 25 poisa",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Convert all taka to poisa."
+          },
+          {
+            "title": "Step 2",
+            "text": "100 poisa = 1 taka, so total poisa = 325."
+          },
+          {
+            "title": "Step 3",
+            "text": "Convert back to taka-poisa: 3 taka 25 poisa."
+          }
+        ],
+        "smaller_example": "Smaller example: 2 taka + 3 taka = 5 taka."
+      }
+    },
+    {
+      "id": "ch7_data_kv",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "data",
+        "answer": "Apple: 3, Mango: 5",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Let's count each type of object."
+          },
+          {
+            "title": "Step 2",
+            "text": "Keep each object in its own group."
+          },
+          {
+            "title": "Step 3",
+            "text": "Final data count: Apple: 3, Mango: 5."
+          }
+        ],
+        "smaller_example": "Smaller example: Mango: 2, Apple: 1."
+      }
+    },
+    {
+      "id": "ch7_data_target",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "data",
+        "answer": "5",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Let's count each type of object."
+          },
+          {
+            "title": "Step 2",
+            "text": "Keep each object in its own group."
+          },
+          {
+            "title": "Step 3",
+            "text": "Final data count: 5."
+          }
+        ],
+        "smaller_example": "Smaller example: Mango: 2, Apple: 1."
+      }
+    },
+    {
+      "id": "edge_fraction_out_of_scope",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "answer": "Fractions are not in NCTB Class 2 scope here.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Fractions are not in NCTB Class 2 scope here."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_decimal_out_of_scope",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "Decimals are not in NCTB Class 2 scope here.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Decimals are not in NCTB Class 2 scope here."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "We cannot take 5 away from 3.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "We cannot take 5 away from 3."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_above_1000",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "Please use Class 2 numbers up to 1000.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Please use Class 2 numbers up to 1000."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_times_table_out_of_range",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "multiplication",
+        "answer": "For this lesson, use multiplication tables from 1 to 10.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "For this lesson, use multiplication tables from 1 to 10."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_ordinal_out_of_range",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "ordinal_numbers",
+        "answer": "For this lesson, ordinal numbers go from 1st to 10th.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "For this lesson, ordinal numbers go from 1st to 10th."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "child_fraction_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "verified_answer": "Fractions are not in NCTB Class 2 scope here.",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "Fractions are not in NCTB Class 2 scope here."
+          }
+        ],
+        "template": "fraction_bar",
+        "min_grade_for_topic": 3,
+        "is_above_grade": true,
+        "review": {
+          "concept": "Fractions mean equal parts of a whole.",
+          "objects_used": "fraction bar (equal parts)",
+          "prerequisite_used": "division",
+          "common_mistake": "Making parts that are not equal."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_decimal_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "verified_answer": "Decimals are not in NCTB Class 2 scope here.",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "Decimals are not in NCTB Class 2 scope here."
+          }
+        ],
+        "template": "number_line_jump",
+        "min_grade_for_topic": 1,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Adding means putting groups together.",
+          "objects_used": "simple objects",
+          "prerequisite_used": "none",
+          "common_mistake": "Counting too many or skipping a number."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_table_out_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "multiplication",
+        "verified_answer": "For this lesson, use multiplication tables from 1 to 10.",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "For this lesson, use multiplication tables from 1 to 10."
+          }
+        ],
+        "template": "arrays",
+        "min_grade_for_topic": 2,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Multiplication means equal groups.",
+          "objects_used": "simple objects",
+          "prerequisite_used": "none",
+          "common_mistake": "Making unequal groups."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "similar_fallback_from_fraction",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "3 + 8"
+      }
+    },
+    {
+      "id": "similar_fallback_from_decimal",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "7 + 8"
+      }
+    },
+    {
+      "id": "extract_pdf_num_words",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Write 45 in words",
+        "extracted_text": "Write 45 in words",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.6000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": []
+      }
+    },
+    {
+      "id": "extract_pdf_even_odd",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Is 28 even?",
+        "extracted_text": "Is 28 even?",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": []
+      }
+    },
+    {
+      "id": "extract_pdf_ordinal_queue",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "3rd position",
+        "extracted_text": "The cat is 3rd position in line",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.8,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": true,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": [
+            "line"
+          ]
+        },
+        "notes": [
+          "Detected visual hints: ordinal_queue",
+          "Detected shape hints: line"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_place_blocks",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "3 hundreds 4 tens 5 ones",
+        "extracted_text": "3 hundred blocks 4 tens strips 5 ones",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.9,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: hundreds_block, tens_strip, ones_single"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_measurement_clock",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Short hand 4, long hand 12",
+        "extracted_text": "Clock: short hand on 4 and long hand on 12",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.8,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: measurement_clock"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_data_tally",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Tally marks: ||||/ ||",
+        "extracted_text": "Tally marks: ||||/ ||",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: data_tally_marks"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_currency_visual",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Bangabandhu note 50 taka",
+        "extracted_text": "Bangabandhu note 50 taka",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.9,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: currency_note"
+        ]
+      }
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "we?",
+        "extracted_text": "we?",
+        "source_type": "image",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.30000000000000004,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Low confidence extraction. Please review and edit the question."
+        ]
+      }
+    }
+  ]
+}

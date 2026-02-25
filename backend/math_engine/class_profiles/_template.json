@@ -1,0 +1,39 @@
+{
+  "curriculum": "curriculum_id",
+  "class_level": 1,
+  "topics_in_scope": [
+    "comparison",
+    "counting",
+    "numbers",
+    "addition",
+    "subtraction"
+  ],
+  "constraints": {
+    "max_number": 100,
+    "allow_negative": false,
+    "allow_fractions": false
+  },
+  "topic_constraints": {
+    "counting": {
+      "min": 0,
+      "max": 10
+    },
+    "addition": {
+      "max_sum": 10,
+      "enforce_globally": false
+    },
+    "subtraction": {
+      "min_result": 0
+    }
+  },
+  "chapter_rules": [],
+  "visual_metaphors": {},
+  "messages": {
+    "out_of_scope_topic": "This is outside the current class syllabus.",
+    "fraction_out_of_scope": "Fractions are out of scope for this class.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "Please use numbers up to {max_number}.",
+    "addition_too_large": "Please keep the total up to {max_sum}.",
+    "counting_range": "Please stay between {min_value} and {max_value}."
+  }
+}

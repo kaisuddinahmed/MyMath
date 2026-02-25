@@ -1,0 +1,39 @@
+{
+  "curriculum": "cambridge",
+  "class_level": 1,
+  "topics_in_scope": [
+    "comparison",
+    "counting",
+    "numbers",
+    "addition",
+    "subtraction",
+    "geometry",
+    "patterns",
+    "measurement",
+    "currency"
+  ],
+  "constraints": {
+    "max_number": 100,
+    "allow_negative": false,
+    "allow_fractions": false
+  },
+  "topic_constraints": {
+    "subtraction": {
+      "min_result": 0
+    }
+  },
+  "chapter_rules": [
+    {
+      "chapter": 1,
+      "topic": "numbers",
+      "input_pattern": "starter number sense and counting",
+      "logic": "basic number identification and counting"
+    }
+  ],
+  "messages": {
+    "out_of_scope_topic": "This topic is outside Cambridge Class 1 scope.",
+    "fraction_out_of_scope": "Fractions are out of scope for this class.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "Please use numbers up to {max_number}."
+  }
+}

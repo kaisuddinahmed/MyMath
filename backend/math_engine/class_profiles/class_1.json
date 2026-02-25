@@ -1,0 +1,103 @@
+{
+  "curriculum": "nctb",
+  "class_level": 1,
+  "topics_in_scope": [
+    "comparison",
+    "counting",
+    "numbers",
+    "addition",
+    "subtraction",
+    "place_value",
+    "geometry",
+    "patterns",
+    "currency",
+    "practice"
+  ],
+  "constraints": {
+    "max_number": 100,
+    "allow_negative": false,
+    "allow_fractions": false
+  },
+  "topic_constraints": {
+    "counting": {
+      "min": 0,
+      "max": 10
+    },
+    "addition": {
+      "max_sum": 10,
+      "enforce_globally": false,
+      "chapter_hint": "4"
+    },
+    "subtraction": {
+      "min_result": 0
+    }
+  },
+  "chapter_rules": [
+    {
+      "chapter": 1,
+      "topic": "comparison",
+      "input_pattern": "object size/height/quantity comparison",
+      "logic": "larger/smaller/more/less"
+    },
+    {
+      "chapter": "2-3",
+      "topic": "counting",
+      "input_pattern": "count objects (1-10)",
+      "logic": "integer count within 0..10"
+    },
+    {
+      "chapter": 4,
+      "topic": "addition",
+      "input_pattern": "a + b or together/total",
+      "logic": "sum with concept-first examples"
+    },
+    {
+      "chapter": 5,
+      "topic": "subtraction",
+      "input_pattern": "a - b or left/flew away/take away",
+      "logic": "difference with no negative result"
+    },
+    {
+      "chapter": 6,
+      "topic": "numbers",
+      "input_pattern": "bundles and singles (11-20)",
+      "logic": "total = tens*10 + ones"
+    },
+    {
+      "chapter": 10,
+      "topic": "place_value",
+      "input_pattern": "tens and ones in n",
+      "logic": "tens=n//10, ones=n%10"
+    },
+    {
+      "chapter": 12,
+      "topic": "geometry",
+      "input_pattern": "shape image",
+      "logic": "circle/triangle/rectangle"
+    },
+    {
+      "chapter": 13,
+      "topic": "patterns",
+      "input_pattern": "repeating sequence",
+      "logic": "predict next item"
+    },
+    {
+      "chapter": 17,
+      "topic": "currency",
+      "input_pattern": "notes/coins",
+      "logic": "Bangladeshi taka/poisa recognition"
+    }
+  ],
+  "visual_metaphors": {
+    "tens": ["bundles of sticks", "ten-frames", "bead strings"],
+    "currency": ["coin", "note", "water lily", "portrait"]
+  },
+  "messages": {
+    "out_of_scope_topic": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic.",
+    "fraction_out_of_scope": "Fractions are not in NCTB Class 1. Let's use whole numbers.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "This is advanced for Class 1. Please use numbers up to {max_number}.",
+    "addition_too_large": "For this Class 1 step, keep the total up to {max_sum}.",
+    "counting_range": "For this counting task, please stay between {min_value} and {max_value}."
+  }
+}

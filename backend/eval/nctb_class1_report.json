@@ -1,0 +1,904 @@
+{
+  "cases_file": "/Users/kaisuddinahmed/Desktop/Projects/MyMath/backend/eval/nctb_class1_cases.json",
+  "summary": {
+    "total": 31,
+    "passed": 31,
+    "failed": 0,
+    "pass_rate_percent": 100.0
+  },
+  "failures": [],
+  "details": [
+    {
+      "id": "ch1_comparison_symbol",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "comparison",
+        "answer": "5 is larger/more, and 2 is smaller/less.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We compare 5 and 2."
+          },
+          {
+            "title": "Step 2",
+            "text": "The larger number is 5."
+          },
+          {
+            "title": "Step 3",
+            "text": "The smaller number is 2."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 is larger than 2."
+      }
+    },
+    {
+      "id": "ch2_counting",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "counting",
+        "answer": "7",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Let's count the objects one by one."
+          },
+          {
+            "title": "Step 2",
+            "text": "We counted up to 7."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the total count is 7."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: Count 4 stars. The answer is 4."
+      }
+    },
+    {
+      "id": "ch4_addition_concept",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "5",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "You have 3."
+          },
+          {
+            "title": "Step 2",
+            "text": "Count 2 more with me."
+          },
+          {
+            "title": "Step 3",
+            "text": "We reach 5."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "ch5_subtraction_concept",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "5",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "Start with 8."
+          },
+          {
+            "title": "Step 2",
+            "text": "Take away 3."
+          },
+          {
+            "title": "Step 3",
+            "text": "5 is left."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 7 - 2 = 5"
+      }
+    },
+    {
+      "id": "ch6_tens_ones",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "numbers",
+        "answer": "24",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We have 2 ten(s) and 4 one(s)."
+          },
+          {
+            "title": "Step 2",
+            "text": "2 ten(s) means 20."
+          },
+          {
+            "title": "Step 3",
+            "text": "20 + 4 = 24."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 1 ten and 3 ones = 13."
+      }
+    },
+    {
+      "id": "ch7_8_addition_11_20",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "17",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "You have 12."
+          },
+          {
+            "title": "Step 2",
+            "text": "Count 5 more with me."
+          },
+          {
+            "title": "Step 3",
+            "text": "We reach 17."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "ch7_8_subtraction_11_20",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "11",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "Start with 18."
+          },
+          {
+            "title": "Step 2",
+            "text": "Take away 7."
+          },
+          {
+            "title": "Step 3",
+            "text": "11 is left."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 7 - 2 = 5"
+      }
+    },
+    {
+      "id": "ch9_14_numbers_21_100",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "comparison",
+        "answer": "56 is larger/more, and 43 is smaller/less.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We compare 56 and 43."
+          },
+          {
+            "title": "Step 2",
+            "text": "The larger number is 56."
+          },
+          {
+            "title": "Step 3",
+            "text": "The smaller number is 43."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 is larger than 2."
+      }
+    },
+    {
+      "id": "ch10_place_value",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "place_value",
+        "answer": "2 tens and 4 ones",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We look at the number 24."
+          },
+          {
+            "title": "Step 2",
+            "text": "Tens = 24 // 10 = 2."
+          },
+          {
+            "title": "Step 3",
+            "text": "Ones = 24 % 10 = 4."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 245 has 2 hundreds, 4 tens and 5 ones."
+      }
+    },
+    {
+      "id": "ch12_geometry",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "geometry",
+        "answer": "Circle",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We look for closed shapes."
+          },
+          {
+            "title": "Step 2",
+            "text": "We found: Circle."
+          },
+          {
+            "title": "Step 3",
+            "text": "These are the basic Class 1 geometry shapes."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: A shape with 3 sides is a Triangle."
+      }
+    },
+    {
+      "id": "ch13_pattern",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "patterns",
+        "answer": "2",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We read the pattern: 1, 2, 1."
+          },
+          {
+            "title": "Step 2",
+            "text": "We find the part that repeats."
+          },
+          {
+            "title": "Step 3",
+            "text": "So the next item is 2."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: O, A, O, ? -> A."
+      }
+    },
+    {
+      "id": "ch15_16_advanced_addition",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "77",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "You have 45."
+          },
+          {
+            "title": "Step 2",
+            "text": "Count 32 more with me."
+          },
+          {
+            "title": "Step 3",
+            "text": "We reach 77."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "ch15_16_advanced_subtraction",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "67",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "Start with 90."
+          },
+          {
+            "title": "Step 2",
+            "text": "Take away 23."
+          },
+          {
+            "title": "Step 3",
+            "text": "67 is left."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 7 - 2 = 5"
+      }
+    },
+    {
+      "id": "ch17_currency",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "currency",
+        "answer": "7 taka",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Step 1",
+            "text": "We add all the money values."
+          },
+          {
+            "title": "Step 2",
+            "text": "Total in poisa = 700."
+          },
+          {
+            "title": "Step 3",
+            "text": "That is 7 taka."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 2 taka + 3 taka = 5 taka."
+      }
+    },
+    {
+      "id": "edge_fraction_out_of_scope",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "answer": "Fractions are not in NCTB Class 1. Let's use whole numbers.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "Fractions are not in NCTB Class 1. Let's use whole numbers."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "We cannot take 5 away from 3.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "We cannot take 5 away from 3."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_above_100",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "This is advanced for Class 1. Please use numbers up to 100.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "This is advanced for Class 1. Please use numbers up to 100."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_counting_out_of_range",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "counting",
+        "answer": "For this counting task, please stay between 0 and 10.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "For this counting task, please stay between 0 and 10."
+          },
+          {
+            "title": "Step 2",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_out_of_syllabus_topic",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "division",
+        "answer": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic.",
+        "steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_bangla_digits",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "5",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "You have 3."
+          },
+          {
+            "title": "Step 2",
+            "text": "Count 2 more with me."
+          },
+          {
+            "title": "Step 3",
+            "text": "We reach 5."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "child_fraction_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "verified_answer": "Fractions are not in NCTB Class 1. Let's use whole numbers.",
+        "verified_steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "Fractions are not in NCTB Class 1. Let's use whole numbers."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "template": "fraction_bar",
+        "min_grade_for_topic": 3,
+        "is_above_grade": true,
+        "review": {
+          "concept": "Fractions mean equal parts of a whole.",
+          "objects_used": "fraction bar (equal parts)",
+          "prerequisite_used": "division",
+          "common_mistake": "Making parts that are not equal."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_negative_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "verified_answer": "We cannot take 5 away from 3.",
+        "verified_steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "We cannot take 5 away from 3."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "template": "counters_remove",
+        "min_grade_for_topic": 1,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Subtracting means taking away.",
+          "objects_used": "counters/blocks",
+          "prerequisite_used": "none",
+          "common_mistake": "Counting back the wrong number of steps."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_out_of_syllabus_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "division",
+        "verified_answer": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic.",
+        "verified_steps": [
+          {
+            "title": "Count together",
+            "text": "Let's count together step by step."
+          },
+          {
+            "title": "Class level check",
+            "text": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic."
+          },
+          {
+            "title": "Step 3",
+            "text": "Let's do this step by step."
+          },
+          {
+            "title": "Great job",
+            "text": "Great job! Let's keep learning."
+          }
+        ],
+        "template": "equal_groups",
+        "min_grade_for_topic": 3,
+        "is_above_grade": true,
+        "review": {
+          "concept": "Division means sharing equally.",
+          "objects_used": "simple objects",
+          "prerequisite_used": "multiplication",
+          "common_mistake": "Not sharing equally across groups."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "similar_fallback_from_division",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "2 + 1"
+      }
+    },
+    {
+      "id": "similar_from_addition",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "9 + 9"
+      }
+    },
+    {
+      "id": "extract_pdf_bundles",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "2 ten 4",
+        "extracted_text": "2 bundles and 4 ones",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.8,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: tens_strip, ones_single, bundles_of_sticks"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_currency",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "5 taka and 2 taka",
+        "extracted_text": "5 taka and 2 taka",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: currency_note"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_place_value",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "How many tens and ones in 24?",
+        "extracted_text": "How many tens and ones in 24?",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.99,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: ones_single"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_beads",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Count 8 objects",
+        "extracted_text": "Count 8 beads on a string",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.9,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: bead_string"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_ten_frame",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Ten frame with 7 dots",
+        "extracted_text": "Ten frame with 7 dots",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.8,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: ten_frame"
+        ]
+      }
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "we?",
+        "extracted_text": "we?",
+        "source_type": "image",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.30000000000000004,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Low confidence extraction. Please review and edit the question."
+        ]
+      }
+    }
+  ]
+}
