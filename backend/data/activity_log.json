@@ -94,5 +94,117 @@
     "template": "sharing_groups",
     "score": 85,
     "timestamp": "2026-02-23T06:29:40.276231+00:00"
+  },
+  {
+    "child_id": "ad99db4c-d460-4477-8e62-b85eea18db9f",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 85,
+    "timestamp": "2026-02-24T04:26:29.959284+00:00"
+  },
+  {
+    "child_id": "96f94321-6f1d-464e-b31e-bdb327364c1c",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 95,
+    "timestamp": "2026-02-24T04:39:18.438863+00:00"
+  },
+  {
+    "child_id": "d3ae30bd-bbf4-47fb-8fbd-c64d42fcc741",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 85,
+    "timestamp": "2026-02-24T04:54:44.805739+00:00"
+  },
+  {
+    "child_id": "d785e68d-1110-441c-991f-f3b5490a8832",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 95,
+    "timestamp": "2026-02-24T05:04:40.193912+00:00"
+  },
+  {
+    "child_id": "d785e68d-1110-441c-991f-f3b5490a8832",
+    "question": "If there are 18 pencils and we want to put them into 3 boxes with an equal number of pencils, how many pencils will each box have?",
+    "topic": "multiplication",
+    "template": "group_boxes",
+    "score": 60,
+    "timestamp": "2026-02-24T05:12:59.102287+00:00"
+  },
+  {
+    "child_id": "42c80c84-fd7d-4255-ba25-9a1bc9ef3ee2",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 70,
+    "timestamp": "2026-02-24T05:19:59.858253+00:00"
+  },
+  {
+    "child_id": "42c80c84-fd7d-4255-ba25-9a1bc9ef3ee2",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 70,
+    "timestamp": "2026-02-24T05:24:55.740828+00:00"
+  },
+  {
+    "child_id": "c255cdf4-49b3-405a-b0ff-6e8f9d8b5048",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 95,
+    "timestamp": "2026-02-24T05:52:37.229843+00:00"
+  },
+  {
+    "child_id": "536a50cb-af2c-4068-99a0-50160851c3e8",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 85,
+    "timestamp": "2026-02-24T06:01:18.979827+00:00"
+  },
+  {
+    "child_id": "8e4e5a9d-999c-4939-8592-974f70aa67f9",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 85,
+    "timestamp": "2026-02-24T12:19:00.821693+00:00"
+  },
+  {
+    "child_id": "73e311a9-1292-4226-8abb-dc3046727523",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 85,
+    "timestamp": "2026-02-24T23:04:15.904258+00:00"
+  },
+  {
+    "child_id": "799ddda1-b1f7-45c4-a197-54a1ee085112",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 85,
+    "timestamp": "2026-02-25T03:58:39.810008+00:00"
+  },
+  {
+    "child_id": "e700c531-62c7-45cd-b85f-3c5ce9ba54bf",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "equal_groups",
+    "score": 95,
+    "timestamp": "2026-02-25T04:01:03.324896+00:00"
+  },
+  {
+    "child_id": "ee08f98d-a8d6-4c49-b235-06d290188548",
+    "question": "There are 45 students in a class. The teacher makes 5 teams with an equal number of students. How many students are there in each team?",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 95,
+    "timestamp": "2026-02-25T04:13:12.463858+00:00"
   }
 ]

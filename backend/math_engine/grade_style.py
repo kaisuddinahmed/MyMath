@@ -26,10 +26,8 @@ def topic_level_note(topic: str, grade: int) -> str:
     min_g = int(info.get("min_grade", 1))
     if grade >= min_g:
         return ""
-    prereq = info.get("prerequisites", [])
-    prereq_text = ", ".join(prereq) if prereq else "basics"
     return (
         f"This topic is usually taught in grade {min_g}. "
-        f"Explain gently for grade {grade} by first teaching prerequisites: {prereq_text}. "
+        f"Explain the core concept gently for grade {grade}. "
         "Use a smaller-number example first."
     )

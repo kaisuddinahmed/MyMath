@@ -50,7 +50,7 @@ app.get("/health", (_req, res) => {
 
 // Render endpoint
 app.post("/render", async (req, res) => {
-  const { script, audioUrl, outputName } = req.body;
+  const { script, audioUrl, audioUrls, outputName } = req.body;
 
   if (!script || !Array.isArray(script.scenes) || script.scenes.length === 0) {
     return res.status(400).json({ error: "Invalid script: must include non-empty scenes array" });
@@ -61,7 +61,7 @@ app.post("/render", async (req, res) => {
 
     const { renderMedia, selectComposition } = require("@remotion/renderer");
 
-    const inputProps = { script, audioUrl };
+    const inputProps = { script, audioUrl, audioUrls };
 
     const composition = await selectComposition({
       serveUrl,

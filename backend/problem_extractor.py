@@ -608,8 +608,9 @@ def _analyze_geometry(image: Image.Image, text: str) -> Dict[str, Any]:
     )
     circle_count = 0 if circles is None else int(circles.shape[1])
 
-    geometry_words = any(k in low for k in ["triangle", "circle", "rectangle", "square", "angle", "radius", "diameter", "perimeter", "area"])
-    has_diagram = line_count >= 5 or parallel_pairs >= 1 or perpendicular_pairs >= 1 or (circle_count >= 1 and geometry_words)
+    geometry_words = any(k in low for k in ["triangle", "circle", "rectangle", "square", "angle", "radius", "diameter", "perimeter", "area", "shape", "figure"])
+    is_word_heavy = len(low.split()) >= 15
+    has_diagram = line_count >= 5 or parallel_pairs >= 1 or perpendicular_pairs >= 1 or (circle_count >= 1 and (geometry_words or not is_word_heavy))
 
     summary.update(
         {
@@ -623,7 +624,7 @@ def _analyze_geometry(image: Image.Image, text: str) -> Dict[str, Any]:
     )
 
     shape_hints = _shape_hints_from_text(low, summary["point_labels"])  # type: ignore[index]
-    if circle_count > 0 and (geometry_words or circle_count >= 2) and "circle" not in shape_hints:
+    if circle_count > 0 and (geometry_words or not is_word_heavy) and "circle" not in shape_hints:
         shape_hints.append("circle")
     if line_count >= 3 and "triangle" not in shape_hints and "triangle" in low:
         shape_hints.append("triangle")

@@ -58,6 +58,8 @@ export interface DirectorScript {
 
 export interface RenderRequest {
   script: DirectorScript;
-  audioUrl?: string;
+  audioUrl?: string; // Legacy
+  audioUrls?: string[]; // V2 Per-scene audio
   outputName?: string;
+  titleDuration?: number;
 }

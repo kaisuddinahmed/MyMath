@@ -22,6 +22,32 @@ def get_deepgram_key() -> str | None:
     return os.getenv("DEEPGRAM_API_KEY")
 
 
+def sanitize_for_tts(text: str) -> str:
+    """
+    Replace mathematical symbols with spoken words so the TTS engine pronounces them correctly.
+    """
+    import re
+    replacements = {
+        "÷": " divided by ",
+        "×": " times ",
+        "=": " equals ",
+        "+": " plus ",
+    }
+    for symbol, word in replacements.items():
+        text = text.replace(symbol, word)
+    
+    # Handle minus separately to avoid breaking hyphenated words
+    text = text.replace(" - ", " minus ")
+    
+    # Deepgram Aura Asteria has a phonetic glitch where it slurs "also" into "olo". 
+    # Phonetically correcting it prevents the slur.
+    text = text.replace(" also ", " all so ").replace("Also ", "All so ")
+    
+    # Clean up any duplicate spaces
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
 def synthesize(
     text: str,
     output_path: Path,
@@ -43,12 +69,13 @@ def synthesize(
         return None
 
     try:
+        spoken_text = sanitize_for_tts(text)
         params = {"model": voice}
         headers = {
             "Authorization": f"Token {api_key}",
             "Content-Type": "application/json",
         }
-        body = {"text": text.strip()}
+        body = {"text": spoken_text}
 
         with httpx.Client(timeout=30.0) as client:
             resp = client.post(

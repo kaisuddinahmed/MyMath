@@ -1,7 +1,12 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import type { DirectorScene, AnimationStyle } from "../types";
-import { AppleSvg, BlockSvg, StarSvg, CounterSvg } from "../assets/items/ItemSvgs";
+import {
+  AppleSvg,
+  BlockSvg,
+  StarSvg,
+  CounterSvg,
+} from "../assets/items/ItemSvgs";
 
 /**
  * Renders a caption bar at the bottom of the screen.
@@ -44,18 +49,15 @@ export const NarrationBar: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-/**
- * Title card shown at the start.
- */
-export const TitleCard: React.FC<{ title: string; problem: string; grade: number }> = ({
-  title,
-  problem,
-  grade,
-}) => {
+export const TitleCard: React.FC<{
+  title: string;
+  problem: string;
+  grade: number;
+}> = ({ problem }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const scale = spring({ frame, fps, from: 0.6, to: 1, durationInFrames: 20 });
-  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 15 });
+  const scale = spring({ frame, fps, from: 0.8, to: 1, durationInFrames: 30 });
+  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 20 });
 
   return (
     <div
@@ -67,6 +69,7 @@ export const TitleCard: React.FC<{ title: string; problem: string; grade: number
         height: "100%",
         opacity,
         transform: `scale(${scale})`,
+        padding: "0 60px",
       }}
     >
       <div
@@ -74,42 +77,20 @@ export const TitleCard: React.FC<{ title: string; problem: string; grade: number
           background: "rgba(255,255,255,0.08)",
           backdropFilter: "blur(16px)",
           borderRadius: 24,
-          padding: "48px 64px",
+          padding: "50px 70px",
           border: "1px solid rgba(255,255,255,0.15)",
           textAlign: "center",
+          maxWidth: 1000,
         }}
       >
         <p
           style={{
-            color: "#818CF8",
-            fontSize: 16,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: 3,
-            margin: 0,
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          Grade {grade} · MyMath
-        </p>
-        <h1
-          style={{
             color: "#F8FAFC",
-            fontSize: 42,
-            fontWeight: 800,
-            margin: "12px 0",
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          {title}
-        </h1>
-        <p
-          style={{
-            color: "#94A3B8",
-            fontSize: 28,
-            fontWeight: 600,
+            fontSize: 40,
+            fontWeight: 700,
             margin: 0,
             fontFamily: "'Inter', sans-serif",
+            lineHeight: 1.5,
           }}
         >
           {problem}
@@ -149,23 +130,49 @@ function AnimatedItem({
 }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const delay = index * 4;
+  // Ensure all items finish appearing within ~2 seconds (40-50 frames)
+  const stagger = Math.max(1, 40 / total);
+  const delay = Math.round(index * stagger);
 
   let opacity = 1;
   let transform = "";
 
   if (animationStyle === "BOUNCE_IN") {
-    const s = spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, config: { damping: 8, mass: 0.6 } });
+    const s = spring({
+      frame: Math.max(0, frame - delay),
+      fps,
+      from: 0,
+      to: 1,
+      config: { damping: 8, mass: 0.6 },
+    });
     opacity = s;
     transform = `scale(${interpolate(s, [0, 1], [0.2, 1])})`;
   } else if (animationStyle === "FADE_IN") {
-    opacity = spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, durationInFrames: 15 });
+    opacity = spring({
+      frame: Math.max(0, frame - delay),
+      fps,
+      from: 0,
+      to: 1,
+      durationInFrames: 15,
+    });
   } else if (animationStyle === "SLIDE_LEFT") {
-    const s = spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, durationInFrames: 18 });
+    const s = spring({
+      frame: Math.max(0, frame - delay),
+      fps,
+      from: 0,
+      to: 1,
+      durationInFrames: 18,
+    });
     opacity = s;
     transform = `translateX(${interpolate(s, [0, 1], [80, 0])}px)`;
   } else if (animationStyle === "POP") {
-    const s = spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, config: { damping: 5, mass: 0.4 } });
+    const s = spring({
+      frame: Math.max(0, frame - delay),
+      fps,
+      from: 0,
+      to: 1,
+      config: { damping: 5, mass: 0.4 },
+    });
     opacity = s;
     transform = `scale(${interpolate(s, [0, 0.5, 1], [0, 1.3, 1])})`;
   }
@@ -181,10 +188,17 @@ function AnimatedItem({
  * CounterScene — Adds or removes items with animation.
  */
 export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
-  const count = Math.min(scene.count || 5, 30);
+  const realCount = scene.count || 5;
+  const visualCount = Math.min(realCount, 30);
   const itemType = scene.item_type || "COUNTER";
   const animation = scene.animation_style || "BOUNCE_IN";
+
   const isRemove = scene.action === "REMOVE_ITEMS";
+  const isHighlight = scene.action === "HIGHLIGHT";
+
+  let labelText = `Bringing in ${realCount}!`;
+  if (isRemove) labelText = `Taking away...`;
+  if (isHighlight) labelText = `Looking at ${realCount}`;
 
   return (
     <div
@@ -207,7 +221,7 @@ export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
           margin: 0,
         }}
       >
-        {isRemove ? "Taking away..." : `Bringing in ${count}!`}
+        {labelText}
       </p>
 
       {/* Items grid */}
@@ -220,11 +234,11 @@ export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
           gap: 4,
         }}
       >
-        {Array.from({ length: count }).map((_, i) => (
+        {Array.from({ length: visualCount }).map((_, i) => (
           <AnimatedItem
             key={i}
             index={i}
-            total={count}
+            total={visualCount}
             itemType={itemType}
             animationStyle={animation}
           />
@@ -266,7 +280,14 @@ export const GroupScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
         {groups} groups of {perGroup}
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 20 }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: 20,
+        }}
+      >
         {Array.from({ length: groups }).map((_, gi) => (
           <div
             key={gi}
@@ -301,7 +322,9 @@ export const GroupScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
 /**
  * FractionScene — Pie or bar chart showing fractions.
  */
-export const FractionScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
+export const FractionScene: React.FC<{ scene: DirectorScene }> = ({
+  scene,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const numerator = scene.numerator || 1;
@@ -346,7 +369,9 @@ export const FractionScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => 
 
           const startRad = (angle * Math.PI) / 180;
           const endRad = (endAngle * Math.PI) / 180;
-          const cx = 120, cy = 120, r = 100;
+          const cx = 120,
+            cy = 120,
+            r = 100;
 
           const x1 = cx + r * Math.cos(startRad);
           const y1 = cy + r * Math.sin(startRad);
@@ -360,7 +385,11 @@ export const FractionScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => 
             <path
               key={i}
               d={d}
-              fill={filled ? `rgba(99,102,241,${reveal})` : `rgba(51,65,85,${reveal * 0.6})`}
+              fill={
+                filled
+                  ? `rgba(99,102,241,${reveal})`
+                  : `rgba(51,65,85,${reveal * 0.6})`
+              }
               stroke="rgba(148,163,184,0.5)"
               strokeWidth="2"
             />
@@ -374,10 +403,19 @@ export const FractionScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => 
 /**
  * EquationScene — Shows a math equation prominently.
  */
-export const EquationScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
+export const EquationScene: React.FC<{ scene: DirectorScene }> = ({
+  scene,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const scale = spring({ frame, fps, from: 0.6, to: 1, durationInFrames: 20, config: { damping: 10 } });
+  const scale = spring({
+    frame,
+    fps,
+    from: 0.6,
+    to: 1,
+    durationInFrames: 20,
+    config: { damping: 10 },
+  });
   const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 12 });
 
   return (

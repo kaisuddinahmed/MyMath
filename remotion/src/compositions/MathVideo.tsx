@@ -8,7 +8,6 @@ import {
 } from "remotion";
 import type { DirectorScript, DirectorScene } from "../types";
 import {
-  TitleCard,
   NarrationBar,
   CounterScene,
   GroupScene,
@@ -39,20 +38,33 @@ function sceneComponent(scene: DirectorScene) {
 export const MathVideo: React.FC<{
   script: DirectorScript;
   audioUrl?: string;
-}> = ({ script, audioUrl }) => {
+  audioUrls?: string[];
+  sceneDurations?: number[];
+}> = ({ script, audioUrl, audioUrls, sceneDurations }) => {
   const { fps } = useVideoConfig();
-  const titleDuration = 2 * fps; // 2 seconds for title
 
   let currentFrame = 0;
 
-  // Title card comes first
-  const titleStart = currentFrame;
-  currentFrame += titleDuration;
-
   // Calculate scene starts
-  const sceneStarts = script.scenes.map((scene) => {
+  // If `sceneDurations` is provided by Root `calculateMetadata`, use the exact audio lengths.
+  // Otherwise, fallback to the ~150 wpm word-count strategy.
+  const sceneStarts = script.scenes.map((scene, i) => {
     const start = currentFrame;
-    const dur = Math.max(1, scene.duration) * fps;
+    
+    let dur = 4 * fps;
+    
+    if (sceneDurations && sceneDurations[i]) {
+      // Use exact duration calculated from the audio file
+      dur = sceneDurations[i];
+    } else if (!scene.narration || scene.narration.trim() === "") {
+      dur = 4 * fps; 
+    } else {
+      const wordCount = scene.narration.split(/\s+/).length;
+      // 2.5 words per sec + 1.5 seconds of visual breathing room
+      const estimatedSeconds = Math.max(3, (wordCount / 2.5) + 1.5);
+      dur = Math.round(estimatedSeconds * fps);
+    }
+    
     currentFrame += dur;
     return { start, dur };
   });
@@ -71,17 +83,6 @@ export const MathVideo: React.FC<{
         }}
       />
 
-      {/* Title card */}
-      <Sequence from={titleStart} durationInFrames={titleDuration}>
-        <AbsoluteFill>
-          <TitleCard
-            title={script.title}
-            problem={script.problem}
-            grade={script.grade}
-          />
-        </AbsoluteFill>
-      </Sequence>
-
       {/* Scenes */}
       {script.scenes.map((scene, i) => (
         <Sequence
@@ -96,8 +97,16 @@ export const MathVideo: React.FC<{
         </Sequence>
       ))}
 
-      {/* Audio track if provided */}
-      {audioUrl ? (
+      {/* Audio track(s) */}
+      {audioUrls && audioUrls.length > 0 ? (
+        audioUrls.map((url, i) => (
+          url ? (
+            <Sequence key={i} from={sceneStarts[i].start + Math.round(fps * 0.5)}>
+              <Audio src={url} />
+            </Sequence>
+          ) : null
+        ))
+      ) : audioUrl ? (
         <Sequence from={0}>
           <Audio src={audioUrl} />
         </Sequence>
