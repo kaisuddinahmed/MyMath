@@ -47,6 +47,9 @@ class SolveRequest(BaseModel):
 class SolveByChildRequest(BaseModel):
     child_id: str
     question: str = Field(..., min_length=1, max_length=500)
+    pre_solved_answer: Optional[str] = None
+    pre_solved_steps: Optional[List[str]] = None
+    question_type: Optional[str] = None  # e.g. "mcq", "word_problem", "fill_blank"
 
 
 class Step(BaseModel):
@@ -132,6 +135,10 @@ class ExtractProblemResponse(BaseModel):
     confidence: float
     geometry: GeometryParseSummary
     notes: List[str]
+    pre_solved_answer: Optional[str] = None
+    pre_solved_steps: List[str] = []
+    pre_solved_options: List[Dict[str, Any]] = []
+    question_type: str = "other"
 
 
 # --- Activity ---

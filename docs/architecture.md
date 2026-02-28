@@ -9,7 +9,15 @@ Generate curriculum-aware, age-appropriate **visual math explanations (MP4)** fo
 ## Runtime Flow (Question → Video)
 
 ```
-Child question
+Child question (typed or uploaded image/PDF)
+      │
+      ▼
+[Extract & Classify]  backend/problem_extractor.py
+      │  llm_extract_structured(raw_ocr)
+      │  → Cleans OCR noise, classifies question type
+      │  → Evaluates MCQ options, pre-solves answer
+      │  → Falls back to regex helpers if LLM unavailable
+      │  Returns: { question, question_type, options[], pre_solved_answer, pre_solved_steps }
       │
       ▼
 [API Layer]  backend/api/routes/solve.py
@@ -21,7 +29,8 @@ Child question
       │
       ▼
 [Math Engine]  backend/math_engine/engine.solve()
-      │  Cascading solver pipeline (see below)
+      │  ┌─ LLM pre-solved fast path ─ if pre_solved_answer present → immediate SolveResult
+      │  └─ Cascading solver pipeline (see below)
       │
       ▼
 [LLM — Groq]  backend/core/llm.py
@@ -38,7 +47,7 @@ Child question
       │  Narration text → .wav   (~$0.008/video)
       │
       ▼
-[Video Engine — Remotion]  remotion/render-api.js  (port 1234)
+[Video Engine — Remotion]  remotion/render-api.js  (port 1235)
       │  Director Script + audio → animated MP4
       │  React components: CounterScene, GroupScene,
       │  FractionScene, EquationScene, TitleCard
@@ -101,7 +110,8 @@ math_engine/
 **Solver cascade (engine.py):**
 
 ```
-Arithmetic regex (highest confidence)
+LLM pre-solved fast path  (from extraction — for MCQ, fill-blank, true/false, sequence, word problems)
+  → Arithmetic regex      (highest confidence — bare equations like 12 ÷ 4)
   → fractions, factors, percentages, decimals, ratio, averages
   → measurement, geometry, data, currency, patterns, place_value
   → comparison, counting  (broadest patterns — run last)
@@ -109,10 +119,16 @@ Arithmetic regex (highest confidence)
   → AI-assisted           (returns topic + signals LLM)
 ```
 
-**Public interface (never breaks other layers):**
+**Public interface:**
 
 ```python
-def solve(question: str, grade: int, curriculum_hints: list[str] = []) -> SolveResult
+def solve(
+    question: str,
+    grade: int,
+    curriculum_hints: list[str] = [],
+    pre_solved_answer: str | None = None,   # from llm_extract_structured
+    pre_solved_steps: list[str] | None = None,
+) -> SolveResult
 ```
 
 ---
@@ -176,13 +192,36 @@ Available animations: `BOUNCE_IN` · `FADE_IN` · `SLIDE_LEFT` · `POP` · `NONE
 ```
 api/
   app.py        # FastAPI factory — middleware + router wiring
-  schemas.py    # all Pydantic models (incl. video_url, video_cached)
+  schemas.py    # all Pydantic models (incl. pre_solved_answer, video_url, video_cached)
   routes/
     children.py   GET/POST/PATCH /children
     solve.py      /solve, /solve-and-render (V2), /solve-and-video-prompt (legacy), /try-similar/by-child
     video.py      /render-video  (legacy)
-    extract.py    /extract-problem  (Upload → Pre-process → OCR → LLM Repair → Pick Question)
+    extract.py    /extract-problem  (Upload → Pre-process → OCR → llm_extract_structured → question + pre_solved_answer)
     analytics.py  /activity, /coverage, /analytics/*
+```
+
+### Extraction Pipeline Detail
+
+```
+Upload (image/PDF)
+  │
+  ├── Pre-process: upscale, sharpen, binarize
+  │
+  ├── OCR: rapidocr-onnxruntime (primary) or pytesseract (fallback)
+  │
+  └── llm_extract_structured(raw_ocr)
+        ├─ Fixes OCR noise (typos, merged words)
+        ├─ Identifies question_type: mcq | word_problem | fill_blank |
+        │                            true_false | sequence | arithmetic |
+        │                            comparison | geometry | other
+        ├─ For MCQ: evaluates each option numerically
+        │    "200 more than 3604" → 3804
+        │    "3 thousands, 7 hundreds and 4 ones" → 3704
+        │    "3000 + 700 + 4" → 3704
+        ├─ Identifies correct/incorrect option
+        ├─ pre_solves answer with child-friendly steps
+        └─ Falls back to regex helpers if LLM unavailable
 ```
 
 ---
@@ -199,13 +238,13 @@ api/
 
 ## NCTB Curriculum Profiles
 
-| Class   | Status     | Regression |
-| ------- | ---------- | ---------- |
-| Class 1 | ✅         | 31/31      |
-| Class 2 | ✅         | 36/36      |
-| Class 3 | ✅         | 32/32      |
-| Class 4 | 🔲 planned | —          |
-| Class 5 | 🔲 planned | —          |
+| Class   | Status | Regression |
+| ------- | ------ | ---------- |
+| Class 1 | ✅     | 31/31      |
+| Class 2 | ✅     | 36/36      |
+| Class 3 | ✅     | 32/32      |
+| Class 4 | ✅     | untested   |
+| Class 5 | ✅     | untested   |
 
 ---
 
@@ -233,11 +272,10 @@ api/
 
 ## What Remains
 
-| Priority | Item                                                               |
-| -------- | ------------------------------------------------------------------ |
-| High     | Class 4 & 5 rule packs + solver expansion                          |
-| High     | Multi-step word-problem parser                                     |
-| Medium   | Cambridge / Edexcel curriculum profiles                            |
-| Lower    | Wire child profiles to DB                                          |
-| Lower    | `math_engine/llm_fallback.py` — structured LLM solver for unknowns |
-| Lower    | CI eval gating per class                                           |
+| Priority | Item                                      |
+| -------- | ----------------------------------------- |
+| High     | Class 4 & 5 rule packs + solver expansion |
+| High     | Multi-step word-problem parser            |
+| Medium   | Cambridge / Edexcel curriculum profiles   |
+| Lower    | Wire child profiles to DB                 |
+| Lower    | CI eval gating per class                  |

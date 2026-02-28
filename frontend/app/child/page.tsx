@@ -45,6 +45,9 @@ export default function ChildPage() {
   const [loadingAttempts, setLoadingAttempts] = useState(false);
   const [error, setError] = useState("");
   const [loadingLabel, setLoadingLabel] = useState<string | null>(null);
+  const [preSolvedAnswer, setPreSolvedAnswer] = useState<string | null>(null);
+  const [preSolvedSteps, setPreSolvedSteps] = useState<string[]>([]);
+  const [questionType, setQuestionType] = useState<string | undefined>(undefined);
 
   const selectedChild = useMemo(() => {
     if (!selectedChildId) return null;
@@ -114,13 +117,23 @@ export default function ChildPage() {
 
     try {
       const extracted = await api.extractProblem(file);
-      setQuestion(extracted.question);
       setInputMode("type");
-      const shapeHints = extracted.geometry?.shape_hints || [];
-      const shapeNote = shapeHints.length > 0 ? ` Geometry hints: ${shapeHints.join(", ")}.` : "";
+      // Store pre-solved data from LLM extraction for fast-path solving
+      setPreSolvedAnswer(extracted.pre_solved_answer ?? null);
+      setPreSolvedSteps(extracted.pre_solved_steps ?? []);
+      setQuestionType(extracted.question_type ?? undefined);
+
+      // Build full question string — include options in the text box so user can see/edit them
+      const options = extracted.pre_solved_options ?? [];
+      if (options.length > 0) {
+        const optionLines = options.map((o) => `${o.id}. ${o.text}`).join("\n");
+        setQuestion(`${extracted.question}\n${optionLines}`);
+      } else {
+        setQuestion(extracted.question);
+      }
+
       setUploadNote(
-        `I found this question from ${file.name} (confidence ${Math.round(extracted.confidence * 100)}%).` +
-          `${shapeNote} You can edit it before explaining.`
+        `Found from ${file.name} (confidence ${Math.round(extracted.confidence * 100)}%). You can edit it before moving on to answer and explanation.`
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Could not read that file.";
@@ -128,6 +141,7 @@ export default function ChildPage() {
     } finally {
       setLoadingLabel(null);
     }
+
   }
 
   async function handleExplain() {
@@ -148,7 +162,10 @@ export default function ChildPage() {
     try {
       const solve = await api.solveAndRenderByChild({
         child_id: selectedChildId,
-        question: cleaned
+        question: cleaned,
+        pre_solved_answer: preSolvedAnswer ?? undefined,
+        pre_solved_steps: preSolvedSteps.length > 0 ? preSolvedSteps : undefined,
+        question_type: questionType,
       });
 
       // V2: video_url comes directly from the unified endpoint

@@ -16,5 +16,8 @@
   "geometry": ["square", "rectangle", "triangle", "circle", "pentagon", "hexagon", "perimeter", "area", "sides", "angles", "shape", "right angle"],
   "counting": ["count", "ordinal", "1st", "2nd", "3rd", "4th", "fifth", "sixth", "how many", "first", "second", "third"],
   "multiplication": ["times", "x", "*", "groups of", "each", "multiplied by", "product", "multiply", "double", "triple"],
-  "division": ["divide", "÷", "shared", "equally", "per", "how many groups", "split", "distribute"]
+  "division": ["divide", "÷", "shared", "equally", "per", "how many groups", "split", "distribute"],
+  "bodmas": ["bodmas", "order of operations", "bracket", "(", ")", "[", "]", "{", "}"],
+  "algebra": ["solve for", "missing number", "variable", "open sentence", "equation", "unknown"],
+  "number_properties": ["even", "odd", "is odd", "is even"]
 }

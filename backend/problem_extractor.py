@@ -332,13 +332,38 @@ def _repair_mcq_question(question: str, extracted_text: str) -> str:
     q = _cleanup_question_text(question)
     text = extracted_text or ""
 
+    # --- Handle numbered MCQ choices (1. ... 2. ... 3. ...) ---
+    # Pattern: stem followed by "1. option 2. option 3. option 4. option"
+    numbered_option_re = re.compile(
+        r"(?<![A-Za-z0-9])\s*1[\s.\)]\s*.+?(?:\s+2[\s.\)]\s*.+?)+",
+        re.IGNORECASE | re.DOTALL,
+    )
+    num_match = numbered_option_re.search(q)
+    if num_match:
+        stem = q[:num_match.start()].strip(" :;-")
+        if stem and len(stem) >= 8:  # a proper stem has some length
+            if not re.search(r"[.?!]$", stem):
+                stem = f"{stem}?"
+            return _cleanup_question_text(stem)
+
+    # Also check the full extracted raw text in case the cleaned question missed the options
+    num_match_full = numbered_option_re.search(text)
+    if num_match_full:
+        stem = text[:num_match_full.start()].strip(" :;-")
+        stem = _cleanup_question_text(stem)
+        if stem and len(stem) >= 8:
+            if not re.search(r"[.?!]$", stem):
+                stem = f"{stem}?"
+            return stem
+
+    # --- Handle lettered MCQ choices (a) b) c) d)) ---
     option_pattern = re.compile(r"\b([a-dA-D])\s*[\)\.]")
 
     candidate = q
     if len(re.findall(option_pattern, text)) >= 2 and len(text) > len(candidate):
         candidate = _cleanup_question_text(text)
 
-    candidate = re.sub(r"\b([a-dA-D])\s*[\)\.]", r" \1) ", candidate)
+    candidate = re.sub(r"\b([a-dA-D])\s*[\)\.\.]", r" \1) ", candidate)
     option_match = re.search(r"\b[a-dA-D]\)\s*", candidate)
     if not option_match:
         return q
@@ -347,16 +372,8 @@ def _repair_mcq_question(question: str, extracted_text: str) -> str:
     if not stem:
         return q
 
-    if "__" not in stem and not re.search(r"\b(blank|missing)\b", stem, re.I):
-        if re.search(r"\b(is|are|was|were|equals?|equal to|is called)\s*$", stem, re.I):
-            stem = f"{stem} __"
-        elif re.search(r"[=+\-x/]\s*$", stem):
-            stem = f"{stem} __"
-        else:
-            stem = f"{stem} __"
-
     if not re.search(r"[.?!]$", stem):
-        stem = f"{stem}."
+        stem = f"{stem}?"
 
     return _cleanup_question_text(stem)
 
@@ -687,85 +704,158 @@ def _estimate_confidence(extracted_text: str, question: str, geometry: Dict[str,
 
 
 def llm_fix_ocr_question(raw_ocr: str) -> str:
+    """Legacy wrapper: extract just the cleaned question string from LLM structured response."""
+    result = llm_extract_structured(raw_ocr)
+    if result and result.get("question"):
+        return result["question"]
+    return raw_ocr
+
+
+def llm_extract_structured(raw_ocr: str) -> Optional[Dict[str, Any]]:
     """
-    Use the LLM to reconstruct the clean math question from noisy OCR text.
-    Called for every image upload — catches subtle typos, wrong word order,
-    spurious punctuation and mistaken capitalisation that heuristics miss.
-    Returns the corrected question string, or raw_ocr unchanged if LLM fails.
+    Use the LLM to extract and classify a math question from noisy OCR text.
+    Returns a structured dict or None if the LLM is unavailable or fails.
+
+    Returned dict shape:
+    {
+        "question": str,             # cleaned question stem (no MCQ options in it)
+        "question_type": str,        # arithmetic|word_problem|mcq|fill_blank|true_false|sequence|comparison|geometry|other
+        "options": [                 # only present for MCQ
+            {"id": "1", "text": "...", "value": 3704}
+        ],
+        "pre_solved_answer": str,    # e.g. "Option 2: 200 more than 3604" or "9" or null
+        "pre_solved_steps": [str],   # child-friendly explanation steps
+    }
     """
     if not raw_ocr or not raw_ocr.strip():
-        return raw_ocr
+        return None
 
     try:
         from backend.core.llm import get_client, get_model
         client = get_client()
         model = get_model()
     except Exception:
-        return raw_ocr  # No LLM available — degrade gracefully
+        return None
 
-    prompt = (
-        "You are helping fix OCR errors in text extracted from a primary school math worksheet.\n"
-        "The OCR may have:\n"
-        "  - Misspelled words (e.g. 'ore' → 'are', 'rwmber' → 'number', 'toble' → 'table')\n"
-        "  - Scrambled word order within a line\n"
-        "  - Spurious punctuation ('How many : were' → 'How many people were')\n"
-        "  - Wrong capitalisation mid-sentence ('Or' → 'on')\n"
-        "  - Numbers misread as letters or vice versa\n\n"
-        "Using context clues (it is a math question for children), reconstruct the correct, "
-        "natural-sounding question. Preserve all numbers exactly. "
-        "Return ONLY the corrected question text — no explanation, no prefix.\n\n"
-        f"OCR TEXT:\n{raw_ocr.strip()}"
-    )
+    prompt = f"""You are a primary school math expert assistant.
+You will receive raw OCR text from a math worksheet. Your job is to:
+1. Fix any OCR errors (typos, merged words, wrong characters)
+2. Extract the question stem cleanly
+3. Classify the question type
+4. If it is MCQ, evaluate each option numerically and identify the correct answer
+5. Pre-solve the question with child-friendly steps
+
+Return ONLY a JSON object with this exact shape (no markdown, no explanation):
+{{
+  "question": "<cleaned question stem ONLY — do NOT include the answer options>",
+  "question_type": "<one of: arithmetic, word_problem, mcq, fill_blank, true_false, sequence, comparison, geometry, other>",
+  "options": [
+    {{"id": "1", "text": "<option text>", "value": <computed number or null>}},
+    ...
+  ],
+  "pre_solved_answer": "<correct answer as a clear string, e.g. 'Option 2: 200 more than 3604' or '9' or 'True'> or null if unsure",
+  "pre_solved_steps": ["<step 1 in simple language a child can understand>", "<step 2>", ...]
+}}
+
+Rules:
+- "options" should only be present for MCQ questions. For all other types, set "options" to [].
+- For MCQ, evaluate each option numerically. For "X more than Y" compute X+Y. For "X less than Y" compute Y-X. For "N thousands M hundreds..." expand to the full number.
+- If the question asks "which is NOT equal to X", find which option does NOT equal X.
+- If the question asks "which is equal to X", find which option equals X.
+- Preserve ALL numbers exactly as they appear in the OCR text.
+- For fill-in-the-blank, show the missing number as the answer.
+- Keep steps simple and encouraging for young children (Grade 1-5).
+
+OCR TEXT:
+{raw_ocr.strip()}"""
 
     try:
+        import json
         response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
-            max_tokens=300,
+            max_tokens=800,
         )
-        fixed = response.choices[0].message.content.strip()
-        # Sanity check: must still contain at least one digit (it's a math question)
-        if fixed and re.search(r"\d", fixed):
-            return fixed
+        raw_response = response.choices[0].message.content.strip()
+
+        # Strip markdown code fences if present
+        raw_response = re.sub(r"^```(?:json)?\s*", "", raw_response, flags=re.MULTILINE)
+        raw_response = re.sub(r"\s*```$", "", raw_response, flags=re.MULTILINE)
+
+        parsed = json.loads(raw_response)
+
+        # Validate minimum required fields
+        if not isinstance(parsed, dict) or not parsed.get("question"):
+            return None
+
+        # Sanity check: question must contain at least one digit
+        if not re.search(r"\d", parsed["question"]):
+            return None
+
+        return parsed
+
     except Exception:
-        pass
-
-    return raw_ocr
+        return None
 
 
 
-def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
+def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
     try:
         image = Image.open(BytesIO(file_bytes))
     except Exception as exc:
         raise ValueError("Could not open image file.") from exc
 
     raw_text, ocr_engine = _ocr_image(image)
-    # LLM-based OCR correction: fix typos like 'ore'→'are', 'rwmber'→'number'
-    raw_text = llm_fix_ocr_question(raw_text)
     extracted_text = _clean_text(raw_text)
-
     geometry = _analyze_geometry(image, raw_text)
-    question = _pick_question(raw_text)
-    question = _repair_equation_question(question, raw_text)
-    question = _repair_mcq_question(question, raw_text)
-    question = _cleanup_question_text(question)
+
+    # Try the smart LLM extraction first
+    llm_result = llm_extract_structured(raw_text)
+    pre_solved: Dict[str, Any] = {}
+
+    if llm_result and llm_result.get("question"):
+        question = llm_result["question"]
+        options = llm_result.get("options", [])
+        steps = llm_result.get("pre_solved_steps", [])
+
+        # For MCQ, prepend the full options list as a context step so the
+        # video-generation LLM always has the complete picture.
+        if options:
+            option_lines = [f"{o.get('id', i + 1)}. {o.get('text', '')}" for i, o in enumerate(options)]
+            options_context = "The choices are:\n" + "\n".join(option_lines)
+            steps = [options_context] + steps
+
+        pre_solved = {
+            "question_type": llm_result.get("question_type", "other"),
+            "options": options,
+            "pre_solved_answer": llm_result.get("pre_solved_answer"),
+            "pre_solved_steps": steps,
+        }
+    else:
+        # Regex fallback
+        question = _pick_question(raw_text)
+        question = _repair_equation_question(question, raw_text)
+        question = _repair_mcq_question(question, raw_text)
+        question = _cleanup_question_text(question)
 
     notes: List[str] = []
     if ocr_engine == "none":
         notes.append("OCR engine unavailable on server. Install rapidocr-onnxruntime or pytesseract.")
     else:
         notes.append(f"OCR engine used: {ocr_engine}.")
+    if llm_result:
+        notes.append("LLM-assisted extraction used.")
 
     if not question:
         raise ValueError("Could not extract a math question from the uploaded image.")
 
-    return question, extracted_text, ocr_engine, geometry, notes
+    return question, extracted_text, ocr_engine, geometry, notes, pre_solved
 
 
-def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str]]:
+def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
     notes: List[str] = []
+    pre_solved: Dict[str, Any] = {}
 
     raw_text = _extract_pdf_text(file_bytes)
     extracted_text = _clean_text(raw_text)
@@ -781,10 +871,27 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
         "shape_hints": _shape_hints_from_text(raw_text.lower(), _extract_point_labels(raw_text)),
     }
 
-    question = _pick_question(raw_text)
-    question = _repair_equation_question(question, raw_text)
-    question = _repair_mcq_question(question, raw_text)
-    question = _cleanup_question_text(question)
+    # Try LLM extraction first
+    llm_result = llm_extract_structured(raw_text) if raw_text.strip() else None
+    if llm_result and llm_result.get("question"):
+        question = llm_result["question"]
+        options = llm_result.get("options", [])
+        steps = llm_result.get("pre_solved_steps", [])
+        if options:
+            option_lines = [f"{o.get('id', i + 1)}. {o.get('text', '')}" for i, o in enumerate(options)]
+            steps = ["The choices are:\n" + "\n".join(option_lines)] + steps
+        pre_solved = {
+            "question_type": llm_result.get("question_type", "other"),
+            "options": options,
+            "pre_solved_answer": llm_result.get("pre_solved_answer"),
+            "pre_solved_steps": steps,
+        }
+        notes.append("LLM-assisted extraction used.")
+    else:
+        question = _pick_question(raw_text)
+        question = _repair_equation_question(question, raw_text)
+        question = _repair_mcq_question(question, raw_text)
+        question = _cleanup_question_text(question)
 
     # If native text is weak, render pages and OCR.
     if len(_clean_text(question)) < 8:
@@ -803,10 +910,27 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
 
         raw_text = "\n".join(ocr_chunks)
         extracted_text = _clean_text(raw_text)
-        question = _pick_question(raw_text)
-        question = _repair_equation_question(question, raw_text)
-        question = _repair_mcq_question(question, raw_text)
-        question = _cleanup_question_text(question)
+
+        llm_result2 = llm_extract_structured(raw_text) if raw_text.strip() else None
+        if llm_result2 and llm_result2.get("question"):
+            question = llm_result2["question"]
+            options2 = llm_result2.get("options", [])
+            steps2 = llm_result2.get("pre_solved_steps", [])
+            if options2:
+                option_lines2 = [f"{o.get('id', i + 1)}. {o.get('text', '')}" for i, o in enumerate(options2)]
+                steps2 = ["The choices are:\n" + "\n".join(option_lines2)] + steps2
+            pre_solved = {
+                "question_type": llm_result2.get("question_type", "other"),
+                "options": options2,
+                "pre_solved_answer": llm_result2.get("pre_solved_answer"),
+                "pre_solved_steps": steps2,
+            }
+        else:
+            question = _pick_question(raw_text)
+            question = _repair_equation_question(question, raw_text)
+            question = _repair_mcq_question(question, raw_text)
+            question = _cleanup_question_text(question)
+
         ocr_engine = used_engine if used_engine != "none" else "none"
 
         if pages:
@@ -817,7 +941,7 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
     if not question:
         raise ValueError("Could not extract a math question from the uploaded PDF.")
 
-    return question, extracted_text, ocr_engine, geometry, notes
+    return question, extracted_text, ocr_engine, geometry, notes, pre_solved
 
 
 def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_type: str) -> Dict[str, Any]:
@@ -837,10 +961,10 @@ def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_t
         raise ValueError("Unsupported file type. Upload an image or PDF.")
 
     if is_pdf:
-        question, extracted_text, ocr_engine, geometry, notes = _extract_from_pdf_bytes(file_bytes)
+        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_pdf_bytes(file_bytes)
         source_type = "pdf"
     else:
-        question, extracted_text, ocr_engine, geometry, notes = _extract_from_image_bytes(file_bytes)
+        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_image_bytes(file_bytes)
         source_type = "image"
 
     confidence = _estimate_confidence(extracted_text, question, geometry)
@@ -853,4 +977,9 @@ def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_t
         "confidence": confidence,
         "geometry": geometry,
         "notes": notes,
+        "pre_solved_answer": pre_solved.get("pre_solved_answer"),
+        "pre_solved_steps": pre_solved.get("pre_solved_steps", []),
+        "pre_solved_options": pre_solved.get("options", []),
+        "question_type": pre_solved.get("question_type", "other"),
     }
+

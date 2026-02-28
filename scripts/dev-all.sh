@@ -3,6 +3,7 @@ set -euo pipefail
 
 BACK_PID=""
 REMOTION_PID=""
+REMOTION_STUDIO_PID=""
 
 port_pids() {
   lsof -tiTCP:1233 -sTCP:LISTEN 2>/dev/null || true
@@ -64,6 +65,9 @@ if [[ "${BACKEND_READY}" -ne 1 ]]; then
 fi
 
 cleanup() {
+  if [[ -n "${REMOTION_STUDIO_PID}" ]] && kill -0 "${REMOTION_STUDIO_PID}" >/dev/null 2>&1; then
+    kill "${REMOTION_STUDIO_PID}" >/dev/null 2>&1 || true
+  fi
   if [[ -n "${REMOTION_PID}" ]] && kill -0 "${REMOTION_PID}" >/dev/null 2>&1; then
     kill "${REMOTION_PID}" >/dev/null 2>&1 || true
   fi
@@ -89,6 +93,11 @@ if [[ -d "remotion" ]]; then
   REMOTION_PORT=1235 node remotion/render-api.js &
   REMOTION_PID=$!
   echo "[dev:all] Remotion render server started (pid ${REMOTION_PID})."
+
+  echo "[dev:all] Starting Remotion Studio..."
+  npm --prefix remotion run start &
+  REMOTION_STUDIO_PID=$!
+  echo "[dev:all] Remotion Studio started (pid ${REMOTION_STUDIO_PID})."
 fi
 
 npm --prefix frontend run dev

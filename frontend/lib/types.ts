@@ -72,6 +72,10 @@ export type ExtractProblemResponse = {
   confidence: number;
   geometry: GeometryParseSummary;
   notes: string[];
+  pre_solved_answer?: string | null;
+  pre_solved_steps?: string[];
+  pre_solved_options?: Array<{ id: string; text: string; value: number | null }>;
+  question_type?: string;
 };
 
 export type ActivityRecord = {

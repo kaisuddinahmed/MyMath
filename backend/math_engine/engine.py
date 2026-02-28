@@ -36,6 +36,9 @@ from backend.math_engine.topics.decimals import solve_decimals
 from backend.math_engine.topics.percentages import solve_percentages
 from backend.math_engine.topics.ratio import solve_ratio
 from backend.math_engine.topics.data import solve_data
+from backend.math_engine.topics.bodmas import solve_bodmas
+from backend.math_engine.topics.algebra import solve_algebra
+from backend.math_engine.topics.number_properties import solve_number_properties
 
 
 # ---------------------------------------------------------------------------
@@ -136,17 +139,202 @@ def _dict_to_result(d: dict, topic: str, grade: int) -> SolveResult:
 
 
 # ---------------------------------------------------------------------------
+# MCQ Solver
+# ---------------------------------------------------------------------------
+
+def _eval_expression(expr: str):
+    """Evaluate a simple math expression string. Returns a number or None."""
+    import re
+    e = expr.strip()
+    # Normalize operators
+    e = e.replace("÷", "/").replace("×", "*").replace("x", "*").replace("X", "*")
+    # Remove commas in numbers like 3,000
+    e = re.sub(r"(\d),(\d)", r"\1\2", e)
+    try:
+        # Only evaluate safe arithmetic expressions
+        if re.fullmatch(r"[0-9 +\-*/().]+", e):
+            result = eval(e, {"__builtins__": {}}, {})
+            return int(result) if float(result) == int(result) else float(result)
+    except Exception:
+        pass
+    return None
+
+
+def _solve_mcq(question: str):
+    """
+    Detect and solve MCQ questions: numbered (1. 2. 3. 4.) or lettered (a) b) c) d)).
+    Returns a dict compatible with SolveResult, or None if not MCQ.
+    """
+    import re
+    q = question.strip()
+
+    # Detect the MCQ style and extract stem + options
+    # Numbered: "1. option 2. option" or "1) option 2) option"
+    numbered_re = re.compile(r"(\d)[\s.\)]\s*(.+?)(?=\s+\d[\s.\)]|$)", re.DOTALL)
+    # Lettered: "a. option b. option" or "a) option b) option"
+    lettered_re = re.compile(r"\b([a-d])[\s.\)]\s*(.+?)(?=\s+[a-d][\s.\)]|$)", re.DOTALL | re.IGNORECASE)
+
+    options_raw = {}
+    # Try numbered first: match option markers in format "1. " or "1) " (NOT bare "4 ")
+    # Stray digits inside expressions (like "700 + 4 ") must NOT be matched as option markers
+    option_markers_re = re.compile(r"(?<![.\d])([1-9])\s*[.)]\s+(?=[^\s])", re.IGNORECASE)
+    marker_positions = [(m.group(1), m.start(), m.end()) for m in option_markers_re.finditer(q)]
+    # Only proceed if we see at least two consecutive numeric markers (1, 2, ...)
+    consecutive = [marker_positions[i] for i in range(len(marker_positions) - 1)
+                   if int(marker_positions[i][0]) + 1 == int(marker_positions[i+1][0])]
+    if len(consecutive) >= 1 and len(marker_positions) >= 2:
+        # Slice the question between each pair of consecutive markers
+        for idx, (num, start, end) in enumerate(marker_positions):
+            next_start = marker_positions[idx + 1][1] if idx + 1 < len(marker_positions) else len(q)
+            val = q[end:next_start].strip()
+            options_raw[num] = val
+    else:
+        let_matches = lettered_re.findall(q)
+        if len(let_matches) >= 2:
+            for letter, val in let_matches:
+                options_raw[letter.lower()] = val.strip()
+
+    if not options_raw:
+        return None
+
+    # Determine target value from stem
+    # Look for pattern: "not equal to X?", "equal to X?", "which is X?"
+    q_lower = q.lower()
+    not_equal = "not equal" in q_lower or "not the same" in q_lower
+    equal_mode = "which" in q_lower and "equal" in q_lower
+
+    # Extract target number from stem (i.e. from before the first option marker)
+    # Find position of the first numbered option like "1." or "1)"
+    first_option_marker = re.search(r"(?<!\d)\s+1[\s.)]\s*\S", q)
+    stem = q[:first_option_marker.start()].strip() if first_option_marker else q
+    
+    # Pick the largest number in the stem (most likely to be the target like 3704, not a 1-digit like "3")
+    all_nums = re.findall(r"\b(\d[\d,]*)\b", stem)
+    target = None
+    if all_nums:
+        # Pick the single most-mentioned / largest number (strips commas first)
+        target = max(int(n.replace(",", "")) for n in all_nums)
+
+    if target is None:
+        return None  # Can't solve without a target number
+
+    # Evaluate each option
+    evaluated = {}  # option_key -> (text, computed_value, matches_target)
+    for key, val in options_raw.items():
+        # Try to evaluate as math expression
+        computed = _eval_expression(val)
+        if computed is None:
+            # Try to extract a number from textual options like "200 more than 3604"
+            more_match = re.search(r"(\d[\d,]*)\s+more than\s+(\d[\d,]*)", val, re.I)
+            less_match = re.search(r"(\d[\d,]*)\s+less than\s+(\d[\d,]*)", val, re.I)
+            thousands_match = re.search(r"(\d+)\s+thousands?[,\s]+(\d+)\s+hundreds?(?:[,\s]+and\s+|\s+)(\d*)\s*(?:tens?[,\s]+)?(\d+)\s+ones?", val, re.I)
+            plain_num = re.fullmatch(r"[\d,]+", val.strip())
+            if more_match:
+                a = int(more_match.group(1).replace(",", ""))
+                b = int(more_match.group(2).replace(",", ""))
+                computed = b + a
+            elif less_match:
+                a = int(less_match.group(1).replace(",", ""))
+                b = int(less_match.group(2).replace(",", ""))
+                computed = b - a
+            elif thousands_match:
+                thousands_v = int(thousands_match.group(1)) * 1000
+                hundreds_v = int(thousands_match.group(2)) * 100
+                tens_v = int(thousands_match.group(3)) * 10 if thousands_match.group(3) else 0
+                ones_v = int(thousands_match.group(4)) if thousands_match.group(4) else 0
+                computed = thousands_v + hundreds_v + tens_v + ones_v
+            elif plain_num:
+                computed = int(val.strip().replace(",", ""))
+        evaluated[key] = (val, computed, computed == target if computed is not None else None)
+
+    if not_equal:
+        # Find the option that does NOT equal the target
+        incorrect = [(k, v, c) for k, (v, c, m) in evaluated.items() if m is False and c is not None]
+        correct_ones = [(k, v, c) for k, (v, c, m) in evaluated.items() if m is True and c is not None]
+        if incorrect:
+            winner_key, winner_val, winner_computed = incorrect[0]
+            steps = [
+                Step(title="Identify the target", text=f"The question asks which option is NOT equal to {target}."),
+            ]
+            for k, (v, c, m) in evaluated.items():
+                status = "✓ equals" if m else ("✗ does NOT equal" if m is False else "Could not compute")
+                steps.append(Step(title=f"Option {k}", text=f"{v} → {c if c is not None else '?'}. {status} {target}."))
+            steps.append(Step(title="Answer", text=f"Option {winner_key}: '{winner_val}' = {winner_computed}, which is NOT equal to {target}."))
+            return {
+                "answer": f"Option {winner_key}: {winner_val}",
+                "steps": [{"title": s.title, "text": s.text} for s in steps],
+                "topic": "place_value",
+                "smaller_example": f"e.g. Which is NOT equal to 100? → 90 + 20 = 110 ✗",
+            }
+    else:
+        # Find options that DO equal the target
+        correct = [(k, v, c) for k, (v, c, m) in evaluated.items() if m is True and c is not None]
+        if correct:
+            winner_key, winner_val, winner_computed = correct[0]
+            steps = [
+                Step(title="Identify the target", text=f"The question asks which option equals {target}."),
+            ]
+            for k, (v, c, m) in evaluated.items():
+                status = "✓ equals" if m else ("✗ does not equal" if m is False else "Could not compute")
+                steps.append(Step(title=f"Option {k}", text=f"{v} → {c if c is not None else '?'}. {status} {target}."))
+            return {
+                "answer": f"Option {winner_key}: {winner_val}",
+                "steps": [{"title": s.title, "text": s.text} for s in steps],
+                "topic": "place_value",
+                "smaller_example": f"e.g. Which equals 100? → 50 + 50 = 100 ✓",
+            }
+
+    return None  # Could not determine the answer
+
+
+# ---------------------------------------------------------------------------
 # Public: solve()
 # ---------------------------------------------------------------------------
 
-def solve(question: str, grade: int, curriculum_hints: Optional[List[str]] = None) -> SolveResult:
+def solve(
+    question: str,
+    grade: int,
+    curriculum_hints: Optional[List[str]] = None,
+    pre_solved_answer: Optional[str] = None,
+    pre_solved_steps: Optional[List[str]] = None,
+) -> SolveResult:
     """
     Main entrypoint. Routes question to the correct topic solver.
-    Curriculum_hints are style cues from the knowledge layer — they do not
-    restrict which questions can be answered.
+    If pre_solved_answer is provided (from LLM extraction), it is used directly as a fast path.
     """
     q = question.strip()
-    info_default = TOPIC_MAP.get("addition", {})
+
+    # --- Step -1. LLM pre-solved fast path (from extraction pipeline) ---
+    if pre_solved_answer:
+        detected = detect_topic(q)
+        info = TOPIC_MAP.get(detected, {})
+        steps = [Step(title=s.split(":", 1)[0].strip() if ":" in s else "Step", text=s) for s in (pre_solved_steps or [])]
+        if not steps:
+            steps = [Step(title="Answer", text=pre_solved_answer)]
+        return SolveResult(
+            topic=detected if detected != "unknown" else "general",
+            answer=pre_solved_answer,
+            steps=steps,
+            smaller_example="",
+            template=pick_template(detected if detected != "unknown" else "addition"),
+            solver_used="llm_pre_solved",
+            min_grade_for_topic=int(info.get("min_grade", 1)),
+            is_above_grade=grade < int(info.get("min_grade", 1)),
+        )
+
+    # --- 0. MCQ solver (must run first to prevent MCQ options polluting other solvers) ---
+    mcq_result = _solve_mcq(q)
+    if mcq_result:
+        return _dict_to_result(mcq_result, mcq_result.get("topic", "place_value"), grade)
+
+    # --- 0.5 High-priority structural interceptors (Algebra, BODMAS) ---
+    alg_result = solve_algebra(q)
+    if alg_result:
+        return _dict_to_result(alg_result, "algebra", grade)
+        
+    bod_result = solve_bodmas(q)
+    if bod_result:
+        return _dict_to_result(bod_result, "bodmas", grade)
 
     # --- 1. Arithmetic (regex, highest confidence) ---
     solved = solve_add_sub(q)
@@ -198,6 +386,7 @@ def solve(question: str, grade: int, curriculum_hints: Optional[List[str]] = Non
     # --- 2. Topic-specific solvers (high-specificity first) ---
     topic_solvers = [
         # High-specificity pattern solvers — run FIRST (their keywords are unambiguous)
+        ("number_properties",   solve_number_properties),
         ("fractions",           solve_fractions),
         ("multiples_factors",   solve_factors_multiples),
         ("percentages",         solve_percentages),

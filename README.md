@@ -4,7 +4,7 @@ MyMath helps primary students (Grades 1–5) **understand** math through short, 
 
 **Core principles:**
 
-- **Correctness first:** answers come from **deterministic solvers** — LLM never touches the final number.
+- **Correctness first:** answers for simple arithmetic come from **deterministic solvers** — guaranteed exact. Complex/MCQ questions are solved by the LLM extractor and validated before use.
 - **Visual learning:** explanations use simple objects and animations (counters, groups, fraction pies).
 - **Curriculum-aware, not curriculum-locked:** any question is answered; the child's grade controls _how_, not _whether_.
 
@@ -14,7 +14,7 @@ MyMath helps primary students (Grades 1–5) **understand** math through short, 
 
 For each question:
 
-1. **Robust extraction:** Uploads (Image/PDF) are pre-processed (upscaled/sharpened), OCR'd, and automatically corrected via LLM to fix typos and scrambled words.
+1. **Smart extraction:** Uploads (Image/PDF) are pre-processed (upscaled/sharpened), OCR'd, then parsed by `llm_extract_structured` — a single LLM call that cleans OCR noise, classifies the question type (`arithmetic`, `mcq`, `word_problem`, `fill_blank`, `true_false`, `sequence`, `geometry`, etc.), evaluates all MCQ options numerically, and pre-solves the answer.
 2. Verified answer + kid-friendly step-by-step explanation
 3. A **Director Script JSON** (LLM output, schema-validated) — action-based cues like `ADD_ITEMS`, `GROUP_ITEMS`, `SHOW_EQUATION`
 4. **Deepgram Aura TTS** narration audio (~$0.015/1K chars) with a warm teacher-like voice
@@ -62,7 +62,7 @@ For each question:
 | Ratio             | Simplify, divide in ratio, unitary method           |
 | Data              | Mode, range                                         |
 
-**Fallback cascade:** Arithmetic → topic solvers → word-problem parser → AI-assisted. No question ever crashes.
+**Solver cascade:** LLM pre-solved fast path (from extraction) → Arithmetic → topic solvers → word-problem parser → AI-assisted. No question ever crashes.
 
 ---
 
@@ -147,7 +147,7 @@ cd frontend && npm run dev
 | `GET`   | `/children/{child_id}`       | Get child                                                     |
 | `PATCH` | `/children/{child_id}`       | Update child                                                  |
 | `POST`  | `/solve-and-render/by-child` | **V2** Solve + TTS + render in one call (returns `video_url`) |
-| `POST`  | `/extract-problem`           | Upload image/PDF → question                                   |
+| `POST`  | `/extract-problem`           | Upload image/PDF → question + pre-solved answer               |
 | `POST`  | `/try-similar/by-child`      | Generate practice question                                    |
 
 ### Legacy (still supported)
@@ -195,13 +195,13 @@ cd frontend && npm run dev
 
 ## NCTB Coverage
 
-| Class   | Status     | Regression |
-| ------- | ---------- | ---------- |
-| Class 1 | ✅         | 31/31      |
-| Class 2 | ✅         | 36/36      |
-| Class 3 | ✅         | 32/32      |
-| Class 4 | 🔲 planned | —          |
-| Class 5 | 🔲 planned | —          |
+| Class   | Status | Regression |
+| ------- | ------ | ---------- |
+| Class 1 | ✅     | 31/31      |
+| Class 2 | ✅     | 36/36      |
+| Class 3 | ✅     | 32/32      |
+| Class 4 | ✅     | untested   |
+| Class 5 | ✅     | untested   |
 
 ---
 
@@ -213,7 +213,6 @@ cd frontend && npm run dev
 | Medium   | Word-problem parser: multi-step problems                   |
 | Medium   | Cambridge / Edexcel curriculum profiles                    |
 | Lower    | Persist child profiles to DB (models ready, wiring needed) |
-| Lower    | LLM fallback solver (`math_engine/llm_fallback.py`)        |
 | Lower    | CI eval gating per class                                   |
 
 ---

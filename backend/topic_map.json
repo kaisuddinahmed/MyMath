@@ -119,6 +119,24 @@
     "intro_hint": "Ordinals show position: 1st, 2nd, 3rd...",
     "min_grade": 1
   },
+  "bodmas": {
+    "templates": ["step_by_step", "expression_tree"],
+    "prerequisites": ["addition", "subtraction", "multiplication", "division"],
+    "intro_hint": "BODMAS tells us the correct order to solve math problems.",
+    "min_grade": 4
+  },
+  "algebra": {
+    "templates": ["balance_scale", "missing_box"],
+    "prerequisites": ["addition", "subtraction", "multiplication", "division", "bodmas"],
+    "intro_hint": "Algebra helps us find the missing value by using opposite operations.",
+    "min_grade": 4
+  },
+  "number_properties": {
+    "templates": ["number_cards"],
+    "prerequisites": ["multiples_factors", "division"],
+    "intro_hint": "Numbers can be even or odd depending on if they can be divided by 2.",
+    "min_grade": 3
+  },
   "word_problem": {
     "templates": ["counters_add", "group_boxes"],
     "prerequisites": ["addition", "subtraction"],

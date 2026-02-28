@@ -135,7 +135,14 @@ def solve_and_render_by_child(req: SolveByChildRequest):
         raise HTTPException(status_code=404, detail="Child not found")
 
     hints = _get_curriculum_hints(child, req.question)
-    result = _run_solve_and_render(req.question, child["class_level"], curriculum_hints=hints)
+    result = _run_solve_and_render(
+        req.question,
+        child["class_level"],
+        curriculum_hints=hints,
+        pre_solved_answer=req.pre_solved_answer,
+        pre_solved_steps=req.pre_solved_steps,
+        question_type=req.question_type,
+    )
     append_activity(
         child_id=req.child_id,
         question=req.question,
@@ -199,9 +206,22 @@ def try_similar_by_child(req: SolveByChildRequest):
 # Internal: run full solve + LLM video prompt pipeline
 # ---------------------------------------------------------------------------
 
-def _run_solve_and_prompt(question: str, grade: int, curriculum_hints: list[str] | None = None) -> SolveAndPromptResponse:
-    # Step 1: Deterministic solve via math engine
-    result = engine_solve(question, grade, curriculum_hints=curriculum_hints)
+def _run_solve_and_prompt(
+    question: str,
+    grade: int,
+    curriculum_hints: list[str] | None = None,
+    pre_solved_answer: str | None = None,
+    pre_solved_steps: list[str] | None = None,
+    question_type: str | None = None,
+) -> SolveAndPromptResponse:
+    # Step 1: Deterministic/LLM solve via math engine
+    result = engine_solve(
+        question,
+        grade,
+        curriculum_hints=curriculum_hints,
+        pre_solved_answer=pre_solved_answer,
+        pre_solved_steps=pre_solved_steps,
+    )
     topic = result.topic
     template = result.template
     review_data = build_review(topic, template, result.is_above_grade, [])
@@ -241,7 +261,8 @@ def _run_solve_and_prompt(question: str, grade: int, curriculum_hints: list[str]
     schema_text = json.dumps(VIDEO_SCHEMA or {}, ensure_ascii=True)
 
     # Build topic-specific guidance for the LLM director
-    topic_guidance = _build_topic_guidance(topic, verified_answer)
+    effective_topic = question_type if question_type in ("mcq", "true_false") else topic
+    topic_guidance = _build_topic_guidance(effective_topic, verified_answer)
 
     # Adjust constraints based on whether a smaller example is forced
     scene_rules = (
@@ -383,7 +404,43 @@ Retry with stricter enforcement:
 # ---------------------------------------------------------------------------
 
 def _build_topic_guidance(topic: str, verified_answer: str) -> str:
-    if topic == "multiplication":
+    if topic == "mcq":
+        return (
+            "Topic guidance: This is a MULTIPLE CHOICE question.\n"
+            "\n"
+            "MANDATORY scene structure — do not deviate:\n"
+            "Scene 1 — SHOW_EQUATION: Show the question stem as the equation. Narration reads the question aloud, "
+            "then introduces ALL options by number in order WITHOUT evaluating them yet. "
+            "Example narration structure: 'Let us look at each option. Option 1 is [text]. Option 2 is [text]. "
+            "Option 3 is [text]. Option 4 is [text]. Now let us check each one.'\n"
+            "\n"
+            "Scenes 2 to N — SHOW_EQUATION (ONE scene per option): Evaluate EVERY option in order, starting from "
+            "Option 1. Even if the correct/incorrect answer is found early, CONTINUE and evaluate ALL remaining "
+            "options so the student understands why each one is right or wrong. "
+            "For each option scene: show the arithmetic or reasoning for that option as the equation, and in "
+            "narration explain step by step whether it satisfies or does not satisfy the condition. "
+            "Use plain language: 'Option 1. [work it out]. That gives [result]. [Yes, that is correct / "
+            "No, that is NOT the answer].'\n"
+            "\n"
+            f"Final scene — SHOW_EQUATION: Clearly state '{verified_answer}' and in one sentence explain WHY "
+            "that option is the correct/incorrect one compared to the others.\n"
+            "\n"
+            "CRITICAL RULES:\n"
+            "- Evaluate every single option — never skip one.\n"
+            "- Do NOT use ADD_ITEMS, REMOVE_ITEMS, or GROUP_ITEMS in any scene.\n"
+            "- Only SHOW_EQUATION and HIGHLIGHT actions are allowed.\n"
+            "- Do not invent example numbers from a different question. Use only the actual options given."
+        )
+    elif topic == "true_false":
+        return (
+            "Topic guidance: This is a TRUE or FALSE question. 3-scene structure:\n"
+            "Scene 1 — SHOW_EQUATION: Show the statement as the equation. Read it aloud in narration.\n"
+            "Scene 2 — SHOW_EQUATION: Work through the reasoning or calculation in narration step by step. "
+            "Show the key arithmetic or logic as the equation.\n"
+            f"Scene 3 — SHOW_EQUATION: State the answer '{verified_answer}' and explain in one sentence why.\n"
+            "Do NOT use ADD_ITEMS, REMOVE_ITEMS, or GROUP_ITEMS."
+        )
+    elif topic == "multiplication":
         return (
             "Topic guidance: Sequence MUST be:\n"
             "1. ADD_ITEMS to show a single group of objects.\n"
@@ -414,10 +471,14 @@ def _build_topic_guidance(topic: str, verified_answer: str) -> str:
         )
     else:
         return (
-            "Topic guidance: Use ADD_ITEMS to show counting objects.\n"
-            "Use APPLE_SVG or BLOCK_SVG as item_type.\n"
-            'Narration must mention "counters" or "blocks".'
+            "Topic guidance: Choose the most appropriate action based on the problem type.\n"
+            "- For problems involving counting or combining objects, use ADD_ITEMS with APPLE_SVG or BLOCK_SVG.\n"
+            "- For problems involving comparison, place value, patterns, or conceptual reasoning, "
+            "use SHOW_EQUATION scenes only — do NOT force ADD_ITEMS if items do not naturally represent the math.\n"
+            "- Always end with a SHOW_EQUATION scene showing the final answer.\n"
+            "Match the animation to the math: if items don't help explain it, skip them."
         )
+
 
 
 # ---------------------------------------------------------------------------
@@ -450,7 +511,14 @@ def _render_via_remotion(prompt_json: dict, audio_paths: list[Path] | None) -> d
         return None
 
 
-def _run_solve_and_render(question: str, grade: int, curriculum_hints: list[str] | None = None) -> SolveAndPromptResponse:
+def _run_solve_and_render(
+    question: str,
+    grade: int,
+    curriculum_hints: list[str] | None = None,
+    pre_solved_answer: str | None = None,
+    pre_solved_steps: list[str] | None = None,
+    question_type: str | None = None,
+) -> SolveAndPromptResponse:
     """
     Full pipeline: solve → LLM script → cache check → TTS → Remotion render → cache.
     Returns a SolveAndPromptResponse with video_url populated.
@@ -460,7 +528,12 @@ def _run_solve_and_render(question: str, grade: int, curriculum_hints: list[str]
     cached_filename = cache_lookup(key)
     if cached_filename:
         # Still need the solve data
-        solve_result = _run_solve_and_prompt(question, grade)
+        solve_result = _run_solve_and_prompt(
+            question, grade,
+            pre_solved_answer=pre_solved_answer,
+            pre_solved_steps=pre_solved_steps,
+            question_type=question_type,
+        )
         solve_result.video_url = video_url_from_filename(cached_filename)
         solve_result.video_cached = True
         solve_result.video_generated_by = "remotion"
@@ -468,7 +541,13 @@ def _run_solve_and_render(question: str, grade: int, curriculum_hints: list[str]
         return solve_result
 
     # Step 2: Run the full solve + LLM prompt pipeline
-    solve_result = _run_solve_and_prompt(question, grade, curriculum_hints=curriculum_hints)
+    solve_result = _run_solve_and_prompt(
+        question, grade,
+        curriculum_hints=curriculum_hints,
+        pre_solved_answer=pre_solved_answer,
+        pre_solved_steps=pre_solved_steps,
+        question_type=question_type,
+    )
 
     if not solve_result.video_prompt_json:
         logger.warning("No video prompt JSON generated — skipping render")

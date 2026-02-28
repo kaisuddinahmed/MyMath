@@ -100,6 +100,9 @@ export type PatchChildPayload = Partial<CreateChildPayload>;
 export type SolveByChildPayload = {
   child_id: string;
   question: string;
+  pre_solved_answer?: string;
+  pre_solved_steps?: string[];
+  question_type?: string;
 };
 
 export const api = {
