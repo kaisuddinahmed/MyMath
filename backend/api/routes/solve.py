@@ -349,10 +349,15 @@ Rules:
 - STRICT STORYBOARD: Do not repeat steps or jump back and forth. Follow a logical progression.
 {scene_rules}
 - Make sure narration matches the action perfectly.
-- ALWAYS end with a SHOW_EQUATION scene showing the final answer to the main problem.
-- Return ONLY valid JSON matching the schema exactly.
-- No markdown. No extra text.
 """
+
+    # For standard templates, enforce a final SHOW_EQUATION scene.
+    # But for continuous components (column_arithmetic, small_addition), the final scene
+    # is handled natively within their own action types, so we don't force it.
+    if template not in ["column_arithmetic", "small_addition"]:
+        base_content += "- ALWAYS end with a SHOW_EQUATION scene showing the final answer to the main problem.\n"
+        
+    base_content += "- Return ONLY valid JSON matching the schema exactly.\n- No markdown. No extra text.\n"
 
     attempts = []
     final_prompt = ""
@@ -539,8 +544,10 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
         )
     elif topic == "subtraction":
         return (
-            "Topic guidance: Use ADD_ITEMS first to show the starting count,\n"
-            "then REMOVE_ITEMS to take some away.\n"
+            "Topic guidance: Sequence MUST be:\n"
+            "1. ADD_ITEMS first to show the starting count.\n"
+            "2. REMOVE_ITEMS to take some away. IMPORTANT: You MUST set the equation field to exactly \"A - B\" (e.g., \"8 - 3\") so the frontend knows what to remove.\n"
+            "3. SHOW_EQUATION to show the final result, e.g., \"8 - 3 = 5\".\n"
             "Use APPLE_SVG or STAR_SVG as item_type.\n"
             'Narration must mention "take away" or "remove".'
         )
@@ -552,17 +559,19 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
         )
     elif topic == "addition": # fallback for small addition
         return (
-            "Topic guidance: Sequence MUST be:\n"
-            "1. ADD_ITEMS to show two separate groups of objects.\n"
-            "2. SHOW_EQUATION to show them sliding together to merge.\n"
+            "Topic guidance: Sequence MUST rigidly follow these steps in order. For ALL steps, use the action 'SHOW_SMALL_ADDITION'.\n"
+            "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Narration e.g., 'Let's add 4 apples and 2 apples.' Equation MUST be 'A + B' (e.g., '4 + 2').\n"
+            "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Narration e.g., 'When we put them together...' Equation MUST be 'A + B' (e.g., '4 + 2').\n"
+            "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 2'). Skip this step entirely if the total is less than 6.\n"
+            "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, 4 plus 2 is equal to 6.' Equation MUST be 'A + B = C' (e.g., '4 + 2 = 6').\n"
             "Use APPLE_SVG or BLOCK_SVG."
         )
     elif topic == "comparison":
         return (
             "Topic guidance: Sequence MUST be:\n"
-            "1. ADD_ITEMS to show two groups side-by-side.\n"
-            "2. HIGHLIGHT to emphasize the larger or smaller group based on the question.\n"
-            "3. SHOW_EQUATION to state the final relationship (e.g., > or <)."
+            "1. ADD_ITEMS to show two groups side-by-side. IMPORTANT: Set the equation field to exactly \"A ? B\" (e.g., \"5 ? 3\").\n"
+            "2. HIGHLIGHT to emphasize the larger or smaller group based on the question. Set equation to \"A > B\" or \"A < B\".\n"
+            "3. SHOW_EQUATION to state the final relationship (e.g., \"5 > 3\")."
         )
     elif topic == "number_properties":
         return (

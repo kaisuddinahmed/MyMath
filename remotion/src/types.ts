@@ -43,7 +43,8 @@ export type SceneAction =
   | "SHOW_COLUMN_ARITHMETIC"
   | "SHOW_BODMAS"
   | "SHOW_EVEN_ODD"
-  | "SHOW_PERCENTAGE";
+  | "SHOW_PERCENTAGE"
+  | "SHOW_SMALL_ADDITION";
 
 export interface DirectorScene {
   duration: number;

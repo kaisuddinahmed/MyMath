@@ -19,7 +19,7 @@ def _get_dynamic_template(op: str, a: int, b: int) -> str:
     if op in ["+", "-"]:
         if max_val >= 20:
             return "column_arithmetic"
-        return "counters_add" if op == "+" else "counters_remove"
+        return "small_addition" if op == "+" else "counters_remove"
     elif op in ["x", "X", "*"]:
         if max_val > 12:
             return "column_arithmetic"

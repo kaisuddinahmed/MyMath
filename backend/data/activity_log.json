@@ -398,5 +398,53 @@
     "template": "counters_add",
     "score": 90,
     "timestamp": "2026-03-02T05:28:48.206942+00:00"
+  },
+  {
+    "child_id": "892a85dd-a005-4bc3-a76a-602cc6b03407",
+    "question": "3+5",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:36:20.418104+00:00"
+  },
+  {
+    "child_id": "fdba4a90-bfa2-4889-99aa-dad8961d9697",
+    "question": "3+5",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:37:37.530785+00:00"
+  },
+  {
+    "child_id": "fdba4a90-bfa2-4889-99aa-dad8961d9697",
+    "question": "3+5",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:38:43.947163+00:00"
+  },
+  {
+    "child_id": "68f26c86-0403-4df8-b040-71b731cb18a9",
+    "question": "4+2",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:43:29.204016+00:00"
+  },
+  {
+    "child_id": "91b10f8b-b696-4147-895b-4e13faf1e28c",
+    "question": "3+3",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 55,
+    "timestamp": "2026-03-02T06:06:37.172031+00:00"
+  },
+  {
+    "child_id": "6e8bb018-d9aa-4232-8cf4-e1f314ce3a9e",
+    "question": "5+2",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 60,
+    "timestamp": "2026-03-02T06:31:40.593746+00:00"
   }
 ]

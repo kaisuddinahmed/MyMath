@@ -25,6 +25,7 @@ import { ColumnArithmeticScene } from "../components/Scenes/ColumnArithmeticScen
 import { BODMASScene } from "../components/Scenes/BODMASScene";
 import { EvenOddScene } from "../components/Scenes/EvenOddScene";
 import { PercentageScene } from "../components/Scenes/PercentageScene";
+import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
 
 const BG_COLOR = "#0F172A";
 const FPS = 24;
@@ -112,7 +113,14 @@ export const MathVideo: React.FC<{
     const timing = sceneStarts[i];
     const lastGroup = visualGroups[visualGroups.length - 1];
     
-    if (lastGroup && lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") {
+    // Group scenes that should share continuous visual state (e.g. Columns, Small Addition)
+    if (
+      lastGroup && 
+      (
+        (lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") ||
+        (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION")
+      )
+    ) {
       lastGroup.durationInFrames += timing.dur;
       lastGroup.subScenes.push({ scene, ...timing });
     } else {
@@ -149,6 +157,8 @@ export const MathVideo: React.FC<{
           <AbsoluteFill>
             {group.action === "SHOW_COLUMN_ARITHMETIC" ? (
               <ColumnArithmeticScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : group.action === "SHOW_SMALL_ADDITION" ? (
+              <SmallAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : (
               sceneComponent(group.subScenes[0].scene)
             )}
@@ -156,9 +166,9 @@ export const MathVideo: React.FC<{
         </Sequence>
       ))}
 
-      {/* Narration Bars — skip for SHOW_COLUMN_ARITHMETIC (TTS handles it) */}
+      {/* Narration Bars — skip for grouped timeline scenes (TTS handles it natively inside) */}
       {script.scenes.map((scene, i) => (
-        scene.action === "SHOW_COLUMN_ARITHMETIC" ? null : (
+        scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" ? null : (
         <Sequence
           key={`narration-${i}`}
           from={sceneStarts[i].start}
