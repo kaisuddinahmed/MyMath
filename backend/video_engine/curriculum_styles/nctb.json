@@ -1,0 +1,49 @@
+{
+  "curriculum": "nctb",
+  "full_name": "National Curriculum and Textbook Board (Bangladesh)",
+  "country": "Bangladesh",
+  "language": "Bengali/English bilingual",
+  "narration_tone": "warm, encouraging, child-friendly, concept-first",
+
+  "cultural_context": {
+    "currency": "Bangladeshi Taka (BDT) and Poisa",
+    "locale_examples": ["rickshaw", "fish market", "paddy field", "water lily", "mango tree"],
+    "icons_on_currency": ["water lily", "Bangabandhu portrait", "tiger", "deer", "mosque", "boat"],
+    "number_naming": {
+      "note": "Uses Bengali place-value names alongside English",
+      "places": ["ones (একক)", "tens (দশক)", "hundreds (শতক)", "thousands (হাজার)", "ten-thousands (অযুত)", "hundred-thousands (লক্ষ)"]
+    }
+  },
+
+  "default_visual_metaphors_by_topic": {
+    "counting":        ["fish", "mangoes", "stars", "flowers", "birds", "apples"],
+    "addition":        ["fish in a pond", "mangoes in a basket", "flowers in a garden"],
+    "subtraction":     ["fish taken from pond", "mangoes given away"],
+    "multiplication":  ["rows of fish in a market", "equal trays of fruit"],
+    "division":        ["sharing fish equally into groups", "distributing mangoes"],
+    "place_value":     ["bundles of sticks (দশ মিলিয়ে এক বান্ডিল)", "abacus beads", "base-10 blocks"],
+    "fractions":       ["chapati cut into equal parts", "circle shaded equally"],
+    "geometry":        ["circle", "triangle", "rectangle", "square"],
+    "measurement":     ["ruler (স্কেল)", "weighing scale (দাঁড়িপাল্লা)", "measuring cup"],
+    "currency":        ["taka notes", "poisa coins", "water lily coin", "market transaction"],
+    "patterns":        ["repeating shape sequence", "color pattern", "number sequence"],
+    "data":            ["tally marks (দাগ গণনা)", "object table", "count chart"],
+    "comparison":      ["taller/shorter objects", "more/fewer objects in groups"]
+  },
+
+  "explanation_style": {
+    "primary_approach": "concept-first with concrete objects before symbols",
+    "worked_example_format": "show objects → group them → write the equation",
+    "step_language": "simple, short sentences; avoid jargon",
+    "encourage_counting_aloud": true,
+    "use_story_context": true,
+    "story_context_hint": "Frame problems in familiar Bangladeshi everyday contexts (market, home, school)"
+  },
+
+  "video_prompt_hints": {
+    "opening": "Start with a relatable everyday scene from Bangladesh",
+    "object_preference": "Use culturally familiar objects over generic shapes",
+    "color_palette": "bright, cheerful primary colors",
+    "pacing": "slow and deliberate for Class 1-2; moderate for Class 3-5"
+  }
+}

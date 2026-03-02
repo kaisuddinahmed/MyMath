@@ -1,0 +1,37 @@
+{
+  "curriculum": "edexcel",
+  "class_level": 4,
+  "status": "scaffold",
+  "note": "Scaffold placeholder. Awaiting detailed implementation.",
+  "topics_in_scope": [
+    "numbers",
+    "place_value",
+    "addition",
+    "subtraction",
+    "multiplication",
+    "division",
+    "fractions",
+    "decimals",
+    "geometry",
+    "measurement",
+    "currency",
+    "data",
+    "percentages",
+    "averages"
+  ],
+  "constraints": {
+    "max_number": 100000,
+    "allow_negative": false,
+    "allow_fractions": true,
+    "allow_decimals": true
+  },
+  "topic_constraints": {},
+  "chapter_rules": [],
+  "visual_metaphors": {},
+  "messages": {
+    "out_of_scope_topic": "This topic is outside Edexcel Class 4 scope.",
+    "fraction_out_of_scope": "Please use class-appropriate fractions.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "Please use numbers up to {max_number}."
+  }
+}

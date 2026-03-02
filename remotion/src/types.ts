@@ -46,6 +46,8 @@ export type SceneAction =
   | "SHOW_PERCENTAGE"
   | "SHOW_SMALL_ADDITION";
 
+export type CurriculumId = "nctb" | "cambridge" | "edexcel";
+
 export interface DirectorScene {
   duration: number;
   action: SceneAction;
@@ -58,6 +60,12 @@ export interface DirectorScene {
   equation?: string;
   animation_style: AnimationStyle;
   narration: string;
+  /**
+   * Optional: curriculum-specific visual metaphor for this scene.
+   * e.g. "fish" for NCTB addition, "ten-frame" for Cambridge addition.
+   * Scenes should use this to pick the right icon/object to animate.
+   */
+  visual_metaphor?: string;
 }
 
 export interface DirectorScript {
@@ -74,6 +82,12 @@ export interface DirectorScript {
     question: string;
     answer: string;
   };
+  /**
+   * Optional: curriculum the script was generated for.
+   * Drives visual_metaphor choices and narration style.
+   * Defaults to "nctb" if omitted.
+   */
+  curriculum?: CurriculumId;
 }
 
 export interface RenderRequest {

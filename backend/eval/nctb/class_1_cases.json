@@ -1,0 +1,249 @@
+{
+  "meta": {
+    "name": "NCTB Class 1 Regression Suite",
+    "curriculum": "nctb",
+    "class_level": 1
+  },
+  "solve_cases": [
+    {
+      "id": "ch1_comparison_symbol",
+      "chapter": "1",
+      "grade": 1,
+      "question": "5 > 2",
+      "expected_topic": "comparison",
+      "answer_contains": "larger"
+    },
+    {
+      "id": "ch2_counting",
+      "chapter": "2-3",
+      "grade": 1,
+      "question": "Count 7 apples",
+      "expected_topic": "counting",
+      "answer_equals": "7"
+    },
+    {
+      "id": "ch4_addition_concept",
+      "chapter": "4",
+      "grade": 1,
+      "question": "3 + 2",
+      "expected_topic": "addition",
+      "answer_equals": "5"
+    },
+    {
+      "id": "ch5_subtraction_concept",
+      "chapter": "5",
+      "grade": 1,
+      "question": "8 - 3",
+      "expected_topic": "subtraction",
+      "answer_equals": "5"
+    },
+    {
+      "id": "ch6_tens_ones",
+      "chapter": "6",
+      "grade": 1,
+      "question": "2 bundles and 4 ones",
+      "expected_topic": "numbers",
+      "answer_equals": "24"
+    },
+    {
+      "id": "ch7_8_addition_11_20",
+      "chapter": "7-8",
+      "grade": 1,
+      "question": "12 + 5",
+      "expected_topic": "addition",
+      "answer_equals": "17"
+    },
+    {
+      "id": "ch7_8_subtraction_11_20",
+      "chapter": "7-8",
+      "grade": 1,
+      "question": "18 - 7",
+      "expected_topic": "subtraction",
+      "answer_equals": "11"
+    },
+    {
+      "id": "ch9_14_numbers_21_100",
+      "chapter": "9 & 14",
+      "grade": 1,
+      "question": "Which is greater: 56 or 43?",
+      "expected_topic": "comparison",
+      "answer_contains": "56 is larger"
+    },
+    {
+      "id": "ch10_place_value",
+      "chapter": "10",
+      "grade": 1,
+      "question": "How many tens and ones in 24?",
+      "expected_topic": "place_value",
+      "answer_contains": "2 tens and 4 ones"
+    },
+    {
+      "id": "ch12_geometry",
+      "chapter": "12",
+      "grade": 1,
+      "question": "Circle",
+      "expected_topic": "geometry",
+      "answer_equals": "Circle"
+    },
+    {
+      "id": "ch13_pattern",
+      "chapter": "13",
+      "grade": 1,
+      "question": "1, 2, 1, ?",
+      "expected_topic": "patterns",
+      "answer_equals": "2"
+    },
+    {
+      "id": "ch15_16_advanced_addition",
+      "chapter": "15-16",
+      "grade": 1,
+      "question": "45 + 32",
+      "expected_topic": "addition",
+      "answer_equals": "77"
+    },
+    {
+      "id": "ch15_16_advanced_subtraction",
+      "chapter": "15-16",
+      "grade": 1,
+      "question": "90 - 23",
+      "expected_topic": "subtraction",
+      "answer_equals": "67"
+    },
+    {
+      "id": "ch17_currency",
+      "chapter": "17",
+      "grade": 1,
+      "question": "5 taka and 2 taka",
+      "expected_topic": "currency",
+      "answer_contains": "7 taka"
+    },
+    {
+      "id": "edge_fraction_out_of_scope",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "1/2 of 8",
+      "expected_topic": "fractions",
+      "answer_contains": "Fractions are not in NCTB Class 1"
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "3 - 5",
+      "expected_topic": "subtraction",
+      "answer_contains": "cannot take 5 away from 3"
+    },
+    {
+      "id": "edge_above_100",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "120 + 3",
+      "expected_topic": "addition",
+      "answer_contains": "numbers up to 100"
+    },
+    {
+      "id": "edge_counting_out_of_range",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "Count 12 stars",
+      "expected_topic": "counting",
+      "answer_contains": "please stay between 0 and 10"
+    },
+    {
+      "id": "edge_out_of_syllabus_topic",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "12 / 3",
+      "expected_topic": "division",
+      "answer_contains": "outside NCTB Class 1"
+    },
+    {
+      "id": "edge_bangla_digits",
+      "chapter": "edge",
+      "grade": 1,
+      "question": "৩ + ২",
+      "expected_topic": "addition",
+      "answer_equals": "5"
+    }
+  ],
+  "by_child_cases": [
+    {
+      "id": "child_fraction_block",
+      "question": "1/2 of 8",
+      "verified_answer_contains": "Fractions are not in NCTB Class 1",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_negative_block",
+      "question": "3 - 5",
+      "verified_answer_contains": "cannot take 5 away from 3",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_out_of_syllabus_block",
+      "question": "12 / 3",
+      "verified_answer_contains": "outside NCTB Class 1",
+      "expect_attempts": 0
+    }
+  ],
+  "similar_cases": [
+    {
+      "id": "similar_fallback_from_division",
+      "question": "12 / 3",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    },
+    {
+      "id": "similar_from_addition",
+      "question": "3 + 2",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    }
+  ],
+  "extract_cases": [
+    {
+      "id": "extract_pdf_bundles",
+      "kind": "pdf_text",
+      "text": "2 bundles and 4 ones",
+      "expected_status": 200,
+      "question_contains": "2 ten 4",
+      "notes_contains": "bundles_of_sticks"
+    },
+    {
+      "id": "extract_pdf_currency",
+      "kind": "pdf_text",
+      "text": "5 taka and 2 taka",
+      "expected_status": 200,
+      "question_contains": "5 taka",
+      "notes_contains": "currency_note"
+    },
+    {
+      "id": "extract_pdf_place_value",
+      "kind": "pdf_text",
+      "text": "How many tens and ones in 24?",
+      "expected_status": 200,
+      "question_contains": "How many tens and ones in 24"
+    },
+    {
+      "id": "extract_pdf_beads",
+      "kind": "pdf_text",
+      "text": "Count 8 beads on a string",
+      "expected_status": 200,
+      "question_contains": "Count 8 objects",
+      "notes_contains": "bead_string"
+    },
+    {
+      "id": "extract_pdf_ten_frame",
+      "kind": "pdf_text",
+      "text": "Ten frame with 7 dots",
+      "expected_status": 200,
+      "question_contains": "Ten frame",
+      "notes_contains": "ten_frame"
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "kind": "image_text",
+      "text": "1O + 2",
+      "expected_status": 200,
+      "allow_ocr_unavailable": true
+    }
+  ]
+}

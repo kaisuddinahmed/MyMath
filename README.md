@@ -77,16 +77,24 @@ backend/
     topic_detector.py
     grade_style.py
     word_problem_parser.py
-    topics/                  # one file per topic (14 files)
-    class_profiles/          # class_1–3.json ✅  class_4–5.json 🔲
+    topics/                  # one file per topic (19 files) — curriculum-agnostic
+    class_profiles/          # per-curriculum, per-class JSON rule packs
+      nctb/                  # class_1–3.json ✅  class_4–5.json ⚠️ partial
+      cambridge/             # class_1–5.json 🚧 scaffold
+      edexcel/               # class_1–5.json 🚧 scaffold
   knowledge/
+    curriculum_policy.py     # loads class_profiles, validates topic scope
     activity.py
     ingestion/               # Offline CLIs (PDF → embeddings)
   video_engine/
     renderer.py              # legacy PIL renderer (fallback)
     tts.py                   # Deepgram Aura TTS
     video_cache.py           # SHA-256 cache (output/cache_index.json)
-    template_registry.py     # Additive template registry (alternative styles)
+    template_registry.py     # Template registry + load_curriculum_style() helper
+    curriculum_styles/       # per-curriculum visual/cultural style descriptors
+      nctb.json              # Bangladeshi cultural context, topic metaphors, narration tone
+      cambridge.json         # 🚧 scaffold
+      edexcel.json           # 🚧 scaffold
     templates/
     output/                  # MP4 files + cache_index.json + TTS .wav
   api/
@@ -181,12 +189,20 @@ cd frontend && npm run dev
 4. Update `core/coverage.py` IMPLEMENTED_SOLVERS
 5. Add regression cases, run eval
 
-### Upgrade to a new class (e.g. Class 4)
+### Upgrade to a new class (e.g. NCTB Class 4)
 
-1. Edit `backend/math_engine/class_profiles/class_4.json`
-2. Extend topic solvers for new Class 4 topics
-3. Add regression cases → run eval → 100% required
-4. ✅ API, frontend, video engine, knowledge layer untouched
+1. Edit `backend/math_engine/class_profiles/nctb/class_4.json`
+2. Expand `video_engine/curriculum_styles/nctb.json` visual metaphors for new topics
+3. Extend topic solvers if new topics require it
+4. Add regression cases to `backend/eval/nctb/class_4_cases.json` → run eval → 100% required
+5. ✅ API, frontend, video engine, knowledge layer untouched
+
+### Add a new curriculum (e.g. Cambridge)
+
+1. Fill in `backend/math_engine/class_profiles/cambridge/class_N.json` (stubs already exist)
+2. Fill in `backend/video_engine/curriculum_styles/cambridge.json`
+3. Add regression cases to `backend/eval/cambridge/class_N_cases.json`
+4. ✅ Math solvers, API, Remotion scenes — untouched (parameterized by `curriculum` prop)
 
 ### Add a curriculum book
 
@@ -194,27 +210,39 @@ cd frontend && npm run dev
 
 ---
 
-## NCTB Coverage
+## Curriculum Coverage
 
-| Class   | Status | Regression |
-| ------- | ------ | ---------- |
-| Class 1 | ✅     | 31/31      |
-| Class 2 | ✅     | 36/36      |
-| Class 3 | ✅     | 32/32      |
-| Class 4 | ✅     | untested   |
-| Class 5 | ✅     | untested   |
+### NCTB (Bangladesh)
+
+| Class   | Profile    | Regression |
+| ------- | ---------- | ---------- |
+| Class 1 | ✅ full    | 31/31      |
+| Class 2 | ✅ full    | 36/36      |
+| Class 3 | ✅ full    | 32/32      |
+| Class 4 | ⚠️ partial | untested   |
+| Class 5 | ⚠️ partial | untested   |
+
+### Cambridge & Edexcel
+
+| Curriculum | Status                        |
+| ---------- | ----------------------------- |
+| Cambridge  | 🚧 scaffold (class 1–5 stubs) |
+| Edexcel    | 🚧 scaffold (class 1–5 stubs) |
 
 ---
 
 ## Remaining Work
 
-| Priority | Item                                                       |
-| -------- | ---------------------------------------------------------- |
-| High     | Class 4 & 5 curriculum profiles + solver expansion         |
-| Medium   | Word-problem parser: multi-step problems                   |
-| Medium   | Cambridge / Edexcel curriculum profiles                    |
-| Lower    | Persist child profiles to DB (models ready, wiring needed) |
-| Lower    | CI eval gating per class                                   |
+| Priority | Item                                                              |
+| -------- | ----------------------------------------------------------------- |
+| High     | NCTB Class 1 — finalize topic-by-topic (chapter rules, metaphors) |
+| High     | Wire `curriculum_styles/nctb.json` into video prompt LLM call     |
+| High     | NCTB Class 4 & 5 profile completion + solver expansion            |
+| Medium   | Word-problem parser: multi-step problems                          |
+| Medium   | Cambridge curriculum profiles (stubs ready)                       |
+| Medium   | Edexcel curriculum profiles (stubs ready)                         |
+| Lower    | Persist child profiles to DB (models ready, wiring needed)        |
+| Lower    | CI eval gating per class                                          |
 
 ---
 

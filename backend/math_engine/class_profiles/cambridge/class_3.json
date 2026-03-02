@@ -1,0 +1,35 @@
+{
+  "curriculum": "cambridge",
+  "class_level": 3,
+  "status": "scaffold",
+  "note": "Scaffold placeholder. Awaiting detailed implementation.",
+  "topics_in_scope": [
+    "numbers",
+    "place_value",
+    "addition",
+    "subtraction",
+    "multiplication",
+    "division",
+    "fractions",
+    "geometry",
+    "measurement",
+    "currency",
+    "data",
+    "patterns"
+  ],
+  "constraints": {
+    "max_number": 10000,
+    "allow_negative": false,
+    "allow_fractions": true,
+    "allow_decimals": false
+  },
+  "topic_constraints": {},
+  "chapter_rules": [],
+  "visual_metaphors": {},
+  "messages": {
+    "out_of_scope_topic": "This topic is outside Cambridge Class 3 scope.",
+    "fraction_out_of_scope": "Please use class-appropriate fractions.",
+    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "max_number_exceeded": "Please use numbers up to {max_number}."
+  }
+}

@@ -1,0 +1,739 @@
+{
+  "cases_file": "/Users/kaisuddinahmed/Desktop/Projects/MyMath/backend/eval/nctb_class3_cases.json",
+  "summary": {
+    "total": 32,
+    "passed": 32,
+    "failed": 0,
+    "pass_rate_percent": 100.0
+  },
+  "failures": [],
+  "details": [
+    {
+      "id": "ch1_place_value_digit",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "place_value",
+        "answer": "5000",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Find digit 5 in 15200."
+          },
+          {
+            "title": "Step 2",
+            "text": "It is in the thousands place."
+          },
+          {
+            "title": "Step 3",
+            "text": "So its place value is 5000."
+          }
+        ],
+        "smaller_example": "Smaller example: place value of 2 in 245 is 200."
+      }
+    },
+    {
+      "id": "ch1_num_words_lakh_range",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "numbers",
+        "answer": "forty five thousand two hundred",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Read the number 45200."
+          },
+          {
+            "title": "Step 2",
+            "text": "Write it in words: forty five thousand two hundred."
+          },
+          {
+            "title": "Step 3",
+            "text": "Check each place value while reading."
+          }
+        ],
+        "smaller_example": "Smaller example: 15200 is fifteen thousand two hundred."
+      }
+    },
+    {
+      "id": "ch2_add_large",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "7700",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Write numbers in columns by place value."
+          },
+          {
+            "title": "Step 2",
+            "text": "Add ones, tens, hundreds, and thousands from right to left for 4500 + 3200."
+          },
+          {
+            "title": "Step 3",
+            "text": "If a column is 10 or more, carry to the next place. Final sum is 7700."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "ch3_sub_large",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "2211",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Write numbers in columns by place value."
+          },
+          {
+            "title": "Step 2",
+            "text": "Subtract from right to left for 5000 - 2789."
+          },
+          {
+            "title": "Step 3",
+            "text": "If needed, borrow from the next place; when there is 0, borrow across zeros."
+          },
+          {
+            "title": "Step 4",
+            "text": "So the difference is 2211."
+          }
+        ],
+        "smaller_example": "Smaller example: 7 - 2 = 5"
+      }
+    },
+    {
+      "id": "ch5_long_multiplication",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "multiplication",
+        "answer": "408",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "First, multiply 34 by 2: 68."
+          },
+          {
+            "title": "Step 2",
+            "text": "Next, multiply 34 by 10: 340."
+          },
+          {
+            "title": "Step 3",
+            "text": "Add partial products to get 408."
+          }
+        ],
+        "smaller_example": "Smaller example: 3 x 2 = 6"
+      }
+    },
+    {
+      "id": "ch6_division_remainder",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "division",
+        "answer": "Quotient: 4, Remainder: 2",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Check 3 times table near 14."
+          },
+          {
+            "title": "Step 2",
+            "text": "3 x 4 = 12 and 3 x 5 = 15 is too big."
+          },
+          {
+            "title": "Step 3",
+            "text": "Quotient is 4. Remainder is 14 - 12 = 2."
+          }
+        ],
+        "smaller_example": "Smaller example: 14 ÷ 3 = Quotient 4, Remainder 2."
+      }
+    },
+    {
+      "id": "ch8_unitary_method",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "mixed_problems",
+        "answer": "20 taka",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "To find cost of ONE item, divide total cost by number of items."
+          },
+          {
+            "title": "Step 2",
+            "text": "80 ÷ 4 = 20."
+          },
+          {
+            "title": "Step 3",
+            "text": "So cost of 1 item is 20 taka."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 eggs cost 50 Tk, so 1 egg costs 10 Tk."
+      }
+    },
+    {
+      "id": "ch9_fraction_identify",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "answer": "Numerator: 1, Denominator: 4",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "The fraction is 1/4."
+          },
+          {
+            "title": "Step 2",
+            "text": "Top number 1 is the numerator (shaded parts)."
+          },
+          {
+            "title": "Step 3",
+            "text": "Bottom number 4 is the denominator (equal total parts)."
+          }
+        ],
+        "smaller_example": "Smaller example: one shaded part out of 4 equal parts is 1/4."
+      }
+    },
+    {
+      "id": "ch10_money_decimal",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "currency",
+        "answer": "71 taka 25 poisa",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Convert all taka to poisa."
+          },
+          {
+            "title": "Step 2",
+            "text": "100 poisa = 1 taka, so total poisa = 7125."
+          },
+          {
+            "title": "Step 3",
+            "text": "Convert back to taka-poisa: 71 taka 25 poisa."
+          }
+        ],
+        "smaller_example": "Smaller example: 2 taka + 3 taka = 5 taka."
+      }
+    },
+    {
+      "id": "ch11_measure_convert_m",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "measurement",
+        "answer": "300 cm",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Use 1 m = 100 cm."
+          },
+          {
+            "title": "Step 2",
+            "text": "3 x 100 = 300."
+          },
+          {
+            "title": "Step 3",
+            "text": "So, 3 m = 300 cm."
+          }
+        ],
+        "smaller_example": "Smaller example: 2 m = 200 cm."
+      }
+    },
+    {
+      "id": "ch11_measure_convert_kg",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "measurement",
+        "answer": "2000 gm",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Use 1 kg = 1000 gm."
+          },
+          {
+            "title": "Step 2",
+            "text": "2 x 1000 = 2000."
+          },
+          {
+            "title": "Step 3",
+            "text": "So, 2 kg = 2000 gm."
+          }
+        ],
+        "smaller_example": "Smaller example: 3 kg = 3000 gm."
+      }
+    },
+    {
+      "id": "ch12_geometry_angle",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "geometry",
+        "answer": "Angle",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "We check the shape sides and corners."
+          },
+          {
+            "title": "Step 2",
+            "text": "We identify: Angle."
+          },
+          {
+            "title": "Step 3",
+            "text": "These are 2D shapes from Class 2 geometry."
+          }
+        ],
+        "smaller_example": "Smaller example: A shape with 3 sides is a Triangle."
+      }
+    },
+    {
+      "id": "ch13_data_tally",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "data",
+        "answer": "8",
+        "steps": [
+          {
+            "title": "Step 1",
+            "text": "Each tally group ||||/ means 5."
+          },
+          {
+            "title": "Step 2",
+            "text": "Add all tally marks carefully."
+          },
+          {
+            "title": "Step 3",
+            "text": "Total count is 8."
+          }
+        ],
+        "smaller_example": "Smaller example: ||||/ means 5."
+      }
+    },
+    {
+      "id": "edge_division_by_zero",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "division",
+        "answer": "Division by 0 is impossible.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Division by 0 is impossible."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_fraction_out_of_class3_visual_scope",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "answer": "Please use Class 3 unit fractions (1/2, 1/3, 1/4).",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Please use Class 3 unit fractions (1/2, 1/3, 1/4)."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_decimal_non_currency",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "Decimals are only supported in money format for Class 3.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Decimals are only supported in money format for Class 3."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "subtraction",
+        "answer": "We cannot take 9 away from 3.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "We cannot take 9 away from 3."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "edge_above_lakh_limit",
+      "flow": "/solve",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "answer": "Please use Class 3 numbers up to 100000.",
+        "steps": [
+          {
+            "title": "Class level check",
+            "text": "Please use Class 3 numbers up to 100000."
+          }
+        ],
+        "smaller_example": "Smaller example: 5 + 2 = 7"
+      }
+    },
+    {
+      "id": "child_div_zero_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "division",
+        "verified_answer": "Division by 0 is impossible.",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "Division by 0 is impossible."
+          }
+        ],
+        "template": "sharing_groups",
+        "min_grade_for_topic": 3,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Division means sharing equally.",
+          "objects_used": "shared counters into groups",
+          "prerequisite_used": "none",
+          "common_mistake": "Not sharing equally across groups."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_fraction_visual_scope_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "fractions",
+        "verified_answer": "Please use Class 3 unit fractions (1/2, 1/3, 1/4).",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "Please use Class 3 unit fractions (1/2, 1/3, 1/4)."
+          }
+        ],
+        "template": "fraction_pie",
+        "min_grade_for_topic": 3,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Fractions mean equal parts of a whole.",
+          "objects_used": "fraction pie (equal slices)",
+          "prerequisite_used": "none",
+          "common_mistake": "Making parts that are not equal."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "child_decimal_non_currency_block",
+      "flow": "/solve-and-video-prompt/by-child",
+      "status_code": 200,
+      "response": {
+        "topic": "addition",
+        "verified_answer": "Decimals are only supported in money format for Class 3.",
+        "verified_steps": [
+          {
+            "title": "Class level check",
+            "text": "Decimals are only supported in money format for Class 3."
+          }
+        ],
+        "template": "counters_add",
+        "min_grade_for_topic": 1,
+        "is_above_grade": false,
+        "review": {
+          "concept": "Adding means putting groups together.",
+          "objects_used": "counters/blocks",
+          "prerequisite_used": "none",
+          "common_mistake": "Counting too many or skipping a number."
+        },
+        "attempts": [],
+        "final_prompt": "{}",
+        "final_passed": false,
+        "final_score": 0,
+        "video_prompt_json": null,
+        "schema_valid": false
+      }
+    },
+    {
+      "id": "similar_from_fraction_out_scope",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "4 + 6"
+      }
+    },
+    {
+      "id": "similar_from_decimal_out_scope",
+      "flow": "/try-similar/by-child",
+      "status_code": 200,
+      "response": {
+        "question": "3 + 4"
+      }
+    },
+    {
+      "id": "extract_pdf_place_value",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Place value of 5 in 15200",
+        "extracted_text": "Place value of 5 in 15200",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.8,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": []
+      }
+    },
+    {
+      "id": "extract_pdf_division_model",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "14 / 3",
+        "extracted_text": "14 divided by 3 with remainder",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.9,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: division_model"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_missing_number_equation",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "64 - 44",
+        "extracted_text": "7. ___ + 44 = 64",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": []
+      }
+    },
+    {
+      "id": "extract_pdf_fraction_visual",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "1/4",
+        "extracted_text": "Shaded fraction 1/4 of a circle",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": true,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": [
+            "circle"
+          ]
+        },
+        "notes": [
+          "Detected visual hints: fraction_visual",
+          "Detected shape hints: circle"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_money_decimal",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "50.50 Tk + 20.75 Tk",
+        "extracted_text": "50.50 Tk + 20.75 Tk",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: currency_note"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_measure_convert",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "3 m to cm",
+        "extracted_text": "3 m to cm",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.6000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": []
+      }
+    },
+    {
+      "id": "extract_pdf_geometry_angle",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Angle between two rays meeting at a vertex",
+        "extracted_text": "Angle between two rays meeting at a vertex",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": true,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": [
+            "angle"
+          ]
+        },
+        "notes": [
+          "Detected visual hints: geometry_2d",
+          "Detected shape hints: angle"
+        ]
+      }
+    },
+    {
+      "id": "extract_pdf_data_tally",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "Tally marks: ||||/ ||",
+        "extracted_text": "Tally marks: ||||/ ||",
+        "source_type": "pdf",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.7000000000000001,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Detected visual hints: data_tally_marks"
+        ]
+      }
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "flow": "/extract-problem",
+      "status_code": 200,
+      "response": {
+        "question": "we?",
+        "extracted_text": "we?",
+        "source_type": "image",
+        "ocr_engine": "tesseract+pypdf",
+        "confidence": 0.30000000000000004,
+        "geometry": {
+          "analysis_available": true,
+          "has_diagram": false,
+          "line_segments": 0,
+          "circles": 0,
+          "parallel_pairs": 0,
+          "perpendicular_pairs": 0,
+          "point_labels": [],
+          "shape_hints": []
+        },
+        "notes": [
+          "Low confidence extraction. Please review and edit the question."
+        ]
+      }
+    }
+  ]
+}

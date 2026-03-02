@@ -4,7 +4,8 @@ import json
 import re
 
 BASE_DIR = Path(__file__).resolve().parent
-PROFILE_DIR = BASE_DIR / "curriculum_profiles"
+# Profiles live at backend/math_engine/class_profiles/{curriculum}/class_{N}.json
+PROFILE_DIR = BASE_DIR.parent / "math_engine" / "class_profiles"
 
 
 def _load_json_file(path: Path) -> Dict[str, Any]:

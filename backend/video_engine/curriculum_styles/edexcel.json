@@ -1,0 +1,49 @@
+{
+  "curriculum": "edexcel",
+  "status": "scaffold",
+  "full_name": "Edexcel Primary Mathematics",
+  "country": "International (UK-aligned)",
+  "language": "English",
+  "narration_tone": "clear, encouraging, structured",
+
+  "cultural_context": {
+    "currency": "British Pounds (£) and Pence (p)",
+    "locale_examples": ["supermarket", "classroom", "home"],
+    "number_naming": {
+      "note": "Standard international place value naming",
+      "places": ["ones", "tens", "hundreds", "thousands", "ten-thousands", "hundred-thousands"]
+    }
+  },
+
+  "default_visual_metaphors_by_topic": {
+    "counting":        ["counters", "cubes", "dots on a number line"],
+    "addition":        ["counters", "number line jumps", "part-whole model"],
+    "subtraction":     ["counters removed", "number line jumps back", "part-whole model"],
+    "multiplication":  ["arrays", "equal groups"],
+    "division":        ["equal groups", "sharing"],
+    "place_value":     ["place value chart", "base-10 blocks"],
+    "fractions":       ["fraction strips", "fraction circles"],
+    "geometry":        ["2D shapes", "3D shapes"],
+    "measurement":     ["ruler", "balance scale", "measuring cup"],
+    "currency":        ["coins", "notes"],
+    "patterns":        ["shape / number sequences"],
+    "data":            ["tally chart", "bar chart"],
+    "comparison":      ["number line", "comparison symbols"]
+  },
+
+  "explanation_style": {
+    "primary_approach": "part-whole models and number lines",
+    "worked_example_format": "model → calculate → check",
+    "step_language": "grade-appropriate vocabulary",
+    "encourage_counting_aloud": false,
+    "use_story_context": true,
+    "story_context_hint": "Use everyday UK/international contexts"
+  },
+
+  "video_prompt_hints": {
+    "opening": "Introduce the concept with a real-world hook",
+    "object_preference": "abstract models (part-whole, number lines) over story objects",
+    "color_palette": "clean and bright",
+    "pacing": "moderate"
+  }
+}

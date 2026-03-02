@@ -446,5 +446,13 @@
     "template": "small_addition",
     "score": 60,
     "timestamp": "2026-03-02T06:31:40.593746+00:00"
+  },
+  {
+    "child_id": "629855e9-3f8e-4373-8c92-582509dabe7b",
+    "question": "5+4",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 60,
+    "timestamp": "2026-03-02T07:01:16.353459+00:00"
   }
 ]

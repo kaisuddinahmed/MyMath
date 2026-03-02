@@ -1,0 +1,49 @@
+{
+  "curriculum": "cambridge",
+  "status": "scaffold",
+  "full_name": "Cambridge Primary Mathematics",
+  "country": "International (UK-aligned)",
+  "language": "English",
+  "narration_tone": "clear, formal, methodical",
+
+  "cultural_context": {
+    "currency": "British Pounds (£) and Pence (p)",
+    "locale_examples": ["supermarket", "classroom", "school playground"],
+    "number_naming": {
+      "note": "Standard international place value naming",
+      "places": ["ones", "tens", "hundreds", "thousands", "ten-thousands", "hundred-thousands"]
+    }
+  },
+
+  "default_visual_metaphors_by_topic": {
+    "counting":        ["counters", "cubes", "dots"],
+    "addition":        ["number bonds", "ten-frame", "counters"],
+    "subtraction":     ["number bonds", "ten-frame with removed counters"],
+    "multiplication":  ["arrays", "repeated addition bars"],
+    "division":        ["equal group circles", "sharing bars"],
+    "place_value":     ["place value chart", "base-10 blocks", "Dienes blocks"],
+    "fractions":       ["fraction wall", "fraction circles"],
+    "geometry":        ["2D shapes", "3D shapes"],
+    "measurement":     ["ruler", "weighing scales", "measuring jug"],
+    "currency":        ["coins", "notes", "price labels"],
+    "patterns":        ["shape patterns", "number sequences"],
+    "data":            ["tally chart", "bar chart", "pictogram"],
+    "comparison":      ["number line", "greater than / less than symbols"]
+  },
+
+  "explanation_style": {
+    "primary_approach": "symbolic and visual together; number bonds and bar models",
+    "worked_example_format": "show bar model → write the equation → check",
+    "step_language": "precise mathematical vocabulary encouraged",
+    "encourage_counting_aloud": false,
+    "use_story_context": true,
+    "story_context_hint": "Use neutral international contexts (shops, classroom, sports)"
+  },
+
+  "video_prompt_hints": {
+    "opening": "State the mathematical concept clearly before showing examples",
+    "object_preference": "Use abstract shapes and counters over story objects",
+    "color_palette": "clean, minimal, blue and white preferred",
+    "pacing": "moderate and methodical"
+  }
+}

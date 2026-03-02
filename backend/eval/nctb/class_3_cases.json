@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "name": "NCTB Class 3 Regression Suite",
+    "curriculum": "nctb",
+    "class_level": 3
+  },
+  "solve_cases": [
+    {
+      "id": "ch1_place_value_digit",
+      "chapter": "1",
+      "grade": 3,
+      "question": "Place value of 5 in 15200",
+      "expected_topic": "place_value",
+      "answer_equals": "5000"
+    },
+    {
+      "id": "ch1_num_words_lakh_range",
+      "chapter": "1",
+      "grade": 3,
+      "question": "Write 45200 in words",
+      "expected_topic": "numbers",
+      "answer_contains": "thousand"
+    },
+    {
+      "id": "ch2_add_large",
+      "chapter": "2-3",
+      "grade": 3,
+      "question": "4500 + 3200",
+      "expected_topic": "addition",
+      "answer_equals": "7700",
+      "step_contains": "carry"
+    },
+    {
+      "id": "ch3_sub_large",
+      "chapter": "2-3",
+      "grade": 3,
+      "question": "5000 - 2789",
+      "expected_topic": "subtraction",
+      "answer_equals": "2211",
+      "step_contains": "borrow"
+    },
+    {
+      "id": "ch5_long_multiplication",
+      "chapter": "5",
+      "grade": 3,
+      "question": "34 x 12",
+      "expected_topic": "multiplication",
+      "answer_equals": "408",
+      "step_contains": "partial products"
+    },
+    {
+      "id": "ch6_division_remainder",
+      "chapter": "6",
+      "grade": 3,
+      "question": "14 / 3",
+      "expected_topic": "division",
+      "answer_equals": "Quotient: 4, Remainder: 2"
+    },
+    {
+      "id": "ch8_unitary_method",
+      "chapter": "8",
+      "grade": 3,
+      "question": "Cost of 4 pens is 80 tk. Cost of 1?",
+      "expected_topic": "mixed_problems",
+      "answer_equals": "20 taka"
+    },
+    {
+      "id": "ch9_fraction_identify",
+      "chapter": "9",
+      "grade": 3,
+      "question": "In 1/4, identify numerator and denominator",
+      "expected_topic": "fractions",
+      "answer_contains": "Numerator: 1, Denominator: 4"
+    },
+    {
+      "id": "ch10_money_decimal",
+      "chapter": "10",
+      "grade": 3,
+      "question": "50.50 Tk + 20.75 Tk",
+      "expected_topic": "currency",
+      "answer_equals": "71 taka 25 poisa"
+    },
+    {
+      "id": "ch11_measure_convert_m",
+      "chapter": "11",
+      "grade": 3,
+      "question": "3 m to cm",
+      "expected_topic": "measurement",
+      "answer_equals": "300 cm"
+    },
+    {
+      "id": "ch11_measure_convert_kg",
+      "chapter": "11",
+      "grade": 3,
+      "question": "2 kg to gm",
+      "expected_topic": "measurement",
+      "answer_equals": "2000 gm"
+    },
+    {
+      "id": "ch12_geometry_angle",
+      "chapter": "12",
+      "grade": 3,
+      "question": "Identify this shape: angle",
+      "expected_topic": "geometry",
+      "answer_contains": "Angle"
+    },
+    {
+      "id": "ch13_data_tally",
+      "chapter": "13",
+      "grade": 3,
+      "question": "Tally marks: ||||/ |||",
+      "expected_topic": "data",
+      "answer_equals": "8"
+    },
+    {
+      "id": "edge_division_by_zero",
+      "chapter": "edge",
+      "grade": 3,
+      "question": "14 / 0",
+      "expected_topic": "division",
+      "answer_contains": "Division by 0 is impossible"
+    },
+    {
+      "id": "edge_fraction_out_of_class3_visual_scope",
+      "chapter": "edge",
+      "grade": 3,
+      "question": "2/5",
+      "expected_topic": "fractions",
+      "answer_contains": "Please use Class 3 unit fractions"
+    },
+    {
+      "id": "edge_decimal_non_currency",
+      "chapter": "edge",
+      "grade": 3,
+      "question": "12.5 + 3",
+      "expected_topic": "addition",
+      "answer_contains": "Decimals are only supported in money format for Class 3"
+    },
+    {
+      "id": "edge_negative_subtraction",
+      "chapter": "edge",
+      "grade": 3,
+      "question": "3 - 9",
+      "expected_topic": "subtraction",
+      "answer_contains": "cannot take 9 away from 3"
+    },
+    {
+      "id": "edge_above_lakh_limit",
+      "chapter": "edge",
+      "grade": 3,
+      "question": "100001 + 5",
+      "expected_topic": "addition",
+      "answer_contains": "numbers up to 100000"
+    }
+  ],
+  "by_child_cases": [
+    {
+      "id": "child_div_zero_block",
+      "question": "14 / 0",
+      "verified_answer_contains": "Division by 0 is impossible",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_fraction_visual_scope_block",
+      "question": "2/5",
+      "verified_answer_contains": "Please use Class 3 unit fractions",
+      "expect_attempts": 0
+    },
+    {
+      "id": "child_decimal_non_currency_block",
+      "question": "12.5 + 3",
+      "verified_answer_contains": "Decimals are only supported in money format for Class 3",
+      "expect_attempts": 0
+    }
+  ],
+  "similar_cases": [
+    {
+      "id": "similar_from_fraction_out_scope",
+      "question": "2/5",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    },
+    {
+      "id": "similar_from_decimal_out_scope",
+      "question": "12.5 + 3",
+      "expect_regex": "^\\d+\\s\\+\\s\\d+$"
+    }
+  ],
+  "extract_cases": [
+    {
+      "id": "extract_pdf_place_value",
+      "kind": "pdf_text",
+      "text": "Place value of 5 in 15200",
+      "expected_status": 200,
+      "question_contains": "Place value of 5 in 15200"
+    },
+    {
+      "id": "extract_pdf_division_model",
+      "kind": "pdf_text",
+      "text": "14 divided by 3 with remainder",
+      "expected_status": 200,
+      "question_contains": "14 / 3",
+      "notes_contains": "division_model"
+    },
+    {
+      "id": "extract_pdf_missing_number_equation",
+      "kind": "pdf_text",
+      "text": "7. ___ + 44 = 64",
+      "expected_status": 200,
+      "question_contains": "64 - 44"
+    },
+    {
+      "id": "extract_pdf_fraction_visual",
+      "kind": "pdf_text",
+      "text": "Shaded fraction 1/4 of a circle",
+      "expected_status": 200,
+      "question_contains": "1/4",
+      "notes_contains": "fraction_visual"
+    },
+    {
+      "id": "extract_pdf_money_decimal",
+      "kind": "pdf_text",
+      "text": "50.50 Tk + 20.75 Tk",
+      "expected_status": 200,
+      "question_contains": "50.50",
+      "notes_contains": "currency_note"
+    },
+    {
+      "id": "extract_pdf_measure_convert",
+      "kind": "pdf_text",
+      "text": "3 m to cm",
+      "expected_status": 200,
+      "question_contains": "3 m to cm"
+    },
+    {
+      "id": "extract_pdf_geometry_angle",
+      "kind": "pdf_text",
+      "text": "Angle between two rays meeting at a vertex",
+      "expected_status": 200,
+      "notes_contains": "geometry_2d"
+    },
+    {
+      "id": "extract_pdf_data_tally",
+      "kind": "pdf_text",
+      "text": "Tally marks: ||||/ ||",
+      "expected_status": 200,
+      "notes_contains": "data_tally_marks"
+    },
+    {
+      "id": "extract_image_ambiguous_handwriting",
+      "kind": "image_text",
+      "text": "1O + 2",
+      "expected_status": 200,
+      "allow_ocr_unavailable": true
+    }
+  ]
+}
