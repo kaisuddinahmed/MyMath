@@ -254,5 +254,149 @@
     "template": "number_line_jump",
     "score": 90,
     "timestamp": "2026-02-26T16:16:12.071283+00:00"
+  },
+  {
+    "child_id": "86076370-0e58-4b8b-a7fe-134f9f765ac9",
+    "question": "Which one of the following is not equal to 3704?\n1. 3000 + 700 + 4\n2. 200 more than 3604\n3. 200 less than 3904\n4. 3 thousands, 7 hundreds and 4 ones",
+    "topic": "place_value",
+    "template": "tens_ones_blocks",
+    "score": 90,
+    "timestamp": "2026-03-01T04:53:47.776278+00:00"
+  },
+  {
+    "child_id": "6678282e-dec7-4a35-b248-84963012fd9b",
+    "question": "3344+33",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 25,
+    "timestamp": "2026-03-01T04:57:20.735154+00:00"
+  },
+  {
+    "child_id": "c0e52344-db5e-495d-ae21-61ee727f5654",
+    "question": "3344+33",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 60,
+    "timestamp": "2026-03-01T05:06:17.204077+00:00"
+  },
+  {
+    "child_id": "c0e52344-db5e-495d-ae21-61ee727f5654",
+    "question": "3233+21",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 90,
+    "timestamp": "2026-03-01T05:08:14.728234+00:00"
+  },
+  {
+    "child_id": "00520ff6-8da6-47d8-964f-b3adcafffaa6",
+    "question": "3345+22",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T05:31:29.019211+00:00"
+  },
+  {
+    "child_id": "168020e8-c0a1-4064-aee9-035d3fe4e5d6",
+    "question": "1234+56",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T05:58:52.887290+00:00"
+  },
+  {
+    "child_id": "168020e8-c0a1-4064-aee9-035d3fe4e5d6",
+    "question": "1234+55",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T06:32:06.449287+00:00"
+  },
+  {
+    "child_id": "b871bfe4-2aae-4ae0-8147-d541e0d160fb",
+    "question": "1234+33",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T06:54:54.416496+00:00"
+  },
+  {
+    "child_id": "f777cc35-4eb5-4420-9a5b-b529e9732fc6",
+    "question": "1255+76",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T07:41:47.476440+00:00"
+  },
+  {
+    "child_id": "7075d545-977d-4e03-86ee-ec83522effc9",
+    "question": "123+32",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T07:48:38.099157+00:00"
+  },
+  {
+    "child_id": "7075d545-977d-4e03-86ee-ec83522effc9",
+    "question": "1123+89",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T07:49:54.346647+00:00"
+  },
+  {
+    "child_id": "7075d545-977d-4e03-86ee-ec83522effc9",
+    "question": "1224-65",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T07:51:33.546363+00:00"
+  },
+  {
+    "child_id": "7075d545-977d-4e03-86ee-ec83522effc9",
+    "question": "3123-78",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T08:05:14.952188+00:00"
+  },
+  {
+    "child_id": "e4ba42c5-0c7e-4d01-a49f-93dcc8b65fe7",
+    "question": "3411-87",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-01T08:29:08.416316+00:00"
+  },
+  {
+    "child_id": "7ad61eb6-39b6-40f7-aba6-f8a503adc21c",
+    "question": "23+13",
+    "topic": "addition",
+    "template": "place_value_blocks",
+    "score": 90,
+    "timestamp": "2026-03-02T05:13:47.539628+00:00"
+  },
+  {
+    "child_id": "7ad61eb6-39b6-40f7-aba6-f8a503adc21c",
+    "question": "2333+22",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-02T05:15:46.372905+00:00"
+  },
+  {
+    "child_id": "892a85dd-a005-4bc3-a76a-602cc6b03407",
+    "question": "4+5",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:20:26.882062+00:00"
+  },
+  {
+    "child_id": "892a85dd-a005-4bc3-a76a-602cc6b03407",
+    "question": "3+2",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T05:28:48.206942+00:00"
   }
 ]

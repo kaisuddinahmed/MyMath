@@ -339,7 +339,7 @@ def solve(
     # --- 1. Arithmetic (regex, highest confidence) ---
     solved = solve_add_sub(q)
     if solved:
-        a, op, b, ans = solved
+        a, op, b, ans, template = solved
         topic = "addition" if op == "+" else "subtraction"
         info = TOPIC_MAP.get(topic, {})
         steps = _steps_for_op(grade, a, op, b, ans)
@@ -347,14 +347,14 @@ def solve(
             topic=topic, answer=str(ans),
             steps=[Step(**s) for s in steps],
             smaller_example=build_smaller_example(op),
-            template=pick_template(topic),
+            template=template,
             min_grade_for_topic=int(info.get("min_grade", 1)),
             is_above_grade=grade < int(info.get("min_grade", 1)),
         )
 
     solved = solve_mul_div(q)
     if solved:
-        a, op, b, ans = solved
+        a, op, b, ans, template = solved
         topic = "multiplication" if op in ["x", "X", "*"] else "division"
         info = TOPIC_MAP.get(topic, {})
         if ans is None:
@@ -362,7 +362,7 @@ def solve(
                 topic=topic, answer="Cannot divide by zero.",
                 steps=[Step(title="Error", text="Division by zero is not allowed.")],
                 smaller_example="Example: 8 ÷ 2 = 4",
-                template=pick_template(topic),
+                template=template,
                 min_grade_for_topic=int(info.get("min_grade", 1)),
                 is_above_grade=grade < int(info.get("min_grade", 1)),
             )
@@ -378,7 +378,7 @@ def solve(
             topic=topic, answer=ans_str,
             steps=[Step(**s) for s in steps],
             smaller_example=build_smaller_example(op),
-            template=pick_template(topic),
+            template=template,
             min_grade_for_topic=int(info.get("min_grade", 1)),
             is_above_grade=grade < int(info.get("min_grade", 1)),
         )

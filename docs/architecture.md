@@ -154,6 +154,7 @@ knowledge/
 video_engine/
   tts.py              # Deepgram Aura TTS: narration text → .wav  (~$0.015/1K chars)
   video_cache.py      # SHA-256 cache: cache_key(question, grade) → filename
+  template_registry.py# Maps topics to [primary_template, alt_template1, ...] for varied explanations
   renderer.py         # Legacy PIL renderer — fallback when Remotion is unavailable
   templates/          # counters.py, groups.py, fraction.py  (legacy)
   output/             # MP4 files + cache_index.json + TTS .wav files
@@ -162,9 +163,8 @@ remotion/             # Remotion animated video renderer (Node.js service)
   render-api.js       # Express server (port 1234) — POST /render
   src/
     Root.tsx                  # Remotion composition registry
-    compositions/MathVideo.tsx # Sequences scenes + audio
-    components/Scenes.tsx      # CounterScene, GroupScene, FractionScene,
-                               #   EquationScene, TitleCard, NarrationBar
+    compositions/MathVideo.tsx # Router: maps 16+ SceneActions to respective rendering components
+    components/Scenes/         # Specialized engines (BODMASScene, EvenOddScene, PlaceValueScene, etc.)
     assets/items/ItemSvgs.tsx  # SVG items: Apple, Block, Star, Counter
 ```
 
@@ -180,7 +180,7 @@ remotion/             # Remotion animated video renderer (Node.js service)
 }
 ```
 
-Available actions: `ADD_ITEMS` · `REMOVE_ITEMS` · `GROUP_ITEMS` · `SPLIT_ITEM` · `SHOW_EQUATION` · `HIGHLIGHT`
+Available actions: `ADD_ITEMS` · `REMOVE_ITEMS` · `GROUP_ITEMS` · `SPLIT_ITEM` · `SHOW_EQUATION` · `HIGHLIGHT` · `JUMP_NUMBER_LINE` · `SHOW_PLACE_VALUE` · `SHOW_COLUMN_ARITHMETIC` · `SHOW_BODMAS` · `SHOW_EVEN_ODD` · `SHOW_PERCENTAGE` · `DRAW_SHAPE` · `PLOT_CHART` · `MEASURE` · `BALANCE`
 Available animations: `BOUNCE_IN` · `FADE_IN` · `SLIDE_LEFT` · `POP` · `NONE`
 
 **Cost:** ~$0.008 TTS + $0 Remotion = **~$0.02/new video**. Cache hit = **$0**.

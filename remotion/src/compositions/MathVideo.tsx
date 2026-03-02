@@ -11,9 +11,20 @@ import {
   NarrationBar,
   CounterScene,
   GroupScene,
-  FractionScene,
   EquationScene,
 } from "../components/Scenes";
+import { FractionScene } from "../components/Scenes/FractionScene";
+import { GeometryScene } from "../components/Scenes/GeometryScene";
+import { MeasurementScene } from "../components/Scenes/MeasurementScene";
+import { DataScene } from "../components/Scenes/DataScene";
+import { CurrencyScene } from "../components/Scenes/CurrencyScene";
+import { AlgebraScene } from "../components/Scenes/AlgebraScene";
+import { NumberLineScene } from "../components/Scenes/NumberLineScene";
+import { PlaceValueScene } from "../components/Scenes/PlaceValueScene";
+import { ColumnArithmeticScene } from "../components/Scenes/ColumnArithmeticScene";
+import { BODMASScene } from "../components/Scenes/BODMASScene";
+import { EvenOddScene } from "../components/Scenes/EvenOddScene";
+import { PercentageScene } from "../components/Scenes/PercentageScene";
 
 const BG_COLOR = "#0F172A";
 const FPS = 24;
@@ -30,6 +41,24 @@ function sceneComponent(scene: DirectorScene) {
       return <FractionScene scene={scene} />;
     case "SHOW_EQUATION":
       return <EquationScene scene={scene} />;
+    case "DRAW_SHAPE":
+      return <GeometryScene scene={scene} />;
+    case "MEASURE":
+      return <MeasurementScene scene={scene} />;
+    case "PLOT_CHART":
+      return <DataScene scene={scene} />;
+    case "BALANCE":
+      return <AlgebraScene scene={scene} />;
+    case "JUMP_NUMBER_LINE":
+      return <NumberLineScene scene={scene} />;
+    case "SHOW_PLACE_VALUE":
+      return <PlaceValueScene scene={scene} />;
+    case "SHOW_BODMAS":
+      return <BODMASScene scene={scene} />;
+    case "SHOW_EVEN_ODD":
+      return <EvenOddScene scene={scene} />;
+    case "SHOW_PERCENTAGE":
+      return <PercentageScene scene={scene} />;
     default:
       return <CounterScene scene={scene} />;
   }
@@ -69,6 +98,33 @@ export const MathVideo: React.FC<{
     return { start, dur };
   });
 
+
+
+  // Group scenes for continuous visual animation (e.g., Column Arithmetic)
+  const visualGroups: {
+    start: number;
+    durationInFrames: number;
+    action: string;
+    subScenes: { scene: DirectorScene; start: number; dur: number }[];
+  }[] = [];
+
+  script.scenes.forEach((scene, i) => {
+    const timing = sceneStarts[i];
+    const lastGroup = visualGroups[visualGroups.length - 1];
+    
+    if (lastGroup && lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") {
+      lastGroup.durationInFrames += timing.dur;
+      lastGroup.subScenes.push({ scene, ...timing });
+    } else {
+      visualGroups.push({
+        start: timing.start,
+        durationInFrames: timing.dur,
+        action: scene.action,
+        subScenes: [{ scene, ...timing }]
+      });
+    }
+  });
+
   return (
     <AbsoluteFill style={{ backgroundColor: BG_COLOR }}>
       {/* Background gradient overlay */}
@@ -83,18 +139,36 @@ export const MathVideo: React.FC<{
         }}
       />
 
-      {/* Scenes */}
-      {script.scenes.map((scene, i) => (
+      {/* Visual Scenes */}
+      {visualGroups.map((group, i) => (
         <Sequence
-          key={i}
+          key={`visual-${i}`}
+          from={group.start}
+          durationInFrames={group.durationInFrames}
+        >
+          <AbsoluteFill>
+            {group.action === "SHOW_COLUMN_ARITHMETIC" ? (
+              <ColumnArithmeticScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : (
+              sceneComponent(group.subScenes[0].scene)
+            )}
+          </AbsoluteFill>
+        </Sequence>
+      ))}
+
+      {/* Narration Bars — skip for SHOW_COLUMN_ARITHMETIC (TTS handles it) */}
+      {script.scenes.map((scene, i) => (
+        scene.action === "SHOW_COLUMN_ARITHMETIC" ? null : (
+        <Sequence
+          key={`narration-${i}`}
           from={sceneStarts[i].start}
           durationInFrames={sceneStarts[i].dur}
         >
           <AbsoluteFill>
-            {sceneComponent(scene)}
             <NarrationBar text={scene.narration} />
           </AbsoluteFill>
         </Sequence>
+        )
       ))}
 
       {/* Audio track(s) */}

@@ -86,6 +86,7 @@ backend/
     renderer.py              # legacy PIL renderer (fallback)
     tts.py                   # Deepgram Aura TTS
     video_cache.py           # SHA-256 cache (output/cache_index.json)
+    template_registry.py     # Additive template registry (alternative styles)
     templates/
     output/                  # MP4 files + cache_index.json + TTS .wav
   api/
@@ -97,8 +98,8 @@ remotion/                    # Remotion animated video renderer
   render-api.js              # Express server (port 1235) — POST /render
   src/
     Root.tsx                 # Remotion entry
-    compositions/MathVideo.tsx
-    components/Scenes.tsx    # CounterScene, GroupScene, FractionScene, EquationScene
+    compositions/MathVideo.tsx # Maps actions to 13+ rendering engines
+    components/Scenes/       # Data-driven specialized scenes (BODMAS, EvenOdd, NumberLine, etc.)
     assets/items/ItemSvgs.tsx # Apple, Block, Star, Counter SVGs
 
 frontend/

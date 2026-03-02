@@ -5,6 +5,7 @@ Core solve endpoints — delegates all math to math_engine.engine.
 import json
 import logging
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -262,24 +263,40 @@ def _run_solve_and_prompt(
 
     # Build topic-specific guidance for the LLM director
     effective_topic = question_type if question_type in ("mcq", "true_false") else topic
-    topic_guidance = _build_topic_guidance(effective_topic, verified_answer)
+    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template)
 
     # Adjust constraints based on whether a smaller example is forced
-    scene_rules = (
-        "- Limit the total number of scenes to 5-7 maximum (Small Example -> Equation -> Main Problem -> Equation).\n"
-        f"- CRITICAL: The smaller example MUST use the exact same math operation ({topic}) as the main problem. Do not explain {topic} using the wrong terminology.\n"
-        if level_note else
-        "- DO NOT create 'smaller starter examples' or invent your own problems. Solve ONLY the exact problem provided.\n"
-        "- Limit the total number of scenes to 3-4 maximum. A 3-scene video is best (Setup -> Action/Math -> Equation).\n"
-    )
+    if template == "column_arithmetic":
+        scene_rules = (
+            "- DO NOT create 'smaller starter examples'. Solve ONLY the exact problem provided.\n"
+            "- Use as many scenes as needed: 1 setup + 1 per column + 1 result. Do NOT limit scenes.\n"
+        )
+    elif level_note:
+        scene_rules = (
+            "- Limit the total number of scenes to 5-7 maximum (Small Example -> Equation -> Main Problem -> Equation).\n"
+            f"- CRITICAL: The smaller example MUST use the exact same math operation ({topic}) as the main problem. Do not explain {topic} using the wrong terminology.\n"
+        )
+    else:
+        scene_rules = (
+            "- DO NOT create 'smaller starter examples' or invent your own problems. Solve ONLY the exact problem provided.\n"
+            "- Limit the total number of scenes to 3-4 maximum. A 3-scene video is best (Setup -> Action/Math -> Equation).\n"
+        )
 
-    pedagogy_note = (
-        "PEDAGOGY & TIMING RULES:\n"
-        "- Do NOT rush to the answer. The goal is to help children UNDERSTAND math, not memorize it.\n"
-        f"- Explicitly state that we are doing {topic} by name (e.g. 'Since we are sharing equally, this is a division problem'). Explain the 'why' behind the math operation.\n"
-        "- Do NOT use phrasing like 'secret code' or 'magic trick' for equations. Equations are just a way to write what we did visually.\n"
-        "- Your narration dictates how long a scene stays on screen. To give visual animations time to play out, do not rush your words. You can use pauses (like commas or periods) when many items are appearing.\n"
-    )
+    is_symbol_explicit = bool(re.search(r"[\+\-\*xX/÷]", question))
+    pedagogy_note_lines = [
+        "PEDAGOGY & TIMING RULES:",
+        "- Do NOT rush to the answer. The goal is to help children UNDERSTAND math, not memorize it.",
+    ]
+    
+    if not is_symbol_explicit:
+        pedagogy_note_lines.append(f"- Since there are no explicit symbols, you MUST explicitly state that we are doing {topic} by name (e.g. 'Since we are sharing equally, this is a division problem'). Explain the 'why' behind the math operation.")
+        
+    pedagogy_note_lines.extend([
+        "- Do NOT use phrasing like 'secret code' or 'magic trick' for equations. Equations are just a way to write what we did visually.",
+        "- Your narration dictates how long a scene stays on screen. To give visual animations time to play out, do not rush your words. You can use pauses (like commas or periods) when many items are appearing.",
+    ])
+    
+    pedagogy_note = "\n".join(pedagogy_note_lines)
 
     base_content = f"""
 You are a video director for a children's math learning app.
@@ -297,9 +314,17 @@ the animation engine what to render. Available actions and when to use them:
 - SHOW_EQUATION: Display a math equation prominently
   → requires "equation" field
 - HIGHLIGHT: Emphasize/highlight existing items
+- DRAW_SHAPE: Emphasize geometric properties
+- MEASURE: Show an animated ruler or clock
+- BALANCE: Show variables on a balance scale
+- PLOT_CHART: Render bar charts, pie charts or tallies
+- JUMP_NUMBER_LINE: Show frogs/bunnies jumping on a number line
+- SHOW_PLACE_VALUE: Emphasize Base-10 blocks grouped by 10s and 100s
+- SHOW_COLUMN_ARITHMETIC: Show right-to-left columnar addition or subtraction
 
-Available item_type: APPLE_SVG, BLOCK_SVG, STAR_SVG, COUNTER
+Available item_type: APPLE_SVG, BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE
 Available animation_style: BOUNCE_IN, FADE_IN, SLIDE_LEFT, POP, NONE
+
 
 Schema:
 {schema_text}
@@ -403,7 +428,57 @@ Retry with stricter enforcement:
 # Topic-specific director guidance
 # ---------------------------------------------------------------------------
 
-def _build_topic_guidance(topic: str, verified_answer: str) -> str:
+def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") -> str:
+    # Template-level override: when the math engine routes to column_arithmetic,
+    # force the LLM to use SHOW_COLUMN_ARITHMETIC regardless of topic name.
+    if template == "column_arithmetic":
+        return (
+            "Topic guidance: This is a COLUMN ARITHMETIC problem. You MUST follow these rules:\n"
+            "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\" (Do NOT use SHOW_EQUATION or ADD_ITEMS).\n"
+            "- EVERY scene MUST include an \"equation\" field with the equation string (e.g., \"1234 + 55\").\n"
+            "- Keep \"equation\" the SAME base string in every scene so the frontend can parse it.\n"
+            "\n"
+            "MANDATORY scene structure — ONE scene per column, do NOT combine columns:\n"
+            "Scene 1 — Setup: Briefly state the problem. Example: 'Let us solve 3123 subtract 78.'\n"
+            "\n"
+            "For EACH column (ones, tens, hundreds, thousands...) create ONE separate scene.\n"
+            "\n"
+            "ADDITION narration:\n"
+            "  'Now the ones column. 4 plus 3 is 7. We write 7.'\n"
+            "  If carry: '4 plus 8 is 12. We write 2, and carry the 1 to the tens.'\n"
+            "\n"
+            "SUBTRACTION narration — GRADUATED DETAIL (very important):\n"
+            "  The FIRST time borrowing happens (usually ones column), explain it FULLY:\n"
+            "    'Now the ones column. 3 subtract 8. But 3 is smaller than 8, so we need to borrow.\n"
+            "     We take 1 from the tens. The 2 in the tens becomes 1, and our 3 becomes 13.\n"
+            "     Now, 13 subtract 8 is 5. We write 5.'\n"
+            "\n"
+            "  The SECOND time borrowing happens, be SHORTER — the child already understands:\n"
+            "    'The tens column. 1 subtract 7. We need to borrow again.\n"
+            "     11 subtract 7 is 4. We write 4.'\n"
+            "\n"
+            "  Any further borrowing, be BRIEF:\n"
+            "    'The hundreds column. We borrowed, so it is now 9. 9 subtract 3 is 6.'\n"
+            "\n"
+            "  When NO borrowing is needed, keep it simple:\n"
+            "    'The hundreds column. 4 subtract 0 is 4.'\n"
+            "\n"
+            "VOCABULARY RULES:\n"
+            "- Use 'subtract' as the primary word. Occasionally say 'minus' or 'take away' for variety.\n"
+            "- NEVER say 'negative' or 'equals negative'.\n"
+            "- NEVER repeat the exact same sentence structure for every column. Vary your phrasing.\n"
+            "- Each column should feel slightly different in rhythm and wording.\n"
+            "- Sound natural and warm, like a patient teacher.\n"
+            "\n"
+            f"Final scene — Result: 'So, [num1] subtract [num2] is {verified_answer}.'\n"
+            f"  equation field: include the answer, e.g. \"3123 - 78 = {verified_answer}\"\n"
+            "\n"
+            "CRITICAL RULES:\n"
+            "- Do NOT rush. Each column gets its own dedicated scene.\n"
+            "- Do NOT combine multiple columns into one scene.\n"
+            "- Use pauses (commas, periods) to give animations time to play.\n"
+            "- The equation field must stay the SAME in every scene (except final scene which adds = answer).\n"
+        )
     if topic == "mcq":
         return (
             "Topic guidance: This is a MULTIPLE CHOICE question.\n"
@@ -468,6 +543,76 @@ def _build_topic_guidance(topic: str, verified_answer: str) -> str:
             "then REMOVE_ITEMS to take some away.\n"
             "Use APPLE_SVG or STAR_SVG as item_type.\n"
             'Narration must mention "take away" or "remove".'
+        )
+    elif topic == "counting":
+        return (
+            "Topic guidance: Use ADD_ITEMS action.\n"
+            "Show objects popping onto the screen one by one.\n"
+            "Narrate the count synchronously with the visual appearance, e.g., 'One... Two... Three...'."
+        )
+    elif topic == "addition": # fallback for small addition
+        return (
+            "Topic guidance: Sequence MUST be:\n"
+            "1. ADD_ITEMS to show two separate groups of objects.\n"
+            "2. SHOW_EQUATION to show them sliding together to merge.\n"
+            "Use APPLE_SVG or BLOCK_SVG."
+        )
+    elif topic == "comparison":
+        return (
+            "Topic guidance: Sequence MUST be:\n"
+            "1. ADD_ITEMS to show two groups side-by-side.\n"
+            "2. HIGHLIGHT to emphasize the larger or smaller group based on the question.\n"
+            "3. SHOW_EQUATION to state the final relationship (e.g., > or <)."
+        )
+    elif topic == "number_properties":
+        return (
+            "Topic guidance: For Even/Odd questions, use SHOW_EVEN_ODD action.\n"
+            "Narrate objects arranging in pairs and emphasize whether any are leftover (Odd) or not (Even)."
+        )
+    elif topic == "place_value":
+        return (
+            "Topic guidance: Use SHOW_PLACE_VALUE action.\n"
+            "Show digits sliding into their respective columns (Ones, Tens, Hundreds, etc.).\n"
+            "Narrate the place value of each digit clearly."
+        )
+    elif topic == "decimals":
+        return (
+            "Topic guidance: Use SHOW_COLUMN_ARITHMETIC action.\n"
+            "Ensure the narration explicitly mentions aligning the decimal points vertically."
+        )
+    elif topic == "bodmas":
+        return (
+            "Topic guidance: Use SHOW_BODMAS action exclusively.\n"
+            "Narrate step-by-step prioritizing brackets, then orders, then div/mult, then add/sub.\n"
+            "Explain which part of the equation is being solved at each step."
+        )
+    elif topic == "factors_multiples":
+        return (
+            "Topic guidance: Use SHOW_EQUATION action.\n"
+            "Narrate listing the factors or multiples for each number side-by-side.\n"
+            "Highlight the common ones, then identify the Highest Common Factor or Lowest Common Multiple."
+        )
+    elif topic == "percentages":
+        return (
+            "Topic guidance: Use SHOW_PERCENTAGE action.\n"
+            "Narrate visualizing a 100-square grid filling up to represent the percentage."
+        )
+    elif topic == "geometry":
+        return (
+            "Topic guidance: Use DRAW_SHAPE action.\n"
+            "Mention the properties of the shape (sides, angles) in the narration."
+        )
+    elif topic == "averages":
+        return (
+            "Topic guidance: Use SHOW_EQUATION action.\n"
+            "Sequence MUST be:\n"
+            "1. Show the sum of all values.\n"
+            "2. Show the sum being divided by the number of values to 'level them out'."
+        )
+    elif topic == "patterns":
+        return (
+            "Topic guidance: Use ADD_ITEMS to show the sequence, then HIGHLIGHT to show the pattern rule.\n"
+            "Narrate how to find the next item by following the rule."
         )
     else:
         return (

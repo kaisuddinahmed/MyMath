@@ -9,7 +9,16 @@ export type ItemType =
   | "STAR_SVG"
   | "COUNTER"
   | "PIE_CHART"
-  | "BAR_CHART";
+  | "BAR_CHART"
+  | "COIN"
+  | "NOTE"
+  | "RULER"
+  | "CLOCK"
+  | "SHAPE_2D"
+  | "SHAPE_3D"
+  | "BASE10_BLOCK"
+  | "TALLY_MARK"
+  | "NUMBER_LINE";
 
 export type AnimationStyle =
   | "BOUNCE_IN"
@@ -24,7 +33,17 @@ export type SceneAction =
   | "GROUP_ITEMS"
   | "SPLIT_ITEM"
   | "SHOW_EQUATION"
-  | "HIGHLIGHT";
+  | "HIGHLIGHT"
+  | "DRAW_SHAPE"
+  | "MEASURE"
+  | "BALANCE"
+  | "PLOT_CHART"
+  | "JUMP_NUMBER_LINE"
+  | "SHOW_PLACE_VALUE"
+  | "SHOW_COLUMN_ARITHMETIC"
+  | "SHOW_BODMAS"
+  | "SHOW_EVEN_ODD"
+  | "SHOW_PERCENTAGE";
 
 export interface DirectorScene {
   duration: number;

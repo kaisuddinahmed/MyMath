@@ -65,16 +65,32 @@ def run_prompt_checks(
 
     hard_topic_ok = True
     hard_topic_rule = "none"
+    template = prompt_json.get("visual_template", "") if isinstance(prompt_json, dict) else ""
 
     if topic in ["addition", "subtraction"]:
-        hard_topic_rule = 'narration must mention "counters" or "blocks"'
-        hard_topic_ok = any(k in lower for k in ["counters", "blocks"])
+        if template == "column_arithmetic":
+            hard_topic_rule = "none"
+            hard_topic_ok = True
+        elif template == "place_value_blocks":
+            hard_topic_rule = 'narration must mention "blocks" or "tens"'
+            hard_topic_ok = any(k in lower for k in ["blocks", "tens", "hundreds", "place value"])
+        else:
+            hard_topic_rule = 'narration must mention "counters" or "blocks"'
+            hard_topic_ok = any(k in lower for k in ["counters", "blocks"])
     elif topic == "multiplication":
-        hard_topic_rule = 'narration must mention "groups"'
-        hard_topic_ok = "group" in lower
+        if template == "column_arithmetic":
+            hard_topic_rule = "none"
+            hard_topic_ok = True
+        else:
+            hard_topic_rule = 'narration must mention "groups"'
+            hard_topic_ok = "group" in lower
     elif topic == "division":
-        hard_topic_rule = 'narration must mention "share"'
-        hard_topic_ok = "share" in lower or "sharing" in lower
+        if template == "long_division":
+            hard_topic_rule = "none"
+            hard_topic_ok = True
+        else:
+            hard_topic_rule = 'narration must mention "share"'
+            hard_topic_ok = "share" in lower or "sharing" in lower
     elif topic == "fractions":
         hard_topic_rule = 'narration must mention "equal parts"'
         hard_topic_ok = "equal parts" in lower

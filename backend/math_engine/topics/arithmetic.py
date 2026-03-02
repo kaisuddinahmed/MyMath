@@ -13,6 +13,22 @@ WRAPPER_ADD_SUB_RE = re.compile(r"\b(\d{1,6})\s*([+\-])\s*(\d{1,6})\b", re.IGNOR
 WRAPPER_MUL_DIV_RE = re.compile(r"\b(\d{1,6})\s*([xX*÷/])\s*(\d{1,6})\b", re.IGNORECASE)
 
 
+def _get_dynamic_template(op: str, a: int, b: int) -> str:
+    """Returns the visual template based on operand sizes to avoid 3000 balls."""
+    max_val = max(a, b)
+    if op in ["+", "-"]:
+        if max_val >= 20:
+            return "column_arithmetic"
+        return "counters_add" if op == "+" else "counters_remove"
+    elif op in ["x", "X", "*"]:
+        if max_val > 12:
+            return "column_arithmetic"
+        return "group_boxes"
+    else:  # Division
+        if a > 100:
+            return "long_division"
+        return "sharing_groups"
+
 def solve_add_sub(question: str) -> Optional[Tuple]:
     # Skip if this is a fraction or decimal context
     if re.search(r"\b(fraction|half|quarter|third|of the|\d+/\d+)\b", question, re.IGNORECASE):
@@ -32,7 +48,9 @@ def solve_add_sub(question: str) -> Optional[Tuple]:
         return None
     a, op, b = int(m.group(1)), m.group(2), int(m.group(3))
     ans = a + b if op == "+" else a - b
-    return a, op, b, ans
+    
+    template = _get_dynamic_template(op, a, b)
+    return a, op, b, ans, template
 
 
 def solve_mul_div(question: str) -> Optional[Tuple]:
@@ -49,14 +67,15 @@ def solve_mul_div(question: str) -> Optional[Tuple]:
     if not m:
         return None
     a, op, b = int(m.group(1)), m.group(2), int(m.group(3))
+    template = _get_dynamic_template(op, a, b)
     if op in ["x", "X", "*"]:
-        return a, op, b, a * b
+        return a, op, b, a * b, template
     # Division
     if b == 0:
-        return a, op, b, None
+        return a, op, b, None, template
     quotient = a // b
     remainder = a % b
-    return a, op, b, (quotient, remainder)
+    return a, op, b, (quotient, remainder), template
 
 def build_steps(grade: int, a: int, op: str, b: int, ans) -> list:
     """Returns list of {title, text} dicts."""
@@ -65,13 +84,26 @@ def build_steps(grade: int, a: int, op: str, b: int, ans) -> list:
 
 
 def _steps_for_op(grade: int, a: int, op: str, b: int, ans) -> list:
+    max_val = max(a, b)
     if op == "+":
+        if max_val >= 20:
+            return [
+                {"title": "What we need to do", "text": f"We add {a} and {b}."},
+                {"title": "Line them up", "text": f"We line them up in columns, ones over ones."},
+                {"title": "Result", "text": f"After adding all columns right to left, we get {ans}."},
+            ]
         return [
             {"title": "What we need to do", "text": f"We add {a} and {b}."},
             {"title": "Count on", "text": f"Start at {a}. Count up {b} times."},
             {"title": "Result", "text": f"After counting up {b} times, we get {ans}."},
         ]
     if op == "-":
+        if max_val >= 20:
+            return [
+                {"title": "What we need to do", "text": f"We subtract {b} from {a} by lining them up in columns."},
+                {"title": "Subtract the columns", "text": f"We start subtracting from the ones column on the right."},
+                {"title": "Result", "text": f"After subtracting all columns, we get {ans}."},
+            ]
         return [
             {"title": "What we need to do", "text": f"We subtract {b} from {a}."},
             {"title": "Count back", "text": f"Start at {a}. Count back {b} times."},

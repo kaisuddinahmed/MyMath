@@ -1,0 +1,6 @@
+Hey I verified this. The column arithmetic visualization is looking great on localhost:3002. It now correctly splits up the operands:
+  3344
++   33
+------
+  3377
+It fades them in right to left exactly as requested.

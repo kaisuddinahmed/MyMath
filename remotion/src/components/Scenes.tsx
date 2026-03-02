@@ -188,17 +188,56 @@ function AnimatedItem({
  * CounterScene — Adds or removes items with animation.
  */
 export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
-  const realCount = scene.count || 5;
-  const visualCount = Math.min(realCount, 30);
   const itemType = scene.item_type || "COUNTER";
   const animation = scene.animation_style || "BOUNCE_IN";
 
   const isRemove = scene.action === "REMOVE_ITEMS";
   const isHighlight = scene.action === "HIGHLIGHT";
 
-  let labelText = `Bringing in ${realCount}!`;
-  if (isRemove) labelText = `Taking away...`;
-  if (isHighlight) labelText = `Looking at ${realCount}`;
+  let leftCount = 0;
+  let rightCount = 0;
+  let isAddSplit = false;
+  let isSubSplit = false;
+  let isCompSplit = false;
+  let compOp = "";
+
+  if (scene.equation) {
+    const addMatch = scene.equation.match(/(\d+)\s*\+\s*(\d+)/);
+    const subMatch = scene.equation.match(/(\d+)\s*-\s*(\d+)/);
+    const compMatch = scene.equation.match(/(\d+)\s*([><=]+)\s*(\d+)/);
+    
+    if (addMatch && !isRemove && !isHighlight) {
+      leftCount = parseInt(addMatch[1], 10);
+      rightCount = parseInt(addMatch[2], 10);
+      if (leftCount + rightCount <= 40) {
+        isAddSplit = true;
+      }
+    } else if (subMatch && !isHighlight) {
+      leftCount = parseInt(subMatch[1], 10); // total starting items
+      rightCount = parseInt(subMatch[2], 10); // items to take away
+      if (leftCount <= 40) {
+        isSubSplit = true;
+      }
+    } else if (compMatch) {
+      leftCount = parseInt(compMatch[1], 10);
+      rightCount = parseInt(compMatch[3], 10);
+      compOp = compMatch[2];
+      if (leftCount + rightCount <= 40) {
+        isCompSplit = true;
+      }
+    }
+  }
+
+  const realCount = scene.count || (isAddSplit || isCompSplit ? leftCount + rightCount : 5);
+  const visualCount = Math.min(realCount, 40);
+
+  let labelText = isAddSplit ? `Adding ${leftCount} and ${rightCount}` : `Bringing in ${realCount}!`;
+  if (isRemove || isSubSplit) labelText = isSubSplit ? `Taking away ${rightCount} from ${leftCount}` : `Taking away...`;
+  if (isCompSplit) labelText = `Comparing ${leftCount} and ${rightCount}`;
+
+  // For highlight action in comparison, dull out the smaller group
+  const leftOpacity = isHighlight && isCompSplit && leftCount <= rightCount ? 0.3 : 1;
+  const rightOpacity = isHighlight && isCompSplit && rightCount <= leftCount ? 0.3 : 1;
 
   return (
     <div
@@ -211,11 +250,10 @@ export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
         gap: 20,
       }}
     >
-      {/* Label */}
       <p
         style={{
           color: "#94A3B8",
-          fontSize: 20,
+          fontSize: 24,
           fontWeight: 600,
           fontFamily: "'Inter', sans-serif",
           margin: 0,
@@ -224,26 +262,74 @@ export const CounterScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
         {labelText}
       </p>
 
-      {/* Items grid */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          maxWidth: 600,
-          gap: 4,
-        }}
-      >
-        {Array.from({ length: visualCount }).map((_, i) => (
-          <AnimatedItem
-            key={i}
-            index={i}
-            total={visualCount}
-            itemType={itemType}
-            animationStyle={animation}
-          />
-        ))}
-      </div>
+      {isCompSplit ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 50, marginTop: 40 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: 400, gap: 10, opacity: leftOpacity, transition: "opacity 1s" }}>
+            {Array.from({ length: leftCount }).map((_, i) => (
+              <AnimatedItem key={`left-${i}`} index={i} total={leftCount} itemType={itemType} animationStyle={animation} />
+            ))}
+          </div>
+          {isHighlight ? (
+             <div style={{ fontSize: 90, color: "#fcd34d", fontWeight: "bold" }}>{compOp}</div>
+          ) : (
+             <div style={{ fontSize: 90, color: "transparent", fontWeight: "bold" }}> ? </div>
+          )}
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: 400, gap: 10, opacity: rightOpacity, transition: "opacity 1s" }}>
+            {Array.from({ length: rightCount }).map((_, i) => (
+              <AnimatedItem key={`right-${i}`} index={i} total={rightCount} itemType={itemType} animationStyle={animation} />
+            ))}
+          </div>
+        </div>
+      ) : isAddSplit ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 50, marginTop: 40 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: 400, gap: 10 }}>
+            {Array.from({ length: leftCount }).map((_, i) => (
+              <AnimatedItem key={`left-${i}`} index={i} total={leftCount} itemType={itemType} animationStyle={animation} />
+            ))}
+          </div>
+          <div style={{ fontSize: 80, color: "#10b981", fontWeight: "bold" }}>+</div>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: 400, gap: 10 }}>
+            {Array.from({ length: rightCount }).map((_, i) => (
+              <AnimatedItem key={`right-${i}`} index={i} total={rightCount} itemType={itemType} animationStyle={animation} />
+            ))}
+          </div>
+        </div>
+      ) : isSubSplit ? (
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", maxWidth: 800, gap: 10, marginTop: 40 }}>
+          {Array.from({ length: leftCount }).map((_, i) => {
+            const isRemovedItem = i >= leftCount - rightCount;
+            return (
+              <div key={i} style={{ 
+                opacity: isRemovedItem ? 0.2 : 1, 
+                transform: isRemovedItem ? `translateY(40px) scale(0.8)` : `none`,
+                transition: "all 1s cubic-bezier(0.34, 1.56, 0.64, 1)"
+              }}>
+                <AnimatedItem index={i} total={leftCount} itemType={itemType} animationStyle={isRemovedItem ? "FADE_IN" : animation} />
+                {isRemovedItem && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", fontSize: 50, fontWeight: "bold" }}>
+                    ×
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            maxWidth: 600,
+            gap: 10,
+            marginTop: 40
+          }}
+        >
+          {Array.from({ length: visualCount }).map((_, i) => (
+            <AnimatedItem key={i} index={i} total={visualCount} itemType={itemType} animationStyle={animation} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -319,86 +405,7 @@ export const GroupScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
   );
 };
 
-/**
- * FractionScene — Pie or bar chart showing fractions.
- */
-export const FractionScene: React.FC<{ scene: DirectorScene }> = ({
-  scene,
-}) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const numerator = scene.numerator || 1;
-  const denominator = Math.max(scene.denominator || 4, 1);
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100%",
-        gap: 20,
-      }}
-    >
-      <p
-        style={{
-          color: "#94A3B8",
-          fontSize: 22,
-          fontWeight: 600,
-          fontFamily: "'Inter', sans-serif",
-          margin: 0,
-        }}
-      >
-        {numerator}/{denominator}
-      </p>
-
-      {/* Pie chart */}
-      <svg width={240} height={240} viewBox="0 0 240 240">
-        {Array.from({ length: denominator }).map((_, i) => {
-          const angle = (360 / denominator) * i - 90;
-          const endAngle = angle + 360 / denominator;
-          const filled = i < numerator;
-          const reveal = spring({
-            frame: Math.max(0, frame - i * 6),
-            fps,
-            from: 0,
-            to: 1,
-            durationInFrames: 15,
-          });
-
-          const startRad = (angle * Math.PI) / 180;
-          const endRad = (endAngle * Math.PI) / 180;
-          const cx = 120,
-            cy = 120,
-            r = 100;
-
-          const x1 = cx + r * Math.cos(startRad);
-          const y1 = cy + r * Math.sin(startRad);
-          const x2 = cx + r * Math.cos(endRad);
-          const y2 = cy + r * Math.sin(endRad);
-          const largeArc = 360 / denominator > 180 ? 1 : 0;
-
-          const d = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z`;
-
-          return (
-            <path
-              key={i}
-              d={d}
-              fill={
-                filled
-                  ? `rgba(99,102,241,${reveal})`
-                  : `rgba(51,65,85,${reveal * 0.6})`
-              }
-              stroke="rgba(148,163,184,0.5)"
-              strokeWidth="2"
-            />
-          );
-        })}
-      </svg>
-    </div>
-  );
-};
 
 /**
  * EquationScene — Shows a math equation prominently.
@@ -446,6 +453,7 @@ export const EquationScene: React.FC<{ scene: DirectorScene }> = ({
             fontFamily: "'Inter', sans-serif",
             margin: 0,
             letterSpacing: 2,
+            whiteSpace: "pre-wrap",
           }}
         >
           {scene.equation || scene.narration}
