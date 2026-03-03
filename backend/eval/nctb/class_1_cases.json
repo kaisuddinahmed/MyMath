@@ -6,6 +6,46 @@
   },
   "solve_cases": [
     {
+      "id": "ch1_comparison_heavy_light",
+      "chapter": "1",
+      "grade": 1,
+      "question": "Which is heavier: a feather or a jackfruit?",
+      "expected_topic": "comparison",
+      "answer_contains": "jackfruit is heavier"
+    },
+    {
+      "id": "ch1_comparison_tall_short",
+      "chapter": "1",
+      "grade": 1,
+      "question": "Which is taller: the palm tree or the child?",
+      "expected_topic": "comparison",
+      "answer_contains": "palm tree is taller"
+    },
+    {
+      "id": "ch1_comparison_far_near",
+      "chapter": "1",
+      "grade": 1,
+      "question": "Which object is near and which is far?",
+      "expected_topic": "comparison",
+      "answer_contains": "Compare the two objects"
+    },
+    {
+      "id": "ch1_comparison_big_small",
+      "chapter": "1",
+      "grade": 1,
+      "question": "Which is bigger: the football or the pencil?",
+      "expected_topic": "comparison",
+      "answer_contains": "football is larger"
+    },
+    {
+      "id": "ch1_comparison_more_less",
+      "chapter": "1",
+      "grade": 1,
+      "question": "Which glass has more water?",
+      "expected_topic": "comparison",
+      "answer_contains": "Compare the two objects"
+    },
+    {
       "id": "ch1_comparison_symbol",
       "chapter": "1",
       "grade": 1,
@@ -22,6 +62,30 @@
       "answer_equals": "7"
     },
     {
+      "id": "ch3_ordering_smaller_greater",
+      "chapter": "3",
+      "grade": 1,
+      "question": "Arrange smaller to greater: 8, 2, 0, 4, 7",
+      "expected_topic": "comparison",
+      "answer_contains": "0, 2, 4, 7, 8"
+    },
+    {
+      "id": "ch3_sequence_between",
+      "chapter": "3",
+      "grade": 1,
+      "question": "Number between 4 and 6",
+      "expected_topic": "patterns",
+      "answer_contains": "5"
+    },
+    {
+      "id": "ch3_decomposition",
+      "chapter": "3",
+      "grade": 1,
+      "question": "Arrange 6 as 2 and ?",
+      "expected_topic": "addition",
+      "answer_contains": "6 is 2 and 4"
+    },
+    {
       "id": "ch4_addition_concept",
       "chapter": "4",
       "grade": 1,
@@ -30,12 +94,68 @@
       "answer_equals": "5"
     },
     {
+      "id": "ch4_addition_word_total",
+      "chapter": "4",
+      "grade": 1,
+      "question": "In Mili's garden, 3 roses have bloomed in one plant and 4 in another. How many roses in total?",
+      "expected_topic": "addition",
+      "answer_equals": "7"
+    },
+    {
+      "id": "ch4_addition_word_more",
+      "chapter": "4",
+      "grade": 1,
+      "question": "5 butterflies were playing. Then 3 more butterflies came. What is the total number of butterflies?",
+      "expected_topic": "addition",
+      "answer_equals": "8"
+    },
+    {
+      "id": "ch4_addition_word_pencils",
+      "chapter": "4",
+      "grade": 1,
+      "question": "Hiya has 4 colour pencils. Her brother Deep has 4 colour pencils. How many colour pencils do they have?",
+      "expected_topic": "addition",
+      "answer_equals": "8"
+    },
+    {
       "id": "ch5_subtraction_concept",
       "chapter": "5",
       "grade": 1,
       "question": "8 - 3",
       "expected_topic": "subtraction",
       "answer_equals": "5"
+    },
+    {
+      "id": "ch5_subtraction_take_away",
+      "chapter": "5",
+      "grade": 1,
+      "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+      "expected_topic": "subtraction",
+      "answer_equals": "3"
+    },
+    {
+      "id": "ch5_subtraction_comparison",
+      "chapter": "5",
+      "grade": 1,
+      "question": "Girls are 5 and Boys are 3. How many more girls than boys?",
+      "expected_topic": "subtraction",
+      "answer_equals": "2"
+    },
+    {
+      "id": "ch5_subtraction_zero",
+      "chapter": "5",
+      "grade": 1,
+      "question": "4 - 0",
+      "expected_topic": "subtraction",
+      "answer_equals": "4"
+    },
+    {
+      "id": "ch5_subtraction_algebra",
+      "chapter": "5",
+      "grade": 1,
+      "question": "4 - _ = 1",
+      "expected_topic": "algebra",
+      "answer_equals": "3"
     },
     {
       "id": "ch6_tens_ones",

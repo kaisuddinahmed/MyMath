@@ -739,15 +739,15 @@ def llm_extract_structured(raw_ocr: str) -> Optional[Dict[str, Any]]:
 
     prompt = f"""You are a primary school math expert assistant.
 You will receive raw OCR text from a math worksheet. Your job is to:
-1. Fix any OCR errors (typos, merged words, wrong characters)
-2. Extract the question stem cleanly
+1. Fix any OCR errors (typos, merged words, wrong characters, scrambled word order)
+2. Extract the complete math problem cleanly (including all setup/context sentences and the final question)
 3. Classify the question type
 4. If it is MCQ, evaluate each option numerically and identify the correct answer
 5. Pre-solve the question with child-friendly steps
 
 Return ONLY a JSON object with this exact shape (no markdown, no explanation):
 {{
-  "question": "<cleaned question stem ONLY — do NOT include the answer options>",
+  "question": "<The COMPLETE math problem including all context, setup sentences, and the final question. Do NOT include answer options if it's an MCQ.>",
   "question_type": "<one of: arithmetic, word_problem, mcq, fill_blank, true_false, sequence, comparison, geometry, other>",
   "options": [
     {{"id": "1", "text": "<option text>", "value": <computed number or null>}},

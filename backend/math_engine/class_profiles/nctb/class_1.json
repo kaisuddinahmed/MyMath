@@ -16,88 +16,194 @@
   "constraints": {
     "max_number": 100,
     "allow_negative": false,
-    "allow_fractions": false
+    "allow_fractions": false,
+    "allow_decimals": false,
+    "allow_multiplication": false,
+    "allow_division": false
   },
   "topic_constraints": {
     "counting": {
       "min": 0,
-      "max": 10
+      "max": 100
     },
     "addition": {
-      "max_sum": 10,
-      "enforce_globally": false,
-      "chapter_hint": "4"
+      "max_sum": 100,
+      "note": "Chapters 4: sums ≤10. Chapters 7: sums 11-20. Chapter 15: sums up to 100."
     },
     "subtraction": {
-      "min_result": 0
+      "min_result": 0,
+      "note": "Chapter 5: minuend ≤10. Chapter 8: minuend 11-20. Chapter 16: up to 100."
     }
   },
   "chapter_rules": [
     {
       "chapter": 1,
       "topic": "comparison",
-      "input_pattern": "object size/height/quantity comparison",
-      "logic": "larger/smaller/more/less"
+      "title": "Comparison",
+      "input_pattern": "object size/height/length/quantity comparison, more/less/bigger/smaller/taller/shorter",
+      "logic": "larger/smaller/more/less — uses everyday objects like plants, jars, baskets",
+      "visual_hint": "taller/shorter objects side by side; more/fewer groups of objects"
     },
     {
-      "chapter": "2-3",
+      "chapter": 2,
       "topic": "counting",
-      "input_pattern": "count objects (1-10)",
-      "logic": "integer count within 0..10"
+      "title": "Counting",
+      "input_pattern": "count objects (1-10), how many",
+      "logic": "counting physical objects; matching one-to-one; recognising quantity without counting",
+      "visual_hint": "fish, flowers, birds, mangoes appearing one by one"
+    },
+    {
+      "chapter": 3,
+      "topic": "numbers",
+      "title": "Numbers (1 to 10)",
+      "input_pattern": "number recognition 1-10, what number, write the number, number name",
+      "logic": "digit recognition and writing for numbers 1–10",
+      "visual_hint": "objects matching each digit (3 fish = 3); number written beside objects"
     },
     {
       "chapter": 4,
       "topic": "addition",
-      "input_pattern": "a + b or together/total",
-      "logic": "sum with concept-first examples"
+      "title": "Concept of Addition",
+      "input_pattern": "a + b where a+b ≤ 10, together/total/combine (1-10 range)",
+      "logic": "concept-first: show two groups, bring together, count total; max sum = 10",
+      "visual_hint": "fish in a pond: show group A, then group B arriving, total counted aloud"
     },
     {
       "chapter": 5,
       "topic": "subtraction",
-      "input_pattern": "a - b or left/flew away/take away",
-      "logic": "difference with no negative result"
+      "title": "Concept of Subtraction",
+      "input_pattern": "a - b where a ≤ 10, take away/flew away/left (1-10 range)",
+      "logic": "concept-first: show starting group, remove some, count what remains; no negative results",
+      "visual_hint": "mangoes in a basket: some taken away, rest counted"
     },
     {
       "chapter": 6,
       "topic": "numbers",
-      "input_pattern": "bundles and singles (11-20)",
-      "logic": "total = tens*10 + ones"
+      "title": "Numbers (11 to 20)",
+      "input_pattern": "1 bundle and N ones = ?, numbers 11-20, bundles and singles in 11-20",
+      "logic": "1 bundle (ten-stick) + singles = number; e.g. 1 bundle + 3 ones = 13",
+      "visual_hint": "bundle of 10 sticks + loose sticks; abacus; ten-frame"
+    },
+    {
+      "chapter": 7,
+      "topic": "addition",
+      "title": "Addition (11 to 20)",
+      "input_pattern": "a + b where 11 ≤ sum ≤ 20",
+      "logic": "addition with sums in 11–20 range, building on tens",
+      "visual_hint": "number line jumps, ten-frame with extra counters"
+    },
+    {
+      "chapter": 8,
+      "topic": "subtraction",
+      "title": "Subtraction (11 to 20)",
+      "input_pattern": "a - b where a is 11-20",
+      "logic": "subtraction with minuend in 11–20 range",
+      "visual_hint": "ten-frame removing counters; jumping back on number line"
+    },
+    {
+      "chapter": 9,
+      "topic": "numbers",
+      "title": "Numbers (21 to 40)",
+      "input_pattern": "bundles and singles in 21-40 range, 2 bundles and N ones",
+      "logic": "2 bundles (tens) + singles = number; extends place value to 40",
+      "visual_hint": "two bundles of 10 sticks + loose sticks"
     },
     {
       "chapter": 10,
       "topic": "place_value",
-      "input_pattern": "tens and ones in n",
-      "logic": "tens=n//10, ones=n%10"
+      "title": "Place Value",
+      "input_pattern": "tens and ones in n, how many tens in N, how many ones in N",
+      "logic": "tens = n // 10, ones = n % 10; abacus and base-10 block representation",
+      "visual_hint": "bundles of sticks (দশ মিলিয়ে এক বান্ডিল), abacus beads sliding into columns"
+    },
+    {
+      "chapter": 11,
+      "topic": "practice",
+      "title": "Let us do (practice 1–40)",
+      "input_pattern": "mixed practice with numbers 1–40, addition and subtraction within 40",
+      "logic": "application of chapters 1–10; mixed question types",
+      "visual_hint": "same as respective topic"
     },
     {
       "chapter": 12,
       "topic": "geometry",
-      "input_pattern": "shape image",
-      "logic": "circle/triangle/rectangle"
+      "title": "Geometry",
+      "input_pattern": "shape name, how many sides, corners, shape recognition",
+      "logic": "circle (0 sides), triangle (3 sides/corners), rectangle (4 sides), square (4 equal sides)",
+      "visual_hint": "shapes drawn with properties labelled: sides, corners"
     },
     {
       "chapter": 13,
       "topic": "patterns",
-      "input_pattern": "repeating sequence",
-      "logic": "predict next item"
+      "title": "Pattern",
+      "input_pattern": "repeating sequence, what comes next, complete the pattern",
+      "logic": "shape, colour, or number repeating pattern; identify the repeating unit",
+      "visual_hint": "repeating SVG shapes in a sequence, next item highlighted"
+    },
+    {
+      "chapter": 14,
+      "topic": "numbers",
+      "title": "Numbers (41 to 100)",
+      "input_pattern": "bundles and singles in 41-100 range, numbers 41-100",
+      "logic": "extends number recognition to 100; bundles system generalised",
+      "visual_hint": "multiple bundles + singles; place value chart tens/ones"
+    },
+    {
+      "chapter": 15,
+      "topic": "addition",
+      "title": "Addition (up to 100)",
+      "input_pattern": "a + b where sum ≤ 100, column addition",
+      "logic": "columnar addition: ones first, then tens; may involve carrying (সংরক্ষণ)",
+      "visual_hint": "column arithmetic: digits stacked, ones added first"
+    },
+    {
+      "chapter": 16,
+      "topic": "subtraction",
+      "title": "Subtraction (up to 100)",
+      "input_pattern": "a - b where a ≤ 100, column subtraction",
+      "logic": "columnar subtraction: ones first, then tens; may involve borrowing (ধার)",
+      "visual_hint": "column arithmetic: digits stacked, ones subtracted first"
     },
     {
       "chapter": 17,
       "topic": "currency",
-      "input_pattern": "notes/coins",
-      "logic": "Bangladeshi taka/poisa recognition"
+      "title": "Bangladeshi Currency",
+      "input_pattern": "taka and poisa, notes and coins, total money, price, change",
+      "logic": "recognise taka notes (2, 5, 10, 20, 50, 100) and poisa coins; add/subtract money amounts",
+      "visual_hint": "taka notes fanning out; coins stacked; water lily on 1 taka coin"
+    },
+    {
+      "chapter": 18,
+      "topic": "practice",
+      "title": "Let us do (final practice)",
+      "input_pattern": "mixed practice all chapters, word problems, real-life scenarios",
+      "logic": "application of all Class 1 topics; Bangladeshi real-life contexts",
+      "visual_hint": "context-appropriate to question type"
     }
   ],
   "visual_metaphors": {
-    "tens": ["bundles of sticks", "ten-frames", "bead strings"],
-    "currency": ["coin", "note", "water lily", "portrait"]
+    "comparison":   ["taller/shorter plants in pots", "fuller/emptier baskets", "bigger/smaller jars of water"],
+    "counting":     ["fish", "mangoes", "flowers", "birds", "apples", "stars"],
+    "numbers":      ["fish matching each digit", "objects beside digit cards"],
+    "addition":     ["fish joining in a pond", "mangoes added to a basket", "flowers in a garden"],
+    "subtraction":  ["fish swimming away from a pond", "mangoes taken from a basket", "birds flying away"],
+    "place_value":  ["bundles of 10 sticks (দশ মিলিয়ে এক বান্ডিল)", "abacus beads in tens/ones columns", "base-10 blocks"],
+    "geometry":     ["circle (চাঁদ/moon)", "triangle (পাল/sail)", "rectangle (বই/book)", "square (রুমাল/handkerchief)"],
+    "patterns":     ["repeating shape sequence", "colours of flowers in a row", "number sequence with gap"],
+    "currency":     ["taka notes", "poisa coins", "water lily coin (১ টাকা)", "market stall transaction"],
+    "tens":         ["bundles of sticks", "ten-frames", "bead strings"]
   },
+  "word_problem_keywords_bn": [
+    "আছে", "ছিল", "মোট", "একসাথে", "কতটি", "কতটা", "কত", "বেশি", "কম",
+    "দিল", "নিল", "চলে গেল", "উড়ে গেল", "বাকি", "পড়ে আছে"
+  ],
   "messages": {
     "out_of_scope_topic": "This is outside NCTB Class 1 right now. Let's try a Class 1 topic.",
     "fraction_out_of_scope": "Fractions are not in NCTB Class 1. Let's use whole numbers.",
-    "negative_subtraction": "We cannot take {b} away from {a}.",
+    "negative_subtraction": "We cannot take {b} away from {a}. In Class 1 we always subtract the smaller number from the bigger one.",
     "max_number_exceeded": "This is advanced for Class 1. Please use numbers up to {max_number}.",
-    "addition_too_large": "For this Class 1 step, keep the total up to {max_sum}.",
+    "multiplication_out_of_scope": "Multiplication is not in NCTB Class 1. Let's try addition instead.",
+    "division_out_of_scope": "Division is not in NCTB Class 1. Let's try subtraction instead.",
     "counting_range": "For this counting task, please stay between {min_value} and {max_value}."
   }
 }

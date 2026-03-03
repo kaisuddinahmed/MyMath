@@ -8,9 +8,10 @@ from typing import Optional
 def solve_algebra(question: str) -> Optional[dict]:
     # Looking for a missing variable equation like x + 5 = 12 or 12 - box = 7
     # Pattern: (var) (op) (num) = (num) OR (num) (op) (var) = (num)
-    # var can be: x, y, ?, box, [], \u25a1 (square)
+    # Example: 12 - x = 7
+    # var can be: x, y, ?, box, [], \u25a1 (square), _, blank
     
-    var_pattern = r"(x|y|z|\?|box|\[\]|□)"
+    var_pattern = r"(x|y|z|\?|box|\[\]|□|_|blank)"
     num_pattern = r"(\d+)"
     op_pattern = r"([+\-*/xX÷])"
     

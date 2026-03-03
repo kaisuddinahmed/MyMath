@@ -35,8 +35,15 @@ def detect_topic(question: str) -> str:
     scores: dict[str, int] = {}
     for topic, keys in TOPIC_KEYWORDS.items():
         for k in keys:
-            if k.lower() in q_lower:
-                scores[topic] = scores.get(topic, 0) + 1
+            k_lower = k.lower()
+            if re.search(r"[a-z]", k_lower):
+                # Only match whole words for alphabetical keywords ("m" won't match "Mili")
+                if re.search(rf"\b{re.escape(k_lower)}\b", q_lower):
+                    scores[topic] = scores.get(topic, 0) + 1
+            else:
+                # Direct match for symbols like "+", ">", "÷"
+                if k_lower in q_lower:
+                    scores[topic] = scores.get(topic, 0) + 1
 
     if scores:
         return max(scores, key=lambda t: scores[t])

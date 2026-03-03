@@ -454,5 +454,93 @@
     "template": "small_addition",
     "score": 60,
     "timestamp": "2026-03-02T07:01:16.353459+00:00"
+  },
+  {
+    "child_id": "e40431ae-e4cf-44ae-8c18-e51119904485",
+    "question": "4+3",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 60,
+    "timestamp": "2026-03-02T12:48:00.279515+00:00"
+  },
+  {
+    "child_id": "69106633-9323-4a0a-840d-3a9c046861f2",
+    "question": "There were 2 birds in a tree. Later, 7 more birds sat on the tree. Now, what is the total number of birds in the tree?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 60,
+    "timestamp": "2026-03-02T13:10:06.421230+00:00"
+  },
+  {
+    "child_id": "69106633-9323-4a0a-840d-3a9c046861f2",
+    "question": "There were 2 birds in a tree. Later, 7 more birds sat on the tree. Now, what is the total number of birds in the tree?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-02T13:13:37.775517+00:00"
+  },
+  {
+    "child_id": "4fabd442-e15c-448e-bfba-12a170ad6a6c",
+    "question": "There are 4 green mangos and 3 ripe mangoes. How many mangoes are there together?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-03T05:11:05.044951+00:00"
+  },
+  {
+    "child_id": "28d2da91-7f83-4499-b0dd-e15d35a3d16d",
+    "question": "There are 4 ripe mangoes and 3 green mangoes. How many mangoes are there together?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 60,
+    "timestamp": "2026-03-03T05:23:54.888516+00:00"
+  },
+  {
+    "child_id": "0c481fac-309f-4c3c-85ab-c7e339df7189",
+    "question": "There are 4 ripe mangoes and 3 green mangoes. How many mangoes are there together?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 60,
+    "timestamp": "2026-03-03T05:25:25.923547+00:00"
+  },
+  {
+    "child_id": "0f6ae9fc-7726-44b1-9e8f-e515cac434af",
+    "question": "There are 4 ripe mangoes and 3 green mangoes. How many mangoes are there together?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 60,
+    "timestamp": "2026-03-03T05:36:54.077157+00:00"
+  },
+  {
+    "child_id": "0f6ae9fc-7726-44b1-9e8f-e515cac434af",
+    "question": "There are 4 ripe mangoes and 3 green mangoes. How many mangoes are there together?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-03T06:11:02.275697+00:00"
+  },
+  {
+    "child_id": "0f6ae9fc-7726-44b1-9e8f-e515cac434af",
+    "question": "Arrange the number from smaller to greater 8,3,5,2,1",
+    "topic": "comparison",
+    "template": "number_line_compare",
+    "score": 80,
+    "timestamp": "2026-03-03T06:16:43.106430+00:00"
+  },
+  {
+    "child_id": "49ca600a-084e-46fd-b754-629e7e513ef6",
+    "question": "Arrange the number from smaller to greater 8,3,5,2,1",
+    "topic": "comparison",
+    "template": "bigger_smaller",
+    "score": 80,
+    "timestamp": "2026-03-03T06:42:43.622894+00:00"
+  },
+  {
+    "child_id": "81c74f37-b71a-41ee-9521-c8bee985271e",
+    "question": "Arrange the number from smaller to greater 8,3,5,2,1",
+    "topic": "comparison",
+    "template": "bigger_smaller",
+    "score": 45,
+    "timestamp": "2026-03-03T07:25:06.219359+00:00"
   }
 ]

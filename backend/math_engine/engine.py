@@ -340,7 +340,7 @@ def solve(
     solved = solve_add_sub(q)
     if solved:
         a, op, b, ans, template = solved
-        topic = "addition" if op == "+" else "subtraction"
+        topic = "addition" if op in ("+", "decomp") else "subtraction"
         info = TOPIC_MAP.get(topic, {})
         steps = _steps_for_op(grade, a, op, b, ans)
         return SolveResult(

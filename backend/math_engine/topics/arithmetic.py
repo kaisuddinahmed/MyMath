@@ -12,6 +12,10 @@ MUL_DIV_RE = re.compile(r"(?:^|\b)(\d{1,6})\s*([xX*÷/])\s*(\d{1,6})(?:\s*=\s*[?
 WRAPPER_ADD_SUB_RE = re.compile(r"\b(\d{1,6})\s*([+\-])\s*(\d{1,6})\b", re.IGNORECASE)
 WRAPPER_MUL_DIV_RE = re.compile(r"\b(\d{1,6})\s*([xX*÷/])\s*(\d{1,6})\b", re.IGNORECASE)
 
+# NCTB Class 1 Chapter 3: Number Decomposition "6 is 4 and ?" or "arrange 6 as 2 and _"
+DECOMP_RE = re.compile(r"\b(\d+)\s+is\s+(\d+)\s+and\s+[?_]", re.IGNORECASE)
+WRAPPER_DECOMP_RE = re.compile(r"arrange\s+(\d+)\s+as\s+(\d+)\s+and\s+[?_]", re.IGNORECASE)
+
 
 def _get_dynamic_template(op: str, a: int, b: int) -> str:
     """Returns the visual template based on operand sizes to avoid 3000 balls."""
@@ -36,6 +40,20 @@ def solve_add_sub(question: str) -> Optional[Tuple]:
     # Skip if question contains decimal numbers — let decimals solver handle
     if re.search(r"\b\d+\.\d+\b", question):
         return None
+        
+    # Class 1 Chapter 3: Number Decomposition checks
+    m_decomp = DECOMP_RE.search(question)
+    if not m_decomp:
+        m_decomp = WRAPPER_DECOMP_RE.search(question)
+    if m_decomp:
+        total = int(m_decomp.group(1))
+        part1 = int(m_decomp.group(2))
+        part2 = total - part1
+        if part2 < 0:
+            return None # invalid decomposition
+        template = _get_dynamic_template("-", total, part1)
+        return total, "decomp", part1, part2, template
+
     # Try bare expression first
     m = ADD_SUB_RE.search(question)
     if not m:
@@ -85,6 +103,13 @@ def build_steps(grade: int, a: int, op: str, b: int, ans) -> list:
 
 def _steps_for_op(grade: int, a: int, op: str, b: int, ans) -> list:
     max_val = max(a, b)
+    if op == "decomp":
+        total, part1, part2 = a, b, ans
+        return [
+            {"title": "Look at the whole", "text": f"We have a total of {total} objects."},
+            {"title": "Look at the part we know", "text": f"We know one part is {part1} objects."},
+            {"title": "Find the missing part", "text": f"If we take away {part1} from {total}, we have {part2} left. So, {total} is {part1} and {part2}."},
+        ]
     if op == "+":
         if max_val >= 20:
             return [

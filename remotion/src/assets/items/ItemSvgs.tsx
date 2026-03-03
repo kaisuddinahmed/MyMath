@@ -57,6 +57,22 @@ export const StarSvg: React.FC<{ size?: number }> = ({ size = 56 }) => (
   </svg>
 );
 
+/** Bird SVG — simple blue bird */
+export const BirdSvg: React.FC<{ size?: number }> = ({ size = 60 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+    {/* Body */}
+    <path d="M12 30 C 20 20, 30 15, 45 20 C 50 22, 55 28, 55 35 C 55 45, 40 50, 25 45 C 15 42, 10 35, 12 30 Z" fill="#38BDF8" />
+    {/* Eye */}
+    <circle cx="45" cy="27" r="3" fill="#1E293B" />
+    {/* Beak */}
+    <path d="M55 30 L 62 33 L 55 36 Z" fill="#FBBF24" />
+    {/* Legs */}
+    <path d="M25 45 L 22 55 M 35 43 L 32 55" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" />
+    {/* Wing */}
+    <path d="M15 32 C 20 42, 30 42, 35 32 C 25 35, 18 35, 15 32 Z" fill="#0284C7" />
+  </svg>
+);
+
 /** Simple circular counter */
 export const CounterSvg: React.FC<{ size?: number; color?: string }> = ({
   size = 50,
@@ -68,3 +84,71 @@ export const CounterSvg: React.FC<{ size?: number; color?: string }> = ({
     <circle cx="18" cy="18" r="6" fill="rgba(255,255,255,0.2)" />
   </svg>
 );
+
+export const EmojiItemSvg: React.FC<{ emoji: string; size?: number }> = ({ emoji, size = 60 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
+    <text x="32" y="38" fontSize="48" textAnchor="middle" dominantBaseline="middle">{emoji}</text>
+  </svg>
+);
+
+export function ItemComponent({ itemType, size = 56 }: { itemType: string; size?: number }) {
+  switch (itemType) {
+    case "APPLE_SVG": return <AppleSvg size={size} />;
+    case "BIRD_SVG": return <BirdSvg size={size} />;
+    case "BLOCK_SVG": return <BlockSvg size={size} />;
+    case "STAR_SVG": return <StarSvg size={size} />;
+    case "FOOTBALL_SVG": return <EmojiItemSvg emoji="⚽" size={size} />;
+    case "PEN_SVG": return <EmojiItemSvg emoji="🖊️" size={size} />;
+    case "PENCIL_SVG": return <EmojiItemSvg emoji="✏️" size={size} />;
+    case "TREE_SVG": return <EmojiItemSvg emoji="🌳" size={size} />;
+    case "BOTTLE_SVG": return <EmojiItemSvg emoji="🍾" size={size} />;
+    case "CAR_SVG": return <EmojiItemSvg emoji="🚗" size={size} />;
+    case "RICKSHAW_SVG": return <EmojiItemSvg emoji="🛺" size={size} />;
+    case "FEATHER_SVG": return <EmojiItemSvg emoji="🪶" size={size} />;
+    case "JACKFRUIT_SVG": return <EmojiItemSvg emoji="🍈" size={size} />;
+    case "BOOK_SVG": return <EmojiItemSvg emoji="📘" size={size} />;
+    case "FLOWER_SVG": return <EmojiItemSvg emoji="🌸" size={size} />;
+    case "MANGO_SVG": return <EmojiItemSvg emoji="🥭" size={size} />;
+    case "BRINJAL_SVG": return <EmojiItemSvg emoji="🍆" size={size} />;
+    case "BUS_SVG": return <EmojiItemSvg emoji="🚌" size={size} />;
+    case "BD_FLAG_SVG": return <EmojiItemSvg emoji="🇧🇩" size={size} />;
+    case "MAGPIE_SVG": return <EmojiItemSvg emoji="🐦‍⬛" size={size} />;
+    case "LILY_SVG": return <EmojiItemSvg emoji="🪷" size={size} />;
+    case "TIGER_SVG": return <EmojiItemSvg emoji="🐅" size={size} />;
+    case "BANANA_SVG": return <EmojiItemSvg emoji="🍌" size={size} />;
+    case "ROSE_SVG": return <EmojiItemSvg emoji="🌹" size={size} />;
+    case "LEAF_SVG": return <EmojiItemSvg emoji="🍃" size={size} />;
+    case "UMBRELLA_SVG": return <EmojiItemSvg emoji="☔" size={size} />;
+    case "HILSA_FISH_SVG": return <EmojiItemSvg emoji="🐟" size={size} />;
+    case "BALLOON_SVG": return <EmojiItemSvg emoji="🎈" size={size} />;
+    case "PINEAPPLE_SVG": return <EmojiItemSvg emoji="🍍" size={size} />;
+    case "COCONUT_SVG": return <EmojiItemSvg emoji="🥥" size={size} />;
+    case "CARROT_SVG": return <EmojiItemSvg emoji="🥕" size={size} />;
+    case "WATER_GLASS_SVG": return <EmojiItemSvg emoji="🥛" size={size} />;
+    case "EGG_SVG": return <EmojiItemSvg emoji="🥚" size={size} />;
+    case "TEA_CUP_SVG": return <EmojiItemSvg emoji="☕" size={size} />;
+    case "POMEGRANATE_SVG": return <EmojiItemSvg emoji="🍎" size={size} />;
+    case "RABBIT_SVG": return <EmojiItemSvg emoji="🐇" size={size} />;
+    case "CAT_SVG": return <EmojiItemSvg emoji="🐈" size={size} />;
+    case "HORSE_SVG": return <EmojiItemSvg emoji="🐎" size={size} />;
+    case "BOAT_SVG": return <EmojiItemSvg emoji="⛵" size={size} />;
+    case "MARBLE_SVG": return <EmojiItemSvg emoji="🔮" size={size} />;
+    case "CROW_SVG": return <EmojiItemSvg emoji="🐦‍⬛" size={size} />;
+    case "PEACOCK_SVG": return <EmojiItemSvg emoji="🦚" size={size} />;
+    case "COCK_SVG": return <EmojiItemSvg emoji="🐓" size={size} />;
+    case "HEN_SVG": return <EmojiItemSvg emoji="🐔" size={size} />;
+    case "GUAVA_SVG": return <EmojiItemSvg emoji="🍐" size={size} />;
+    case "ELEPHANT_SVG": return <EmojiItemSvg emoji="🐘" size={size} />;
+    case "TOMATO_SVG": return <EmojiItemSvg emoji="🍅" size={size} />;
+    case "PALM_FRUIT_SVG": return <EmojiItemSvg emoji="🌴" size={size} />;
+    case "ICE_CREAM_SVG": return <EmojiItemSvg emoji="🍦" size={size} />;
+    case "WATERMELON_SVG": return <EmojiItemSvg emoji="🍉" size={size} />;
+    case "CAP_SVG": return <EmojiItemSvg emoji="🧢" size={size} />;
+    case "HAT_SVG": return <EmojiItemSvg emoji="🎩" size={size} />;
+    case "BUTTERFLY_SVG": return <EmojiItemSvg emoji="🦋" size={size} />;
+    case "CHOCOLATE_SVG": return <EmojiItemSvg emoji="🍫" size={size} />;
+    case "CHAIR_SVG": return <EmojiItemSvg emoji="🪑" size={size} />;
+    case "SLICED_WATERMELON_SVG": return <EmojiItemSvg emoji="🍉" size={size} />;
+    default: return <CounterSvg size={size} />;
+  }
+}

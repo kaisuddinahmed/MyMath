@@ -109,7 +109,12 @@ def solve_and_video_prompt_by_child(req: SolveByChildRequest):
         raise HTTPException(status_code=404, detail="Child not found")
 
     hints = _get_curriculum_hints(child, req.question)
-    result = _run_solve_and_prompt(req.question, child["class_level"], curriculum_hints=hints)
+    curriculum = child.get("preferred_curriculum", "nctb")
+    result = _run_solve_and_prompt(
+        req.question, child["class_level"],
+        curriculum_hints=hints,
+        curriculum=curriculum,
+    )
     append_activity(
         child_id=req.child_id,
         question=req.question,
@@ -136,10 +141,12 @@ def solve_and_render_by_child(req: SolveByChildRequest):
         raise HTTPException(status_code=404, detail="Child not found")
 
     hints = _get_curriculum_hints(child, req.question)
+    curriculum = child.get("preferred_curriculum", "nctb")
     result = _run_solve_and_render(
         req.question,
         child["class_level"],
         curriculum_hints=hints,
+        curriculum=curriculum,
         pre_solved_answer=req.pre_solved_answer,
         pre_solved_steps=req.pre_solved_steps,
         question_type=req.question_type,
@@ -171,6 +178,23 @@ def try_similar_by_child(req: SolveByChildRequest):
     topic = detect_topic(req.question)
     grade = child["class_level"]
     style = get_grade_style(grade)
+    curriculum = child.get("preferred_curriculum", "nctb")
+
+    # Load curriculum style for NCTB-appropriate similar questions
+    from backend.video_engine.template_registry import load_curriculum_style
+    curr_style = load_curriculum_style(curriculum)
+    locale_hint = ""
+    if curr_style:
+        locale_examples = curr_style.get("cultural_context", {}).get("locale_examples", [])
+        currency = curr_style.get("cultural_context", {}).get("currency", "")
+        metaphors = curr_style.get("default_visual_metaphors_by_topic", {}).get(topic, [])
+        if locale_examples or metaphors:
+            locale_hint = (
+                f"\nCurriculum: {curr_style.get('full_name', curriculum)}. "
+                f"Use culturally familiar everyday contexts: {', '.join(locale_examples[:4])}. "
+                + (f"For {topic}, prefer objects like: {', '.join(metaphors[:3])}." if metaphors else "")
+                + (f" Currency if relevant: {currency}." if currency else "")
+            )
 
     try:
         client = get_client()
@@ -189,7 +213,7 @@ def try_similar_by_child(req: SolveByChildRequest):
                 {
                     "role": "user",
                     "content": (
-                        f"Grade: {grade}, Topic: {topic}, Vocab: {style.get('vocab', 'simple')}.\n"
+                        f"Grade: {grade}, Topic: {topic}, Vocab: {style.get('vocab', 'simple')}.{locale_hint}\n"
                         f"Original question: {req.question}\n"
                         "Generate ONE similar question."
                     ),
@@ -214,6 +238,7 @@ def _run_solve_and_prompt(
     pre_solved_answer: str | None = None,
     pre_solved_steps: list[str] | None = None,
     question_type: str | None = None,
+    curriculum: str | None = None,
 ) -> SolveAndPromptResponse:
     # Step 1: Deterministic/LLM solve via math engine
     result = engine_solve(
@@ -263,7 +288,39 @@ def _run_solve_and_prompt(
 
     # Build topic-specific guidance for the LLM director
     effective_topic = question_type if question_type in ("mcq", "true_false") else topic
-    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template)
+    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template, question=question)
+
+    # --- Curriculum style block -------------------------------------------------
+    # Load the curriculum style and inject cultural/visual context into the prompt
+    from backend.video_engine.template_registry import load_curriculum_style
+    curr_style = load_curriculum_style(curriculum or "nctb")
+    curriculum_block = ""
+    if curr_style:
+        metaphors = curr_style.get("default_visual_metaphors_by_topic", {}).get(topic, [])
+        locale_examples = curr_style.get("cultural_context", {}).get("locale_examples", [])
+        currency = curr_style.get("cultural_context", {}).get("currency", "")
+        exp_style = curr_style.get("explanation_style", {})
+        video_hints = curr_style.get("video_prompt_hints", {})
+        narration_tone = curr_style.get("narration_tone", "")
+        curriculum_block = "\nCURRICULUM STYLE:\n"
+        curriculum_block += f"- Curriculum: {curr_style.get('full_name', curriculum or 'nctb')}\n"
+        if narration_tone:
+            curriculum_block += f"- Narration tone: {narration_tone}\n"
+        if metaphors:
+            curriculum_block += f"- Preferred visual objects for {topic}: {', '.join(metaphors[:3])}\n"
+        elif locale_examples:
+            curriculum_block += f"- Use culturally familiar objects from: {', '.join(locale_examples[:4])}\n"
+        if currency:
+            curriculum_block += f"- Currency context: {currency}\n"
+        if exp_style.get("primary_approach"):
+            curriculum_block += f"- Explanation approach: {exp_style['primary_approach']}\n"
+        if exp_style.get("story_context_hint"):
+            curriculum_block += f"- Story context: {exp_style['story_context_hint']}\n"
+        if video_hints.get("opening"):
+            curriculum_block += f"- Video opening: {video_hints['opening']}\n"
+        if video_hints.get("color_palette"):
+            curriculum_block += f"- Color palette: {video_hints['color_palette']}\n"
+    # ---------------------------------------------------------------------------
 
     # Adjust constraints based on whether a smaller example is forced
     if template == "column_arithmetic":
@@ -322,7 +379,7 @@ the animation engine what to render. Available actions and when to use them:
 - SHOW_PLACE_VALUE: Emphasize Base-10 blocks grouped by 10s and 100s
 - SHOW_COLUMN_ARITHMETIC: Show right-to-left columnar addition or subtraction
 
-Available item_type: APPLE_SVG, BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE
+Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG.
 Available animation_style: BOUNCE_IN, FADE_IN, SLIDE_LEFT, POP, NONE
 
 
@@ -336,6 +393,7 @@ Max duration seconds: {style["max_seconds"]}
 Sentence length: {style["sentence_length"]}
 Pace: {style["pace"]}
 Vocabulary: {style["vocab"]}
+{curriculum_block}
 {topic_guidance}
 
 Problem: {question}
@@ -433,7 +491,7 @@ Retry with stricter enforcement:
 # Topic-specific director guidance
 # ---------------------------------------------------------------------------
 
-def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") -> str:
+def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", question: str = "") -> str:
     # Template-level override: when the math engine routes to column_arithmetic,
     # force the LLM to use SHOW_COLUMN_ARITHMETIC regardless of topic name.
     if template == "column_arithmetic":
@@ -543,12 +601,59 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
             'Narration must mention "equal parts".'
         )
     elif topic == "subtraction":
+        # Extract the starting value (A from A - B) to decide rendering approach
+        _start_val = None
+        _sub_val = None
+        try:
+            import re as _re
+            # For subtraction word problems or equations finding the largest number
+            _nums = _re.findall(r"\d+", str(question))
+            if len(_nums) >= 2:
+                _start_val = int(_nums[0])
+                _sub_val = int(_nums[1])
+                # In some word problems the numbers might be backwards, so just ensure start > sub if it's a basic subtraction
+                if _sub_val > _start_val and "how many more" not in str(question).lower():
+                    _start_val, _sub_val = _sub_val, _start_val
+            elif _nums:
+                _start_val = int(_nums[0])
+        except Exception:
+            pass
+
+        _is_comparison = "how many more" in str(question).lower() or "than" in str(question).lower() or "difference" in str(question).lower()
+
+        if _is_comparison and _start_val is not None and _start_val <= 20:
+             return (
+                "Topic guidance: This is a COMPARISON SUBTRACTION problem. Do NOT use SHOW_SMALL_SUBTRACTION because we are not taking items away, we are comparing two separate groups.\n"
+                "Sequence MUST rigidly follow these steps in order:\n"
+                "Step 1: 'ADD_ITEMS'. Show the first (larger) group. Narration e.g., 'Rafi has 6 flowers.'\n"
+                "Step 2: 'ADD_ITEMS'. Show the second (smaller) group. Narration e.g., 'Tuly has 3 flowers.'\n"
+                "Step 3: 'HIGHLIGHT'. Tell the user to match the items 1-to-1 to find the difference. Narration e.g., 'Let us match the flowers. The unmatched ones are the difference!'\n"
+                "Step 4: 'SHOW_EQUATION'. Show the final subtraction equation. Narration e.g., '6 minus 3 equals 3 more flowers.'\n"
+             )
+
+        if _start_val is not None and _start_val <= 20:
+            _zero_step = (
+                "Step 2: 'SHOW_SMALL_SUBTRACTION'. We are taking away 0, so we do NOT remove anything. Narration e.g., 'We take away zero, which means we do not remove anything.' Equation MUST be 'Total - 0' (e.g., '8 - 0').\n"
+                 if _sub_val == 0 else
+                "Step 2: 'SHOW_SMALL_SUBTRACTION'. Take away the subtracted amount. Narration e.g., 'Now, we take away 3 items.' Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
+            )
+            return (
+                "Topic guidance: This is a SMALL TAKE-AWAY SUBTRACTION problem (starting amount ≤ 20). "
+                "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
+                "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question (e.g., '8 ripe mangoes'). NEVER use the generic words 'items' or 'objects'.\n"
+                "Step 1: 'SHOW_SMALL_SUBTRACTION'. Show the total starting amount together. Narration e.g., 'Let us start with 8 ripe mangoes.' Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
+                f"{_zero_step}"
+                "Step 3 (ONLY IF REMAINING IS 6 OR GREATER): 'SHOW_SMALL_SUBTRACTION'. Count the remaining objects. Narration e.g., 'Let's count what is left: 1, 2, 3...'. Equation MUST be 'Total - Remove' (e.g., '8 - 3'). Skip this step entirely if the remaining amount is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
+                "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_SUBTRACTION'. Show the final answer. Narration e.g., 'So, 8 minus 3 leaves 5 mangoes.' Equation MUST be the full expression (e.g., '8 - 3 = 5').\n"
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+            )
+        
         return (
             "Topic guidance: Sequence MUST be:\n"
             "1. ADD_ITEMS first to show the starting count.\n"
             "2. REMOVE_ITEMS to take some away. IMPORTANT: You MUST set the equation field to exactly \"A - B\" (e.g., \"8 - 3\") so the frontend knows what to remove.\n"
             "3. SHOW_EQUATION to show the final result, e.g., \"8 - 3 = 5\".\n"
-            "Use APPLE_SVG or STAR_SVG as item_type.\n"
+            "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG).\n"
             'Narration must mention "take away" or "remove".'
         )
     elif topic == "counting":
@@ -557,22 +662,110 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
             "Show objects popping onto the screen one by one.\n"
             "Narrate the count synchronously with the visual appearance, e.g., 'One... Two... Three...'."
         )
-    elif topic == "addition": # fallback for small addition
-        return (
-            "Topic guidance: Sequence MUST rigidly follow these steps in order. For ALL steps, use the action 'SHOW_SMALL_ADDITION'.\n"
-            "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Narration e.g., 'Let's add 4 apples and 2 apples.' Equation MUST be 'A + B' (e.g., '4 + 2').\n"
-            "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Narration e.g., 'When we put them together...' Equation MUST be 'A + B' (e.g., '4 + 2').\n"
-            "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 2'). Skip this step entirely if the total is less than 6.\n"
-            "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, 4 plus 2 is equal to 6.' Equation MUST be 'A + B = C' (e.g., '4 + 2 = 6').\n"
-            "Use APPLE_SVG or BLOCK_SVG."
-        )
+    elif topic == "addition":  # route by sum size
+        # Parse the sum from the verified answer to decide rendering approach
+        # This gracefully handles word problems that don't have a "+" in the text.
+        _sum_val = None
+        try:
+            import re as _re
+            _nums = _re.findall(r"\d+", str(verified_answer))
+            if _nums:
+                _sum_val = int(_nums[0])
+        except Exception:
+            pass
+
+        import re as _re
+        is_decomp = _re.search(r"\b(\d+)\s+is\s+(\d+)\s+and\s+[?_]", question, _re.IGNORECASE) or _re.search(r"arrange\s+(\d+)\s+as\s+(\d+)\s+and\s+[?_]", question, _re.IGNORECASE)
+        if is_decomp:
+            return (
+                "Topic guidance: This is a NUMBER DECOMPOSITION problem (e.g., '6 is 4 and 2'). "
+                "Sequence MUST follow these steps closely.\n"
+                "Step 1: 'ADD_ITEMS'. Show the total amount (e.g., 6 objects). Narration: 'Let us take 6 items.'\n"
+                "Step 2: 'GROUP_ITEMS'. Split the objects into two distinct groups matching the parts. Narration: 'We can group them as 4 items and 2 items.'\n"
+                "Step 3: 'SHOW_EQUATION'. Show the final decomposition. Equation MUST be 'Total = Part1 + Part2' (e.g., '6 = 4 + 2').\n"
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+            )
+
+        if _sum_val is not None and _sum_val <= 20:
+            # Class 1 Ch.4 (concept, ≤10) and Ch.7 (11-20): animated grouped objects
+            return (
+                "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 20). "
+                "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
+                "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question (e.g., '4 green mangoes and 3 ripe mangoes'). NEVER use the generic words 'items' or 'objects'.\n"
+                "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Narration e.g., 'Let us put 4 green mangoes and 3 ripe mangoes together.' Equation MUST simply be 'A + B' (e.g., '4 + 3').\n"
+                "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Narration e.g., 'When we add them all together...' Equation MUST be 'A + B' (e.g., '4 + 3').\n"
+                "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 3'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
+                "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, there are 7 mangoes altogether.' Equation MUST be the full expression 'A + B = C' (e.g., '4 + 3 = 7').\n"
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+            )
+        else:
+            # Class 1 Ch.15 (sums >20, up to 100): column arithmetic
+            return (
+                "Topic guidance: This is a LARGER ADDITION problem (sum > 20). You MUST follow these rules:\n"
+                "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
+                "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
+                "Scene 1 — Setup: State the problem briefly.\n"
+                "Scene per column (ones, then tens, etc.): show column-by-column addition.\n"
+                "  If carrying: explain it simply — 'We write the ones digit and carry 1 to the tens.'\n"
+                f"Final scene: 'So, the answer is {verified_answer}.' Include full equation with = answer.\n"
+                "Sound warm and encouraging. Do NOT rush."
+            )
     elif topic == "comparison":
-        return (
-            "Topic guidance: Sequence MUST be:\n"
-            "1. ADD_ITEMS to show two groups side-by-side. IMPORTANT: Set the equation field to exactly \"A ? B\" (e.g., \"5 ? 3\").\n"
-            "2. HIGHLIGHT to emphasize the larger or smaller group based on the question. Set equation to \"A > B\" or \"A < B\".\n"
-            "3. SHOW_EQUATION to state the final relationship (e.g., \"5 > 3\")."
-        )
+        # Check if this is a qualitative comparison (Class 1 Ch.1)
+        import re as _re
+        if _re.search(r"\b(order|arrange|smaller to greater|greater to smaller)\b", question, _re.IGNORECASE) and len(_re.findall(r"\d+", question)) >= 2:
+            return (
+                "Topic guidance: This is a NUMBER ORDERING problem.\n"
+                "Sequence MUST rigidly follow these steps in order. For ALL steps, use the action 'SHOW_NUMBER_ORDERING'.\n"
+                "Step 1: 'SHOW_NUMBER_ORDERING'. Show the scrambled numbers on screen. Equation MUST be the scrambled list (e.g., '8, 3, 5, 2, 1'). Narration: 'We have 8, 3, 5, 2, 1.'\n"
+                "Step 2 (Optional, use if transitioning is complex): 'SHOW_NUMBER_ORDERING'. Show intermediate sorting steps. Narration: 'Let us find the smallest number... it's 1. Then 2...' Equation MUST be the sorted list (e.g., '1, 2, 3, 5, 8').\n"
+                "Step 3: 'SHOW_NUMBER_ORDERING'. Show the final sorted list clearly. Equation MUST be the final sorted list (e.g., '1, 2, 3, 5, 8'). Narration: 'So the correct order is 1, 2, 3, 5, 8.'"
+            )
+        elif _re.search(r"\b(heavier|lighter|heavy|light|weigh)\b", question, _re.IGNORECASE):
+            return (
+                "Topic guidance: This is a WEIGHT comparison. Sequence MUST be:\n"
+                "1. ADD_ITEMS to show the two objects side-by-side (e.g., a feather and a book).\n"
+                "2. BALANCE action: show them on a balance scale dipping towards the heavy side.\n"
+                "3. SHOW_EQUATION or HIGHLIGHT to state the final answer (e.g. 'The book is heavier')."
+            )
+        elif _re.search(r"\b(taller|shorter|tall|short)\b", question, _re.IGNORECASE):
+            return (
+                "Topic guidance: This is a HEIGHT comparison. Sequence MUST be:\n"
+                "1. ADD_ITEMS to show the two objects side-by-side on the same ground level.\n"
+                "2. MEASURE action (or HIGHLIGHT): visually demonstrate which one reaches higher.\n"
+                "3. SHOW_EQUATION to state the final answer."
+            )
+        elif _re.search(r"\b(farther|nearer|far|near|closer)\b", question, _re.IGNORECASE):
+            return (
+                "Topic guidance: This is a DISTANCE comparison. Sequence MUST be:\n"
+                "1. ADD_ITEMS: Show a reference point (e.g., a tree) and the two objects at different distances.\n"
+                "2. MEASURE action: Show a line or arrow indicating distance to each.\n"
+                "3. SHOW_EQUATION to state the final answer."
+            )
+        elif _re.search(r"\b(bigger|smaller|larger|size)\b", question, _re.IGNORECASE):
+            return (
+                "Topic guidance: This is a SIZE comparison. Sequence MUST be:\n"
+                "1. ADD_ITEMS to show the two objects side-by-side.\n"
+                "2. HIGHLIGHT the larger or smaller one as asked.\n"
+                "3. SHOW_EQUATION to state the final answer."
+            )
+        elif _re.search(r"\b(more|less|fewer)\b", question, _re.IGNORECASE) and "than" not in question.lower():
+            return (
+                "Topic guidance: This is a QUANTITY comparison (More/Less). Sequence MUST be:\n"
+                "1. ADD_ITEMS to show the two groups of objects (e.g. two baskets of mangoes).\n"
+                "2. HIGHLIGHT the group with more or less as asked.\n"
+                "3. SHOW_EQUATION to state the final answer."
+            )
+
+        else:
+            # Numeric comparison fallback
+            return (
+                "Topic guidance: This is a NUMERIC Comparison. Sequence MUST be:\n"
+                "1. ADD_ITEMS to show two groups side-by-side. IMPORTANT: Set the equation field to exactly \"A ? B\" (e.g., \"5 ? 3\").\n"
+                "2. HIGHLIGHT to emphasize the larger or smaller group based on the question. Set equation to \"A > B\" or \"A < B\".\n"
+                "3. SHOW_EQUATION to state the final relationship (e.g., \"5 > 3\").\n"
+                "If the problem is purely numeric and items don't make sense, just use SHOW_EQUATION."
+            )
     elif topic == "number_properties":
         return (
             "Topic guidance: For Even/Odd questions, use SHOW_EVEN_ODD action.\n"
@@ -611,6 +804,22 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
             "Topic guidance: Use DRAW_SHAPE action.\n"
             "Mention the properties of the shape (sides, angles) in the narration."
         )
+    elif topic == "patterns":
+        # Check if it's a simple before/after/between sequence (Class 1 Ch.3)
+        import re as _re
+        is_simple_seq = _re.search(r"(next\s+number|previous|number before|between)", question, _re.IGNORECASE) or _re.search(r"[_\?]", question)
+        if is_simple_seq and len(_re.findall(r"\d+", question)) <= 2:
+            return (
+                "Topic guidance: This is a MISSING NUMBER (Before/After/Between) problem. Sequence MUST be:\n"
+                "1. SHOW_EQUATION: Display the given number(s) with a blank space (e.g. '_, 2' or '3, _, 5').\n"
+                "2. SHOW_EQUATION: Fill in the blank with the correct number to show the counting sequence.\n"
+                "Narrate the counting sequence clearly (e.g. 'One, Two, Three')."
+            )
+        else:
+            return (
+                "Topic guidance: This is a NUMBER PATTERN problem.\n"
+                "Use SHOW_EQUATION action. Narrate the rule (e.g., 'adding 2 each time') and show the next number appearing."
+            )
     elif topic == "averages":
         return (
             "Topic guidance: Use SHOW_EQUATION action.\n"
@@ -626,7 +835,7 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "") 
     else:
         return (
             "Topic guidance: Choose the most appropriate action based on the problem type.\n"
-            "- For problems involving counting or combining objects, use ADD_ITEMS with APPLE_SVG or BLOCK_SVG.\n"
+            "- For problems involving counting or combining objects, use ADD_ITEMS with a context-appropriate item_type (e.g., BIRD_SVG, APPLE_SVG, BLOCK_SVG).\n"
             "- For problems involving comparison, place value, patterns, or conceptual reasoning, "
             "use SHOW_EQUATION scenes only — do NOT force ADD_ITEMS if items do not naturally represent the math.\n"
             "- Always end with a SHOW_EQUATION scene showing the final answer.\n"
@@ -672,6 +881,7 @@ def _run_solve_and_render(
     pre_solved_answer: str | None = None,
     pre_solved_steps: list[str] | None = None,
     question_type: str | None = None,
+    curriculum: str | None = None,
 ) -> SolveAndPromptResponse:
     """
     Full pipeline: solve → LLM script → cache check → TTS → Remotion render → cache.
@@ -698,6 +908,7 @@ def _run_solve_and_render(
     solve_result = _run_solve_and_prompt(
         question, grade,
         curriculum_hints=curriculum_hints,
+        curriculum=curriculum,
         pre_solved_answer=pre_solved_answer,
         pre_solved_steps=pre_solved_steps,
         question_type=question_type,

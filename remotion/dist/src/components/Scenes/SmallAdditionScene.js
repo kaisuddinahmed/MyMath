@@ -7,6 +7,7 @@ const ItemSvgs_1 = require("../../assets/items/ItemSvgs");
 function ItemComponent({ itemType, size = 56 }) {
     switch (itemType) {
         case "APPLE_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.AppleSvg, { size: size });
+        case "BIRD_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BirdSvg, { size: size });
         case "BLOCK_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BlockSvg, { size: size });
         default: return (0, jsx_runtime_1.jsx)(ItemSvgs_1.CounterSvg, { size: size });
     }
@@ -16,9 +17,9 @@ const SmallAdditionScene = ({ groupedScenes, timings }) => {
     const frame = (0, remotion_1.useCurrentFrame)();
     // Parse the equation from the first scene (expected "A + B")
     const eqStr = groupedScenes[0]?.equation || "4 + 2";
-    const match = eqStr.match(/(\d+)\s*\+\s*(\d+)/);
-    const leftCount = match ? parseInt(match[1], 10) : 4;
-    const rightCount = match ? parseInt(match[2], 10) : 2;
+    const numMatches = eqStr.match(/\d+/g);
+    const leftCount = numMatches && numMatches.length >= 1 ? parseInt(numMatches[0], 10) : 4;
+    const rightCount = numMatches && numMatches.length >= 2 ? parseInt(numMatches[1], 10) : 2;
     const totalCount = leftCount + rightCount;
     const itemType = groupedScenes[0]?.item_type || "APPLE_SVG";
     // Calculate timing boundaries dynamically based on the number of provided scenes
@@ -37,7 +38,8 @@ const SmallAdditionScene = ({ groupedScenes, timings }) => {
         fps,
         config: { damping: 14 }
     });
-    const gap = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [150, 10]);
+    const parentGap = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [80, 5]);
+    const plusWidth = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [60, 0]);
     const plusOpacity = (0, remotion_1.interpolate)(mergeProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" });
     // Step 3 (Optional): Counting numbers appear under items sequentially
     const getCountOpacity = (index) => {
@@ -68,13 +70,16 @@ const SmallAdditionScene = ({ groupedScenes, timings }) => {
             justifyContent: "center",
             height: "100%",
             paddingTop: 80,
-        }, children: [(0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: gap }, children: [(0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: leftCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
+        }, children: [(0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: parentGap }, children: [(0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: leftCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
                                         color: "#fcd34d",
                                         fontSize: 32,
                                         fontWeight: "bold",
                                         opacity: getCountOpacity(i),
                                         transform: `translateY(${(0, remotion_1.interpolate)(getCountOpacity(i), [0, 1], [10, 0])}px)`
-                                    }, children: i + 1 })] }, `L${i}`))) }), (0, jsx_runtime_1.jsx)("div", { style: { fontSize: 90, color: "#10b981", fontWeight: "bold", opacity: plusOpacity }, children: "+" }), (0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: rightCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
+                                    }, children: i + 1 })] }, `L${i}`))) }), (0, jsx_runtime_1.jsx)("div", { style: {
+                            fontSize: 90, color: "#10b981", fontWeight: "bold", opacity: plusOpacity,
+                            width: plusWidth, display: "flex", justifyContent: "center", overflow: "hidden"
+                        }, children: "+" }), (0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: rightCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
                                         color: "#fcd34d",
                                         fontSize: 32,
                                         fontWeight: "bold",

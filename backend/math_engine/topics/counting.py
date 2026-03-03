@@ -19,11 +19,36 @@ def _ordinal_suffix(n: int) -> str:
     return f"{n}{ORDINAL_SUFFIX.get(n % 10, 'th')}"
 
 
+# "count N apples", "count 7 stars", "count these 5 birds" — Class 1 Ch.2 basic counting
+BASIC_COUNT_RE = re.compile(
+    r"^count\s+(?:these\s+|those\s+|the\s+)?(\d+)\b",
+    re.IGNORECASE,
+)
+# "how many X are there", "how many X" where preceding context gives a number
+HOW_MANY_N_RE = re.compile(
+    r"(?:how many|count)\b.*?(\d+)\s+\w+",
+    re.IGNORECASE,
+)
+
+
 def solve_counting(question: str) -> Optional[dict]:
     q = question.strip()
     ql = q.lower()
 
-    # Skip counting
+    # ── Basic Class 1 counting: "Count 7 apples" → 7 ──────────────────────────
+    m0 = BASIC_COUNT_RE.match(ql)
+    if m0:
+        n = int(m0.group(1))
+        return {
+            "topic": "counting",
+            "answer": str(n),
+            "steps": [
+                {"title": "Count the objects", "text": f"We count each object one by one: 1, 2, 3... up to {n}."},
+                {"title": "Answer", "text": f"There are {n} objects in total."},
+            ],
+            "smaller_example": f"Smaller example: Count 3 apples → touch each one: 1, 2, 3. Answer: 3.",
+        }
+
     m = SKIP_COUNT_RE.search(q)
     if m:
         step = int(m.group(1))

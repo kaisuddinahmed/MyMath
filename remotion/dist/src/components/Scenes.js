@@ -71,6 +71,8 @@ function ItemComponent({ itemType, size }) {
     switch (itemType) {
         case "APPLE_SVG":
             return (0, jsx_runtime_1.jsx)(ItemSvgs_1.AppleSvg, { size: size });
+        case "BIRD_SVG":
+            return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BirdSvg, { size: size });
         case "BLOCK_SVG":
             return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BlockSvg, { size: size });
         case "STAR_SVG":

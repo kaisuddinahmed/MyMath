@@ -10,8 +10,8 @@ from typing import Optional
 # NOTE: order matters — checked top to bottom, first match wins.
 # 'total' / 'bought' / 'received' removed: all appear in multiplication questions too
 # and must not be treated as guaranteed addition signals.
-ADD_WORDS = ["more", "together", "sum", "combined", "plus", "added", "add", "increased by"]
-SUB_WORDS = ["less", "fewer", "left", "remain", "difference", "minus", "subtract", "took", "gave away", "spent", "lost", "removed", "decreased by", "how many more"]
+ADD_WORDS = ["more", "together", "sum", "combined", "plus", "added", "add", "increased by", "in total", "altogether", "do they have", "are there now"]
+SUB_WORDS = ["less", "fewer", "left", "remain", "left now", "difference", "minus", "subtract", "took", "take away", "fly away", "ate", "gave away", "spent", "lost", "removed", "decreased by", "how many more"]
 
 # Division phrases that contain 'each' must be checked BEFORE bare 'each' in MUL_WORDS.
 # Check the whole phrase first so 'how many in each team' resolves as division.
@@ -59,11 +59,16 @@ def parse_word_problem(question: str) -> Optional[dict]:
     #   - "each packet has 12"     → MULTIPLICATION (given rate)
     # We resolve it via pattern matching before falling back to bare keyword.
     op = None
+    
+    # "how many more" is a specific subtraction phrase that must be checked before the generic "more" addition phrase
+    if "how many more" in q:
+        op = "-"
 
-    for w in ADD_WORDS:
-        if w in q:
-            op = "+"
-            break
+    if not op:
+        for w in ADD_WORDS:
+            if w in q:
+                op = "+"
+                break
 
     if not op:
         for w in SUB_WORDS:

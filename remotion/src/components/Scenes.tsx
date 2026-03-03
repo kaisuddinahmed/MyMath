@@ -3,6 +3,7 @@ import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import type { DirectorScene, AnimationStyle } from "../types";
 import {
   AppleSvg,
+  BirdSvg,
   BlockSvg,
   StarSvg,
   CounterSvg,
@@ -105,6 +106,8 @@ function ItemComponent({ itemType, size }: { itemType: string; size: number }) {
   switch (itemType) {
     case "APPLE_SVG":
       return <AppleSvg size={size} />;
+    case "BIRD_SVG":
+      return <BirdSvg size={size} />;
     case "BLOCK_SVG":
       return <BlockSvg size={size} />;
     case "STAR_SVG":

@@ -1,6 +1,9 @@
 {
   "addition": ["plus", "add", "sum", "total", "together", "more than", "increased by", "combined", "put together"],
-  "subtraction": ["minus", "subtract", "take away", "difference", "less than", "fewer", "left", "remain", "how many more"],
+    "subtraction": [
+        "-", "subtract", "minus", "difference", "less", "fewer", "left",
+        "remain", "decreased by", "take away", "fly away", "ate", "left now"
+    ],
   "comparison": ["greater", "less", "bigger", "smaller", "compare", ">", "<", "between", "order", "largest", "smallest", "ascending", "descending"],
   "place_value": ["place value", "tens", "ones", "hundreds", "thousands", "digit", "value of", "expand", "expanded form"],
   "measurement": ["cm", "m", "km", "mm", "kg", "g", "litre", "litres", "ml", "time", "clock", "hours", "minutes", "seconds", "convert", "how many metres", "how many cm", "how long", "how far", "how heavy"],

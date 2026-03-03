@@ -26,6 +26,8 @@ import { BODMASScene } from "../components/Scenes/BODMASScene";
 import { EvenOddScene } from "../components/Scenes/EvenOddScene";
 import { PercentageScene } from "../components/Scenes/PercentageScene";
 import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
+import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScene";
+import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 
 const BG_COLOR = "#0F172A";
 const FPS = 24;
@@ -118,7 +120,9 @@ export const MathVideo: React.FC<{
       lastGroup && 
       (
         (lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") ||
-        (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION")
+        (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION") ||
+        (lastGroup.action === "SHOW_SMALL_SUBTRACTION" && scene.action === "SHOW_SMALL_SUBTRACTION") ||
+        (lastGroup.action === "SHOW_NUMBER_ORDERING" && scene.action === "SHOW_NUMBER_ORDERING")
       )
     ) {
       lastGroup.durationInFrames += timing.dur;
@@ -159,6 +163,10 @@ export const MathVideo: React.FC<{
               <ColumnArithmeticScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_SMALL_ADDITION" ? (
               <SmallAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : group.action === "SHOW_SMALL_SUBTRACTION" ? (
+              <SmallSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : group.action === "SHOW_NUMBER_ORDERING" ? (
+              <NumberOrderingScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : (
               sceneComponent(group.subScenes[0].scene)
             )}
@@ -168,7 +176,7 @@ export const MathVideo: React.FC<{
 
       {/* Narration Bars — skip for grouped timeline scenes (TTS handles it natively inside) */}
       {script.scenes.map((scene, i) => (
-        scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" ? null : (
+        scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" || scene.action === "SHOW_SMALL_SUBTRACTION" || scene.action === "SHOW_NUMBER_ORDERING" ? null : (
         <Sequence
           key={`narration-${i}`}
           from={sceneStarts[i].start}

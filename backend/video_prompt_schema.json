@@ -31,7 +31,7 @@
           "duration": { "type": "integer", "minimum": 1 },
           "action": {
             "type": "string",
-            "enum": ["ADD_ITEMS", "REMOVE_ITEMS", "GROUP_ITEMS", "SPLIT_ITEM", "SHOW_EQUATION", "HIGHLIGHT", "DRAW_SHAPE", "MEASURE", "BALANCE", "PLOT_CHART", "JUMP_NUMBER_LINE", "SHOW_PLACE_VALUE", "SHOW_COLUMN_ARITHMETIC", "SHOW_BODMAS", "SHOW_EVEN_ODD", "SHOW_PERCENTAGE", "SHOW_SMALL_ADDITION"]
+            "enum": ["ADD_ITEMS", "REMOVE_ITEMS", "GROUP_ITEMS", "SPLIT_ITEM", "SHOW_EQUATION", "HIGHLIGHT", "DRAW_SHAPE", "MEASURE", "BALANCE", "PLOT_CHART", "JUMP_NUMBER_LINE", "SHOW_PLACE_VALUE", "SHOW_COLUMN_ARITHMETIC", "SHOW_BODMAS", "SHOW_EVEN_ODD", "SHOW_PERCENTAGE", "SHOW_SMALL_ADDITION", "SHOW_SMALL_SUBTRACTION"]
           },
           "item_type": {
             "type": "string",

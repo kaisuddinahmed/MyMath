@@ -16,6 +16,7 @@ const BODMASScene_1 = require("../components/Scenes/BODMASScene");
 const EvenOddScene_1 = require("../components/Scenes/EvenOddScene");
 const PercentageScene_1 = require("../components/Scenes/PercentageScene");
 const SmallAdditionScene_1 = require("../components/Scenes/SmallAdditionScene");
+const SmallSubtractionScene_1 = require("../components/Scenes/SmallSubtractionScene");
 const BG_COLOR = "#0F172A";
 const FPS = 24;
 function sceneComponent(scene) {
@@ -85,7 +86,8 @@ const MathVideo = ({ script, audioUrl, audioUrls, sceneDurations }) => {
         // Group scenes that should share continuous visual state (e.g. Columns, Small Addition)
         if (lastGroup &&
             ((lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") ||
-                (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION"))) {
+                (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION") ||
+                (lastGroup.action === "SHOW_SMALL_SUBTRACTION" && scene.action === "SHOW_SMALL_SUBTRACTION"))) {
             lastGroup.durationInFrames += timing.dur;
             lastGroup.subScenes.push({ scene, ...timing });
         }
@@ -104,6 +106,6 @@ const MathVideo = ({ script, audioUrl, audioUrls, sceneDurations }) => {
                     background: "radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.08) 0%, transparent 60%), " +
                         "radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.06) 0%, transparent 50%)",
                     pointerEvents: "none",
-                } }), visualGroups.map((group, i) => ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: group.start, durationInFrames: group.durationInFrames, children: (0, jsx_runtime_1.jsx)(remotion_1.AbsoluteFill, { children: group.action === "SHOW_COLUMN_ARITHMETIC" ? ((0, jsx_runtime_1.jsx)(ColumnArithmeticScene_1.ColumnArithmeticScene, { groupedScenes: group.subScenes.map(s => s.scene), timings: group.subScenes })) : group.action === "SHOW_SMALL_ADDITION" ? ((0, jsx_runtime_1.jsx)(SmallAdditionScene_1.SmallAdditionScene, { groupedScenes: group.subScenes.map(s => s.scene), timings: group.subScenes })) : (sceneComponent(group.subScenes[0].scene)) }) }, `visual-${i}`))), script.scenes.map((scene, i) => (scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" ? null : ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: sceneStarts[i].start, durationInFrames: sceneStarts[i].dur, children: (0, jsx_runtime_1.jsx)(remotion_1.AbsoluteFill, { children: (0, jsx_runtime_1.jsx)(Scenes_1.NarrationBar, { text: scene.narration }) }) }, `narration-${i}`)))), audioUrls && audioUrls.length > 0 ? (audioUrls.map((url, i) => (url ? ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: sceneStarts[i].start + Math.round(fps * 0.5), children: (0, jsx_runtime_1.jsx)(remotion_1.Audio, { src: url }) }, i)) : null))) : audioUrl ? ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: 0, children: (0, jsx_runtime_1.jsx)(remotion_1.Audio, { src: audioUrl }) })) : null] }));
+                } }), visualGroups.map((group, i) => ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: group.start, durationInFrames: group.durationInFrames, children: (0, jsx_runtime_1.jsx)(remotion_1.AbsoluteFill, { children: group.action === "SHOW_COLUMN_ARITHMETIC" ? ((0, jsx_runtime_1.jsx)(ColumnArithmeticScene_1.ColumnArithmeticScene, { groupedScenes: group.subScenes.map(s => s.scene), timings: group.subScenes })) : group.action === "SHOW_SMALL_ADDITION" ? ((0, jsx_runtime_1.jsx)(SmallAdditionScene_1.SmallAdditionScene, { groupedScenes: group.subScenes.map(s => s.scene), timings: group.subScenes })) : group.action === "SHOW_SMALL_SUBTRACTION" ? ((0, jsx_runtime_1.jsx)(SmallSubtractionScene_1.SmallSubtractionScene, { groupedScenes: group.subScenes.map(s => s.scene), timings: group.subScenes })) : (sceneComponent(group.subScenes[0].scene)) }) }, `visual-${i}`))), script.scenes.map((scene, i) => (scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" || scene.action === "SHOW_SMALL_SUBTRACTION" ? null : ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: sceneStarts[i].start, durationInFrames: sceneStarts[i].dur, children: (0, jsx_runtime_1.jsx)(remotion_1.AbsoluteFill, { children: (0, jsx_runtime_1.jsx)(Scenes_1.NarrationBar, { text: scene.narration }) }) }, `narration-${i}`)))), audioUrls && audioUrls.length > 0 ? (audioUrls.map((url, i) => (url ? ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: sceneStarts[i].start + Math.round(fps * 0.5), children: (0, jsx_runtime_1.jsx)(remotion_1.Audio, { src: url }) }, i)) : null))) : audioUrl ? ((0, jsx_runtime_1.jsx)(remotion_1.Sequence, { from: 0, children: (0, jsx_runtime_1.jsx)(remotion_1.Audio, { src: audioUrl }) })) : null] }));
 };
 exports.MathVideo = MathVideo;
