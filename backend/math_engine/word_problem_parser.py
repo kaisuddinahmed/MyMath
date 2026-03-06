@@ -10,8 +10,8 @@ from typing import Optional
 # NOTE: order matters — checked top to bottom, first match wins.
 # 'total' / 'bought' / 'received' removed: all appear in multiplication questions too
 # and must not be treated as guaranteed addition signals.
-ADD_WORDS = ["more", "together", "sum", "combined", "plus", "added", "add", "increased by", "in total", "altogether", "do they have", "are there now"]
-SUB_WORDS = ["less", "fewer", "left", "remain", "left now", "difference", "minus", "subtract", "took", "take away", "fly away", "ate", "gave away", "spent", "lost", "removed", "decreased by", "how many more"]
+ADD_WORDS = ["more", "together", "sum", "combined", "plus", "added", "add", "increased by", "in total", "altogether"]
+SUB_WORDS = ["less", "fewer", "left", "remain", "left now", "difference", "minus", "subtract", "took", "take away", "fly away", "flew away", "ate", "eaten", "gave away", "gave", "give away", "spent", "lost", "removed", "decreased by", "how many more", "how many less", "how many fewer", "wrote", "written on", "plucked", "caught", "used", "broke", "sold", "dropped", "have now", "left to", "left with", "are left", "how many boys", "how many girls"]
 
 # Division phrases that contain 'each' must be checked BEFORE bare 'each' in MUL_WORDS.
 # Check the whole phrase first so 'how many in each team' resolves as division.
@@ -40,7 +40,17 @@ def parse_word_problem(question: str) -> Optional[dict]:
     Returns {numbers, operation, expression, confidence} or None.
     `expression` is a best-effort simplified math expression string.
     """
+    # Pre-process: convert written-out number words to digits
+    _WORD_MAP = {
+        "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
+        "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
+        "ten": "10", "eleven": "11", "twelve": "12", "thirteen": "13",
+        "fourteen": "14", "fifteen": "15", "sixteen": "16", "seventeen": "17",
+        "eighteen": "18", "nineteen": "19", "twenty": "20",
+    }
     q = question.lower().strip()
+    for word, digit in sorted(_WORD_MAP.items(), key=lambda x: -len(x[0])):
+        q = re.sub(rf"\b{word}\b", digit, q)
     nums_raw = NUMBERS_RE.findall(q)
     if len(nums_raw) < 2:
         return None

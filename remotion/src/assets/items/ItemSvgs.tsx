@@ -1,4 +1,5 @@
 import React from "react";
+import { Img } from "remotion";
 
 /** Apple SVG — red with a green leaf */
 export const AppleSvg: React.FC<{ size?: number }> = ({ size = 60 }) => (
@@ -85,10 +86,26 @@ export const CounterSvg: React.FC<{ size?: number; color?: string }> = ({
   </svg>
 );
 
+/**
+ * Renders emoji as an image from Twemoji CDN.
+ * Native emoji text does NOT render in Remotion's headless Chromium,
+ * so we convert the emoji to its unicode codepoint and load the Twemoji SVG.
+ */
+function emojiToTwemojiUrl(emoji: string): string {
+  const codepoints = [...emoji]
+    .map(c => c.codePointAt(0)!.toString(16))
+    .filter(cp => cp !== "fe0f") // Remove variation selector
+    .join("-");
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${codepoints}.svg`;
+}
+
 export const EmojiItemSvg: React.FC<{ emoji: string; size?: number }> = ({ emoji, size = 60 }) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-    <text x="32" y="38" fontSize="48" textAnchor="middle" dominantBaseline="middle">{emoji}</text>
-  </svg>
+  <Img
+    src={emojiToTwemojiUrl(emoji)}
+    width={size}
+    height={size}
+    style={{ objectFit: "contain" }}
+  />
 );
 
 export function ItemComponent({ itemType, size = 56 }: { itemType: string; size?: number }) {
@@ -149,6 +166,7 @@ export function ItemComponent({ itemType, size = 56 }: { itemType: string; size?
     case "CHOCOLATE_SVG": return <EmojiItemSvg emoji="🍫" size={size} />;
     case "CHAIR_SVG": return <EmojiItemSvg emoji="🪑" size={size} />;
     case "SLICED_WATERMELON_SVG": return <EmojiItemSvg emoji="🍉" size={size} />;
+    case "CHILD_SVG": return <EmojiItemSvg emoji="🧒" size={size} />;
     default: return <CounterSvg size={size} />;
   }
 }

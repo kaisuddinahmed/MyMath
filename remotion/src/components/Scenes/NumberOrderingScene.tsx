@@ -84,9 +84,10 @@ export const NumberOrderingScene: React.FC<{
       style={{
         display: "flex",
         flexDirection: "row",
-        alignItems: "center",
+        alignItems: "flex-end", // Align from the bottom instead of center
         justifyContent: "center",
-        height: "100%",
+        height: "100%", // Take full height
+        paddingBottom: "15%", // Push the 'base' floor up by 15% from the screen bottom
         gap: gap,
         position: "relative",
       }}
@@ -108,29 +109,71 @@ export const NumberOrderingScene: React.FC<{
             config: { damping: 10 }
           });
 
+          // Block units for visual magnitude
+          const blockHeight = 30;
+          const blockGap = 4;
+          const towerHeight = el.num * (blockHeight + blockGap);
+          
           return (
             <div
-              key={`block-${i}`}
+              key={`tower-${i}`}
               style={{
                 position: "absolute",
                 left: currentX,
-                top: 0,
+                bottom: 0,
                 width: itemWidth,
-                height: itemWidth,
                 display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                justifyContent: "center",
-                background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                borderRadius: 24,
-                boxShadow: "0 10px 25px rgba(79, 70, 229, 0.4)",
                 transform: `scale(${popIn})`,
-                color: "white",
-                fontSize: 48,
-                fontWeight: "bold",
-                fontFamily: "'Inter', sans-serif"
+                transformOrigin: "bottom center",
               }}
             >
-              {el.num}
+              {/* The stack of visual blocks */}
+              <div 
+                style={{
+                  display: "flex",
+                  flexDirection: "column-reverse", // stack from bottom
+                  gap: blockGap,
+                  marginBottom: gap,
+                }}
+              >
+                {Array.from({ length: el.num }).map((_, bIdx) => {
+                  return (
+                    <div 
+                      key={bIdx}
+                      style={{
+                        width: itemWidth - 20, // slightly narrower than the base tablet
+                        height: blockHeight,
+                        backgroundColor: "#34D399", // Emerald green for the blocks
+                        borderRadius: 6,
+                        boxShadow: "0 4px 6px rgba(16, 185, 129, 0.3)",
+                        border: "1px solid rgba(255,255,255,0.2)"
+                      }}
+                    />
+                  )
+                })}
+              </div>
+
+              {/* The Number Text base */}
+              <div
+                style={{
+                  width: itemWidth,
+                  height: itemWidth,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                  borderRadius: 24,
+                  boxShadow: "0 10px 25px rgba(79, 70, 229, 0.4)",
+                  color: "white",
+                  fontSize: 48,
+                  fontWeight: "bold",
+                  fontFamily: "'Inter', sans-serif"
+                }}
+              >
+                {el.num}
+              </div>
             </div>
           );
         })}

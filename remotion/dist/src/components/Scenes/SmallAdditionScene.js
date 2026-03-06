@@ -4,14 +4,6 @@ exports.SmallAdditionScene = void 0;
 const jsx_runtime_1 = require("react/jsx-runtime");
 const remotion_1 = require("remotion");
 const ItemSvgs_1 = require("../../assets/items/ItemSvgs");
-function ItemComponent({ itemType, size = 56 }) {
-    switch (itemType) {
-        case "APPLE_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.AppleSvg, { size: size });
-        case "BIRD_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BirdSvg, { size: size });
-        case "BLOCK_SVG": return (0, jsx_runtime_1.jsx)(ItemSvgs_1.BlockSvg, { size: size });
-        default: return (0, jsx_runtime_1.jsx)(ItemSvgs_1.CounterSvg, { size: size });
-    }
-}
 const SmallAdditionScene = ({ groupedScenes, timings }) => {
     const { fps } = (0, remotion_1.useVideoConfig)();
     const frame = (0, remotion_1.useCurrentFrame)();
@@ -22,46 +14,39 @@ const SmallAdditionScene = ({ groupedScenes, timings }) => {
     const rightCount = numMatches && numMatches.length >= 2 ? parseInt(numMatches[1], 10) : 2;
     const totalCount = leftCount + rightCount;
     const itemType = groupedScenes[0]?.item_type || "APPLE_SVG";
-    // Calculate timing boundaries dynamically based on the number of provided scenes
+    // Internal 4-step timings even when only 1 scene is provided
     const hasCountingStep = timings.length >= 4;
     const step1End = timings[0]?.dur || 4 * fps;
     const step2End = step1End + (timings[1]?.dur || 4 * fps);
-    // If counting step exists, step3End uses its duration. Otherwise, step3End is just step2End.
-    const step3Dur = hasCountingStep ? timings[2].dur : 0;
+    const step3Dur = hasCountingStep ? timings[2].dur : (totalCount >= 3 ? 4 * fps : 0);
     const step3End = step2End + step3Dur;
-    // Layout interpolations based on step transitions
-    // Step 1: Items pop in separate groups
+    // Step 1: All items pop in (in their two-group layout)
     const step1Pop = (0, remotion_1.spring)({ frame, fps, config: { damping: 12 } });
-    // Step 2: Plus sign fades out, objects slide together
+    // Step 2: Groups slide together — the big gap between left and right shrinks to zero
     const mergeProgress = (0, remotion_1.spring)({
         frame: Math.max(0, frame - step1End),
         fps,
-        config: { damping: 14 }
+        config: { damping: 14 },
     });
-    const parentGap = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [80, 5]);
-    const plusWidth = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [60, 0]);
-    const plusOpacity = (0, remotion_1.interpolate)(mergeProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" });
-    // Step 3 (Optional): Counting numbers appear under items sequentially
+    // The "separator" gap between left group and right group
+    // Starts large (groups are separate) and collapses to 0 (become one row)
+    const separatorWidth = (0, remotion_1.interpolate)(mergeProgress, [0, 1], [90, 0]);
+    const plusOpacity = (0, remotion_1.interpolate)(mergeProgress, [0, 0.4], [1, 0], { extrapolateRight: "clamp" });
+    // Step 3: Counting numbers stagger in one by one across all items
     const getCountOpacity = (index) => {
-        if (!hasCountingStep)
-            return 0; // Don't show counters if step is skipped
-        const staggerFrames = step3Dur / totalCount;
-        const delay = step2End + (index * staggerFrames);
-        return (0, remotion_1.spring)({
-            frame: Math.max(0, frame - delay),
-            fps,
-            from: 0,
-            to: 1,
-            durationInFrames: 10
-        });
+        if (step3Dur === 0)
+            return 0;
+        const staggerFrames = step3Dur / Math.max(1, totalCount);
+        const delay = step2End + index * staggerFrames;
+        return (0, remotion_1.spring)({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, durationInFrames: 10 });
     };
-    // Step 4 (or 3, if counting skipped): Final equation fades in
+    // Step 4: Final equation fades in
     const step4Opacity = (0, remotion_1.spring)({
         frame: Math.max(0, frame - step3End),
         fps,
         from: 0,
         to: 1,
-        durationInFrames: 15
+        durationInFrames: 15,
     });
     return ((0, jsx_runtime_1.jsxs)("div", { style: {
             display: "flex",
@@ -69,23 +54,45 @@ const SmallAdditionScene = ({ groupedScenes, timings }) => {
             alignItems: "center",
             justifyContent: "center",
             height: "100%",
-            paddingTop: 80,
-        }, children: [(0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", alignItems: "center", gap: parentGap }, children: [(0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: leftCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
+        }, children: [(0, jsx_runtime_1.jsxs)("div", { style: {
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 20,
+                    transform: `scale(${step1Pop})`,
+                }, children: [Array.from({ length: leftCount }).map((_, idx) => {
+                        const countOpacity = getCountOpacity(idx);
+                        return ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }, children: [(0, jsx_runtime_1.jsx)("div", { style: { transform: "scale(0.9)" }, children: (0, jsx_runtime_1.jsx)(ItemSvgs_1.ItemComponent, { itemType: itemType }) }), (0, jsx_runtime_1.jsx)("div", { style: {
                                         color: "#fcd34d",
-                                        fontSize: 32,
+                                        fontSize: 26,
                                         fontWeight: "bold",
-                                        opacity: getCountOpacity(i),
-                                        transform: `translateY(${(0, remotion_1.interpolate)(getCountOpacity(i), [0, 1], [10, 0])}px)`
-                                    }, children: i + 1 })] }, `L${i}`))) }), (0, jsx_runtime_1.jsx)("div", { style: {
-                            fontSize: 90, color: "#10b981", fontWeight: "bold", opacity: plusOpacity,
-                            width: plusWidth, display: "flex", justifyContent: "center", overflow: "hidden"
-                        }, children: "+" }), (0, jsx_runtime_1.jsx)("div", { style: { display: "flex", gap: 10, transform: `scale(${step1Pop})` }, children: Array.from({ length: rightCount }).map((_, i) => ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }, children: [(0, jsx_runtime_1.jsx)(ItemComponent, { itemType: itemType }), (0, jsx_runtime_1.jsx)("div", { style: {
+                                        opacity: countOpacity,
+                                        transform: `translateY(${(0, remotion_1.interpolate)(countOpacity, [0, 1], [10, 0])}px)`,
+                                    }, children: idx + 1 })] }, `L-${idx}`));
+                    }), (0, jsx_runtime_1.jsx)("div", { style: {
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: separatorWidth,
+                            overflow: "hidden",
+                            flexShrink: 0,
+                        }, children: (0, jsx_runtime_1.jsx)("span", { style: {
+                                fontSize: 72,
+                                color: "#10b981",
+                                fontWeight: "bold",
+                                opacity: plusOpacity,
+                                lineHeight: 1,
+                            }, children: "+" }) }), Array.from({ length: rightCount }).map((_, idx) => {
+                        const absoluteIdx = leftCount + idx;
+                        const countOpacity = getCountOpacity(absoluteIdx);
+                        return ((0, jsx_runtime_1.jsxs)("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }, children: [(0, jsx_runtime_1.jsx)("div", { style: { transform: "scale(0.9)" }, children: (0, jsx_runtime_1.jsx)(ItemSvgs_1.ItemComponent, { itemType: itemType }) }), (0, jsx_runtime_1.jsx)("div", { style: {
                                         color: "#fcd34d",
-                                        fontSize: 32,
+                                        fontSize: 26,
                                         fontWeight: "bold",
-                                        opacity: getCountOpacity(leftCount + i),
-                                        transform: `translateY(${(0, remotion_1.interpolate)(getCountOpacity(leftCount + i), [0, 1], [10, 0])}px)`
-                                    }, children: leftCount + i + 1 })] }, `R${i}`))) })] }), (0, jsx_runtime_1.jsx)("div", { style: {
+                                        opacity: countOpacity,
+                                        transform: `translateY(${(0, remotion_1.interpolate)(countOpacity, [0, 1], [10, 0])}px)`,
+                                    }, children: absoluteIdx + 1 })] }, `R-${idx}`));
+                    })] }), (0, jsx_runtime_1.jsx)("div", { style: {
                     marginTop: 80,
                     opacity: step4Opacity,
                     transform: `translateY(${(0, remotion_1.interpolate)(step4Opacity, [0, 1], [30, 0])}px)`,

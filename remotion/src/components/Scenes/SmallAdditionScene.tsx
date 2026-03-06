@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, Sequence, interpolate } from "remotion";
+import { useVideoConfig, useCurrentFrame, spring, interpolate } from "remotion";
 import type { DirectorScene } from "../../types";
 import { ItemComponent } from "../../assets/items/ItemSvgs";
 
@@ -18,53 +18,43 @@ export const SmallAdditionScene: React.FC<{
   const totalCount = leftCount + rightCount;
   const itemType = groupedScenes[0]?.item_type || "APPLE_SVG";
 
-  // Calculate timing boundaries dynamically based on the number of provided scenes
+  // Internal 4-step timings even when only 1 scene is provided
   const hasCountingStep = timings.length >= 4;
-  
   const step1End = timings[0]?.dur || 4 * fps;
   const step2End = step1End + (timings[1]?.dur || 4 * fps);
-  
-  // If counting step exists, step3End uses its duration. Otherwise, step3End is just step2End.
-  const step3Dur = hasCountingStep ? timings[2].dur : 0;
+  const step3Dur = hasCountingStep ? timings[2].dur : (totalCount >= 3 ? 4 * fps : 0);
   const step3End = step2End + step3Dur;
-  
-  // Layout interpolations based on step transitions
-  
-  // Step 1: Items pop in separate groups
-  const step1Pop = spring({ frame, fps, config: { damping: 12 }});
-  
-  // Step 2: Plus sign fades out, objects slide together
+
+  // Step 1: All items pop in (in their two-group layout)
+  const step1Pop = spring({ frame, fps, config: { damping: 12 } });
+
+  // Step 2: Groups slide together — the big gap between left and right shrinks to zero
   const mergeProgress = spring({
     frame: Math.max(0, frame - step1End),
     fps,
-    config: { damping: 14 }
+    config: { damping: 14 },
   });
 
-  const parentGap = interpolate(mergeProgress, [0, 1], [80, 5]);
-  const plusWidth = interpolate(mergeProgress, [0, 1], [60, 0]);
-  const plusOpacity = interpolate(mergeProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" });
+  // The "separator" gap between left group and right group
+  // Starts large (groups are separate) and collapses to 0 (become one row)
+  const separatorWidth = interpolate(mergeProgress, [0, 1], [90, 0]);
+  const plusOpacity = interpolate(mergeProgress, [0, 0.4], [1, 0], { extrapolateRight: "clamp" });
 
-  // Step 3 (Optional): Counting numbers appear under items sequentially
+  // Step 3: Counting numbers stagger in one by one across all items
   const getCountOpacity = (index: number) => {
-    if (!hasCountingStep) return 0; // Don't show counters if step is skipped
-    const staggerFrames = step3Dur / totalCount;
-    const delay = step2End + (index * staggerFrames);
-    return spring({
-      frame: Math.max(0, frame - delay),
-      fps,
-      from: 0,
-      to: 1,
-      durationInFrames: 10
-    });
+    if (step3Dur === 0) return 0;
+    const staggerFrames = step3Dur / Math.max(1, totalCount);
+    const delay = step2End + index * staggerFrames;
+    return spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, durationInFrames: 10 });
   };
 
-  // Step 4 (or 3, if counting skipped): Final equation fades in
+  // Step 4: Final equation fades in
   const step4Opacity = spring({
     frame: Math.max(0, frame - step3End),
     fps,
     from: 0,
     to: 1,
-    durationInFrames: 15
+    durationInFrames: 15,
   });
 
   return (
@@ -75,58 +65,94 @@ export const SmallAdditionScene: React.FC<{
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-        paddingTop: 80,
       }}
     >
-      {/* Container holding the groups */}
-      <div style={{ display: "flex", alignItems: "center", gap: parentGap }}>
-        
-        {/* Left Group */}
-        <div style={{ display: "flex", gap: 10, transform: `scale(${step1Pop})` }}>
-          {Array.from({ length: leftCount }).map((_, i) => (
-            <div key={`L${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }}>
-              <ItemComponent itemType={itemType} />
-              {/* Counting numbers (Step 3) */}
-              <div style={{ 
-                color: "#fcd34d", 
-                fontSize: 32, 
-                fontWeight: "bold",
-                opacity: getCountOpacity(i),
-                transform: `translateY(${interpolate(getCountOpacity(i), [0,1], [10, 0])}px)`
-              }}>
-                {i + 1}
+      {/* Single row: [left items] [separator/+] [right items] */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 20,
+          transform: `scale(${step1Pop})`,
+        }}
+      >
+        {/* Left group — flat single row */}
+        {Array.from({ length: leftCount }).map((_, idx) => {
+          const countOpacity = getCountOpacity(idx);
+          return (
+            <div
+              key={`L-${idx}`}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}
+            >
+              <div style={{ transform: "scale(0.9)" }}>
+                <ItemComponent itemType={itemType} />
+              </div>
+              <div
+                style={{
+                  color: "#fcd34d",
+                  fontSize: 26,
+                  fontWeight: "bold",
+                  opacity: countOpacity,
+                  transform: `translateY(${interpolate(countOpacity, [0, 1], [10, 0])}px)`,
+                }}
+              >
+                {idx + 1}
               </div>
             </div>
-          ))}
+          );
+        })}
+
+        {/* The Plus Sign / separator — shrinks and fades as groups merge */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: separatorWidth,
+            overflow: "hidden",
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 72,
+              color: "#10b981",
+              fontWeight: "bold",
+              opacity: plusOpacity,
+              lineHeight: 1,
+            }}
+          >
+            +
+          </span>
         </div>
 
-        {/* The Plus Sign */}
-        <div style={{ 
-          fontSize: 90, color: "#10b981", fontWeight: "bold", opacity: plusOpacity,
-          width: plusWidth, display: "flex", justifyContent: "center", overflow: "hidden"
-        }}>
-          +
-        </div>
-
-        {/* Right Group */}
-        <div style={{ display: "flex", gap: 10, transform: `scale(${step1Pop})` }}>
-          {Array.from({ length: rightCount }).map((_, i) => (
-            <div key={`R${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 15 }}>
-              <ItemComponent itemType={itemType} />
-              {/* Counting numbers continue (Step 3) */}
-              <div style={{ 
-                color: "#fcd34d", 
-                fontSize: 32, 
-                fontWeight: "bold",
-                opacity: getCountOpacity(leftCount + i),
-                transform: `translateY(${interpolate(getCountOpacity(leftCount + i), [0,1], [10, 0])}px)`
-              }}>
-                {leftCount + i + 1}
+        {/* Right group — flat single row */}
+        {Array.from({ length: rightCount }).map((_, idx) => {
+          const absoluteIdx = leftCount + idx;
+          const countOpacity = getCountOpacity(absoluteIdx);
+          return (
+            <div
+              key={`R-${idx}`}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}
+            >
+              <div style={{ transform: "scale(0.9)" }}>
+                <ItemComponent itemType={itemType} />
+              </div>
+              <div
+                style={{
+                  color: "#fcd34d",
+                  fontSize: 26,
+                  fontWeight: "bold",
+                  opacity: countOpacity,
+                  transform: `translateY(${interpolate(countOpacity, [0, 1], [10, 0])}px)`,
+                }}
+              >
+                {absoluteIdx + 1}
               </div>
             </div>
-          ))}
-        </div>
-
+          );
+        })}
       </div>
 
       {/* Final Equation Block (Step 4) */}
@@ -154,7 +180,6 @@ export const SmallAdditionScene: React.FC<{
           {leftCount} + {rightCount} = {totalCount}
         </p>
       </div>
-
     </div>
   );
 };

@@ -379,7 +379,7 @@ the animation engine what to render. Available actions and when to use them:
 - SHOW_PLACE_VALUE: Emphasize Base-10 blocks grouped by 10s and 100s
 - SHOW_COLUMN_ARITHMETIC: Show right-to-left columnar addition or subtraction
 
-Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG.
+Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG, CHILD_SVG.
 Available animation_style: BOUNCE_IN, FADE_IN, SLIDE_LEFT, POP, NONE
 
 
@@ -410,9 +410,9 @@ Rules:
 """
 
     # For standard templates, enforce a final SHOW_EQUATION scene.
-    # But for continuous components (column_arithmetic, small_addition), the final scene
+    # But for continuous components (column_arithmetic, small_addition, NumberOrdering), the final scene
     # is handled natively within their own action types, so we don't force it.
-    if template not in ["column_arithmetic", "small_addition"]:
+    if template not in ["column_arithmetic", "small_addition"] and topic != "comparison":
         base_content += "- ALWAYS end with a SHOW_EQUATION scene showing the final answer to the main problem.\n"
         
     base_content += "- Return ONLY valid JSON matching the schema exactly.\n- No markdown. No extra text.\n"
@@ -619,7 +619,14 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
         except Exception:
             pass
 
-        _is_comparison = "how many more" in str(question).lower() or "than" in str(question).lower() or "difference" in str(question).lower()
+        q_lower = str(question).lower()
+        _is_comparison = (
+            "how many more" in q_lower or 
+            "how many less" in q_lower or 
+            "how many fewer" in q_lower or 
+            "than" in q_lower or 
+            "difference" in q_lower
+        )
 
         if _is_comparison and _start_val is not None and _start_val <= 20:
              return (
@@ -631,32 +638,65 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Step 4: 'SHOW_EQUATION'. Show the final subtraction equation. Narration e.g., '6 minus 3 equals 3 more flowers.'\n"
              )
 
-        if _start_val is not None and _start_val <= 20:
+        if _start_val is None or _start_val <= 20:
             _zero_step = (
-                "Step 2: 'SHOW_SMALL_SUBTRACTION'. We are taking away 0, so we do NOT remove anything. Narration e.g., 'We take away zero, which means we do not remove anything.' Equation MUST be 'Total - 0' (e.g., '8 - 0').\n"
+                "2. 'We take away zero, which means we do not remove anything.'\n"
                  if _sub_val == 0 else
-                "Step 2: 'SHOW_SMALL_SUBTRACTION'. Take away the subtracted amount. Narration e.g., 'Now, we take away 3 items.' Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
+                "2. 'Now, we take away 3 items.'\n"
             )
             return (
                 "Topic guidance: This is a SMALL TAKE-AWAY SUBTRACTION problem (starting amount ≤ 20). "
-                "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
-                "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question (e.g., '8 ripe mangoes'). NEVER use the generic words 'items' or 'objects'.\n"
-                "Step 1: 'SHOW_SMALL_SUBTRACTION'. Show the total starting amount together. Narration e.g., 'Let us start with 8 ripe mangoes.' Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
+                "CRITICAL: You MUST output exactly ONE (1) JSON scene element in your array representing the entire sequence. Do NOT output multiple scenes.\n"
+                "Action MUST be 'SHOW_SMALL_SUBTRACTION'.\n"
+                "Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG).\n"
+                "In the 'narration' field, provide a single cohesive sequence of sentences covering:\n"
+                "1. Showing the total starting amount together. (e.g., 'Let us start with 8 ripe mangoes.')\n"
                 f"{_zero_step}"
-                "Step 3 (ONLY IF REMAINING IS 6 OR GREATER): 'SHOW_SMALL_SUBTRACTION'. Count the remaining objects. Narration e.g., 'Let's count what is left: 1, 2, 3...'. Equation MUST be 'Total - Remove' (e.g., '8 - 3'). Skip this step entirely if the remaining amount is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
-                "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_SUBTRACTION'. Show the final answer. Narration e.g., 'So, 8 minus 3 leaves 5 mangoes.' Equation MUST be the full expression (e.g., '8 - 3 = 5').\n"
-                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+                "3. Counting the remaining objects (ONLY IF REMAINING IS 3 OR GREATER. e.g., 'Let's count what is left: 1, 2, 3...').\n"
+                "4. Final answer. (e.g., 'So, 8 minus 3 leaves 5 mangoes.')"
             )
         
-        return (
-            "Topic guidance: Sequence MUST be:\n"
-            "1. ADD_ITEMS first to show the starting count.\n"
-            "2. REMOVE_ITEMS to take some away. IMPORTANT: You MUST set the equation field to exactly \"A - B\" (e.g., \"8 - 3\") so the frontend knows what to remove.\n"
-            "3. SHOW_EQUATION to show the final result, e.g., \"8 - 3 = 5\".\n"
-            "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG).\n"
-            'Narration must mention "take away" or "remove".'
-        )
+        else:
+            return (
+                "Topic guidance: This is a LARGER SUBTRACTION problem (value > 20). You MUST follow these rules:\n"
+                "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
+                "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
+                "Scene 1 — Setup: State the problem briefly.\n"
+                "Scene per column (ones, then tens, etc.): show column-by-column subtraction.\n"
+                "  If borrowing: explain it simply — '3 is smaller than 8, so we borrow 1 from the tens. 13 minus 8 is 5.'\n"
+                f"Final scene: 'So, the answer is {verified_answer}.' Include full equation with = answer.\n"
+                "Sound warm and encouraging. Do NOT rush."
+            )
     elif topic == "counting":
+        # Safety net: if this is actually an addition word problem misclassified
+        # as counting (e.g., "Five children playing, then two more came"), re-route it.
+        import re as _re
+        _WORD_TO_NUM = {"zero":0,"one":1,"two":2,"three":3,"four":4,"five":5,"six":6,"seven":7,"eight":8,"nine":9,"ten":10,"eleven":11,"twelve":12,"thirteen":13,"fourteen":14,"fifteen":15,"sixteen":16,"seventeen":17,"eighteen":18,"nineteen":19,"twenty":20}
+        # Collect all numbers from both digits and written-out words
+        _q_lower = str(question).lower()
+        _all_nums = [int(n) for n in _re.findall(r"\d+", _q_lower)]
+        for word, val in _WORD_TO_NUM.items():
+            if _re.search(rf"\b{word}\b", _q_lower):
+                _all_nums.append(val)
+        _ans_nums = _re.findall(r"\d+", str(verified_answer))
+        _ans_val = int(_ans_nums[0]) if _ans_nums else None
+        if len(_all_nums) >= 2 and _ans_val is not None:
+            # Try all pairs to find one that sums to the answer
+            for i in range(len(_all_nums)):
+                for j in range(i + 1, len(_all_nums)):
+                    a, b = _all_nums[i], _all_nums[j]
+                    if a + b == _ans_val and _ans_val <= 20:
+                        return (
+                            "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 20). "
+                            "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
+                            "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question. NEVER use the generic words 'items' or 'objects'.\n"
+                            "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Equation MUST simply be 'A + B' (e.g., '" + str(a) + " + " + str(b) + "').\n"
+                            "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Equation MUST be 'A + B' (e.g., '" + str(a) + " + " + str(b) + "').\n"
+                            "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '" + str(a) + " + " + str(b) + "'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
+                            "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Equation MUST be the full expression '" + str(a) + " + " + str(b) + " = " + str(_ans_val) + "'.\n"
+                            "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
+                        )
         return (
             "Topic guidance: Use ADD_ITEMS action.\n"
             "Show objects popping onto the screen one by one.\n"
@@ -683,7 +723,7 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Step 1: 'ADD_ITEMS'. Show the total amount (e.g., 6 objects). Narration: 'Let us take 6 items.'\n"
                 "Step 2: 'GROUP_ITEMS'. Split the objects into two distinct groups matching the parts. Narration: 'We can group them as 4 items and 2 items.'\n"
                 "Step 3: 'SHOW_EQUATION'. Show the final decomposition. Equation MUST be 'Total = Part1 + Part2' (e.g., '6 = 4 + 2').\n"
-                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
             )
 
         if _sum_val is not None and _sum_val <= 20:
@@ -696,7 +736,7 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Narration e.g., 'When we add them all together...' Equation MUST be 'A + B' (e.g., '4 + 3').\n"
                 "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 3'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
                 "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, there are 7 mangoes altogether.' Equation MUST be the full expression 'A + B = C' (e.g., '4 + 3 = 7').\n"
-                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, or BLOCK_SVG)."
+                "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
             )
         else:
             # Class 1 Ch.15 (sums >20, up to 100): column arithmetic
@@ -713,13 +753,15 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
     elif topic == "comparison":
         # Check if this is a qualitative comparison (Class 1 Ch.1)
         import re as _re
-        if _re.search(r"\b(order|arrange|smaller to greater|greater to smaller)\b", question, _re.IGNORECASE) and len(_re.findall(r"\d+", question)) >= 2:
+        if _re.search(r"\b(order|arrange|reorder)\b", question, _re.IGNORECASE) or _re.search(r"\b(smaller to greater|greater to smaller|large to small|small to large)\b", question, _re.IGNORECASE) and len(_re.findall(r"\d+", question)) >= 2:
             return (
-                "Topic guidance: This is a NUMBER ORDERING problem.\n"
+                "Topic guidance: This is a NUMBER ORDERING problem for Class 1.\n"
+                "CRITICAL: Narration MUST reference visual sizes, heights, or quantities, not just the abstract numbers.\n"
                 "Sequence MUST rigidly follow these steps in order. For ALL steps, use the action 'SHOW_NUMBER_ORDERING'.\n"
-                "Step 1: 'SHOW_NUMBER_ORDERING'. Show the scrambled numbers on screen. Equation MUST be the scrambled list (e.g., '8, 3, 5, 2, 1'). Narration: 'We have 8, 3, 5, 2, 1.'\n"
-                "Step 2 (Optional, use if transitioning is complex): 'SHOW_NUMBER_ORDERING'. Show intermediate sorting steps. Narration: 'Let us find the smallest number... it's 1. Then 2...' Equation MUST be the sorted list (e.g., '1, 2, 3, 5, 8').\n"
-                "Step 3: 'SHOW_NUMBER_ORDERING'. Show the final sorted list clearly. Equation MUST be the final sorted list (e.g., '1, 2, 3, 5, 8'). Narration: 'So the correct order is 1, 2, 3, 5, 8.'"
+                "Step 1: 'SHOW_NUMBER_ORDERING'. Show the scrambled numbers represented as towers of blocks. Narration: 'Look at these numbers! We have 8, 3, 5, 2, and 1.' Equation MUST be the scrambled list (e.g., '8, 3, 5, 2, 1').\n"
+                "Step 2: 'SHOW_NUMBER_ORDERING'. Identify the starting point. Narration: 'We need to arrange them from smallest to largest.' Equation MUST be the scrambled list.\n"
+                "Step 3: 'SHOW_NUMBER_ORDERING'. Show them moving into a staircase pattern. Narration: 'Let us line them up like stairs. Now they are perfectly ordered.' Equation MUST be the sorted list (e.g., '1, 2, 3, 5, 8').\n"
+                "- Do NOT add a 4th scene or a final SHOW_EQUATION scene. The video must end with Step 3."
             )
         elif _re.search(r"\b(heavier|lighter|heavy|light|weigh)\b", question, _re.IGNORECASE):
             return (

@@ -130,23 +130,82 @@ const ColumnArithmeticScene = ({ groupedScenes, timings }) => {
                             pointerEvents: "none"
                         } }, `hl-${c.colIndex}`));
                 }), (0, jsx_runtime_1.jsx)("div", { style: { gridColumn: 1, gridRow: 1 } }), cols.map(c => {
-                    const colStart = calcStart + ((c.colIndex - 1) * colDuration);
-                    const appearFrame = colStart + (colDuration * 0.6);
-                    const s = (0, remotion_1.spring)({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+                    let showValue = "";
+                    let opacityAnim = 0;
+                    let transformAnim = 0;
+                    if (operator === "+") {
+                        const colStart = calcStart + ((c.colIndex - 1) * colDuration);
+                        const appearFrame = colStart + (colDuration * 0.6);
+                        const s = (0, remotion_1.spring)({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+                        showValue = c.carryIn > 0 ? c.carryIn : "";
+                        opacityAnim = c.carryIn > 0 ? s : 0;
+                        transformAnim = 16 * (1 - s);
+                    }
+                    else if (operator === "-") {
+                        if (c.carryIn > 0) {
+                            const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
+                            const appearFrame = prevColStart + (colDuration * 0.2);
+                            const s = (0, remotion_1.spring)({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+                            const topVal = c.topDigit === null || c.topDigit === "." ? 0 : parseInt(c.topDigit);
+                            showValue = topVal - c.carryIn + (c.carryOut > 0 ? 10 : 0);
+                            opacityAnim = s;
+                            transformAnim = 16 * (1 - s);
+                        }
+                    }
                     return ((0, jsx_runtime_1.jsx)("div", { style: {
                             gridColumn: cols.length - c.colIndex + 1,
                             gridRow: 1,
                             fontSize: 36,
                             color: "#f87171",
                             fontWeight: 600,
-                            opacity: c.carryIn > 0 ? s : 0,
-                            transform: `translateY(${16 * (1 - s)}px)`
-                        }, children: c.carryIn > 0 ? c.carryIn : "" }, `carry-${c.colIndex}`));
-                }), (0, jsx_runtime_1.jsx)("div", { style: { gridColumn: 1, gridRow: 2 } }), cols.map(c => ((0, jsx_runtime_1.jsx)("div", { style: {
-                        gridColumn: cols.length - c.colIndex + 1,
-                        gridRow: 2,
-                        display: "flex", alignItems: "center", justifyContent: "center"
-                    }, children: c.topDigit || "" }, `top-${c.colIndex}`))), (0, jsx_runtime_1.jsx)("div", { style: {
+                            opacity: opacityAnim,
+                            transform: `translateY(${transformAnim}px)`,
+                            display: "flex", alignItems: "center", justifyContent: "center"
+                        }, children: showValue }, `carry-${c.colIndex}`));
+                }), (0, jsx_runtime_1.jsx)("div", { style: { gridColumn: 1, gridRow: 2 } }), cols.map(c => {
+                    let hasPrefix1 = false;
+                    let prefix1Opacity = 0;
+                    let hasStrikethrough = false;
+                    let strikeScale = 0;
+                    if (operator === "-") {
+                        if (c.carryOut > 0 && c.carryIn === 0 && c.topDigit !== "." && c.topDigit !== null) {
+                            hasPrefix1 = true;
+                            const colStart = calcStart + (c.colIndex * colDuration);
+                            const appearFrame = colStart + (colDuration * 0.2);
+                            prefix1Opacity = (0, remotion_1.spring)({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
+                        }
+                        if (c.carryIn > 0 && c.topDigit !== "." && c.topDigit !== null) {
+                            hasStrikethrough = true;
+                            const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
+                            const appearFrame = prevColStart + (colDuration * 0.2);
+                            strikeScale = (0, remotion_1.spring)({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
+                        }
+                    }
+                    return ((0, jsx_runtime_1.jsxs)("div", { style: {
+                            gridColumn: cols.length - c.colIndex + 1,
+                            gridRow: 2,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            position: "relative"
+                        }, children: [c.topDigit || "", hasPrefix1 && ((0, jsx_runtime_1.jsx)("span", { style: {
+                                    position: "absolute",
+                                    left: -5,
+                                    top: -10,
+                                    fontSize: 36,
+                                    color: "#f87171",
+                                    opacity: prefix1Opacity,
+                                    pointerEvents: "none"
+                                }, children: "1" })), hasStrikethrough && ((0, jsx_runtime_1.jsx)("div", { style: {
+                                    position: "absolute",
+                                    height: 4,
+                                    backgroundColor: "#ef4444",
+                                    top: "50%",
+                                    left: "10%",
+                                    width: "80%",
+                                    transform: `translateY(-50%) scaleX(${strikeScale})`,
+                                    transformOrigin: "left center",
+                                    pointerEvents: "none"
+                                } }))] }, `top-${c.colIndex}`));
+                }), (0, jsx_runtime_1.jsx)("div", { style: {
                         gridColumn: 1,
                         gridRow: 3,
                         borderBottom: "4px solid rgba(255,255,255,0.6)",

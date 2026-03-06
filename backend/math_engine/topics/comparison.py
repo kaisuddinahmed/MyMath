@@ -113,8 +113,18 @@ def _solve_qualitative(question: str) -> Optional[dict]:
     q = question.strip()
 
     # Do not attempt qualitative visual comparisons on math word problems (e.g. 5 apples and 3 more)
+    # Do not attempt qualitative visual comparisons on math word problems (e.g. 5 apples and 3 more)
     import re
-    if len(re.findall(r"\d+", q)) >= 2:
+    # Count both digit-numbers AND written-out number words
+    _NUMBER_WORDS = r"\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b"
+    digit_count = len(re.findall(r"\d+", q))
+    word_count = len(re.findall(_NUMBER_WORDS, q, re.IGNORECASE))
+    total_numbers = digit_count + word_count
+    if total_numbers >= 2:
+        return None
+    # Also skip if question contains clear addition indicators
+    _ADDITION_INDICATORS = r"\b(altogether|in all|how many.*total|put together|combined)\b"
+    if re.search(_ADDITION_INDICATORS, q, re.IGNORECASE):
         return None
     # Detect sub-concept
     sub = None
@@ -192,7 +202,7 @@ def _solve_ordering(question: str) -> Optional[dict]:
     q = question.lower()
     
     # Check if this is an ordering question
-    is_order = ORDER_RE.search(q) or "arrange" in q or "smaller to greater" in q or "greater to smaller" in q
+    is_order = bool(re.search(r"\b(order|arrange|reorder)\b", q)) or "smaller to greater" in q or "greater to smaller" in q or "large to small" in q or "small to large" in q
     if not is_order:
         return None
         
@@ -200,7 +210,7 @@ def _solve_ordering(question: str) -> Optional[dict]:
     if len(nums) < 2:
         return None
         
-    descending = "greater to smaller" in q or "largest to smallest" in q or "decreasing" in q
+    descending = "greater" in q or "largest to smallest" in q or "decreasing" in q or "large to small" in q or "big to small" in q
     
     sorted_nums = sorted(nums, reverse=descending)
     ans_str = ", ".join(str(n) for n in sorted_nums)

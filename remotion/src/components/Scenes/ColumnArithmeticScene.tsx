@@ -170,12 +170,31 @@ export const ColumnArithmeticScene: React.FC<{
            );
         })}
 
-        {/* Row 0: Carry Row */}
+        {/* Row 0: Carry / Borrow Row */}
         <div style={{gridColumn: 1, gridRow: 1}}></div>
         {cols.map(c => {
-           const colStart = calcStart + ((c.colIndex - 1) * colDuration);
-           const appearFrame = colStart + (colDuration * 0.6);
-           const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+           let showValue: string | number = "";
+           let opacityAnim = 0;
+           let transformAnim = 0;
+           
+           if (operator === "+") {
+             const colStart = calcStart + ((c.colIndex - 1) * colDuration);
+             const appearFrame = colStart + (colDuration * 0.6);
+             const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+             showValue = c.carryIn > 0 ? c.carryIn : "";
+             opacityAnim = c.carryIn > 0 ? s : 0;
+             transformAnim = 16 * (1 - s);
+           } else if (operator === "-") {
+             if (c.carryIn > 0) {
+               const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
+               const appearFrame = prevColStart + (colDuration * 0.2);
+               const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+               const topVal = c.topDigit === null || c.topDigit === "." ? 0 : parseInt(c.topDigit);
+               showValue = topVal - c.carryIn + (c.carryOut > 0 ? 10 : 0);
+               opacityAnim = s;
+               transformAnim = 16 * (1 - s);
+             }
+           }
            
            return (
              <div key={`carry-${c.colIndex}`} style={{
@@ -184,25 +203,73 @@ export const ColumnArithmeticScene: React.FC<{
                fontSize: 36,
                color: "#f87171",
                fontWeight: 600,
-               opacity: c.carryIn > 0 ? s : 0,
-               transform: `translateY(${16 * (1 - s)}px)`
+               opacity: opacityAnim,
+               transform: `translateY(${transformAnim}px)`,
+               display: "flex", alignItems: "center", justifyContent: "center"
              }}>
-               {c.carryIn > 0 ? c.carryIn : ""}
+               {showValue}
              </div>
            );
         })}
 
-        {/* Row 1: Top Number — always visible */}
+        {/* Row 1: Top Number — always visible with optional borrowing visuals */}
         <div style={{gridColumn: 1, gridRow: 2}}></div>
-        {cols.map(c => (
-          <div key={`top-${c.colIndex}`} style={{
-            gridColumn: cols.length - c.colIndex + 1, 
-            gridRow: 2,
-            display: "flex", alignItems: "center", justifyContent: "center"
-          }}>
-            {c.topDigit || ""}
-          </div>
-        ))}
+        {cols.map(c => {
+          let hasPrefix1 = false;
+          let prefix1Opacity = 0;
+          let hasStrikethrough = false;
+          let strikeScale = 0;
+
+          if (operator === "-") {
+            if (c.carryOut > 0 && c.carryIn === 0 && c.topDigit !== "." && c.topDigit !== null) {
+              hasPrefix1 = true;
+              const colStart = calcStart + (c.colIndex * colDuration);
+              const appearFrame = colStart + (colDuration * 0.2);
+              prefix1Opacity = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
+            }
+            if (c.carryIn > 0 && c.topDigit !== "." && c.topDigit !== null) {
+              hasStrikethrough = true;
+              const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
+              const appearFrame = prevColStart + (colDuration * 0.2);
+              strikeScale = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
+            }
+          }
+
+          return (
+            <div key={`top-${c.colIndex}`} style={{
+              gridColumn: cols.length - c.colIndex + 1, 
+              gridRow: 2,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative"
+            }}>
+              {c.topDigit || ""}
+              {hasPrefix1 && (
+                <span style={{
+                   position: "absolute",
+                   left: -5,
+                   top: -10,
+                   fontSize: 36,
+                   color: "#f87171",
+                   opacity: prefix1Opacity,
+                   pointerEvents: "none"
+                }}>1</span>
+              )}
+              {hasStrikethrough && (
+                <div style={{
+                   position: "absolute",
+                   height: 4,
+                   backgroundColor: "#ef4444",
+                   top: "50%",
+                   left: "10%",
+                   width: "80%",
+                   transform: `translateY(-50%) scaleX(${strikeScale})`,
+                   transformOrigin: "left center",
+                   pointerEvents: "none"
+                }} />
+              )}
+            </div>
+          );
+        })}
 
         {/* Row 2: Operator & Bottom Number — always visible, right-aligned */}
         <div style={{
