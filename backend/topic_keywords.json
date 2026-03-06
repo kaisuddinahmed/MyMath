@@ -1,12 +1,13 @@
 {
-  "addition": ["plus", "add", "sum", "total", "together", "more than", "increased by", "combined", "put together", "altogether", "in all", "joined", "gave more", "how many altogether"],
+  "addition": ["plus", "add", "sum", "total", "together", "more than", "increased by", "combined", "put together", "altogether", "in all", "joined", "gave more", "how many altogether", "how many in all", "came", "joined", "collected", "bought", "received", "how many guests", "how many children", "how many people", "do they have", "does he have", "does she have"],
     "subtraction": [
         "-", "subtract", "minus", "difference", "less", "fewer", "left",
-        "remain", "decreased by", "take away", "fly away", "flew away", "ate",
+        "remain", "decreased by", "take away", "taking from", "taken from",
+        "fly away", "flew away", "ate", "eaten",
         "gave", "give away", "used", "broke", "wrote", "written on", "spent",
-        "plucked", "caught", "has caught", "sold", "lost", "dropped", "eaten",
         "have now", "left to", "left with", "left in", "are left",
-        "how many more", "how many less", "how many fewer", "how many boys", "how many girls"
+        "how many more", "how many less", "how many fewer", "how many boys", "how many girls",
+        "sold", "dropped", "lost", "given away", "deduct", "from those", "from them", "out of"
     ],
   "comparison": ["greater", "less", "bigger", "smaller", "compare", ">", "<", "between", "order", "largest", "smallest", "ascending", "descending"],
   "place_value": ["place value", "tens", "ones", "hundreds", "thousands", "digit", "value of", "expand", "expanded form"],

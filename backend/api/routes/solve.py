@@ -638,14 +638,14 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Step 4: 'SHOW_EQUATION'. Show the final subtraction equation. Narration e.g., '6 minus 3 equals 3 more flowers.'\n"
              )
 
-        if _start_val is None or _start_val <= 20:
+        if _start_val is None or _start_val <= 10:
             _zero_step = (
                 "2. 'We take away zero, which means we do not remove anything.'\n"
                  if _sub_val == 0 else
-                "2. 'Now, we take away 3 items.'\n"
+                "2. 'Now, we take away some items.'\n"
             )
             return (
-                "Topic guidance: This is a SMALL TAKE-AWAY SUBTRACTION problem (starting amount ≤ 20). "
+                "Topic guidance: This is a SMALL TAKE-AWAY SUBTRACTION problem (starting amount ≤ 10). "
                 "CRITICAL: You MUST output exactly ONE (1) JSON scene element in your array representing the entire sequence. Do NOT output multiple scenes.\n"
                 "Action MUST be 'SHOW_SMALL_SUBTRACTION'.\n"
                 "Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
@@ -656,7 +656,24 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "3. Counting the remaining objects (ONLY IF REMAINING IS 3 OR GREATER. e.g., 'Let's count what is left: 1, 2, 3...').\n"
                 "4. Final answer. (e.g., 'So, 8 minus 3 leaves 5 mangoes.')"
             )
-        
+
+        elif 11 <= (_start_val or 0) <= 20:
+            _ones = _start_val - 10
+            _sub_display = _sub_val if _sub_val is not None else "B"
+            _ten_after = 10 - (_sub_val or 0)
+            _final = _start_val - (_sub_val or 0)
+            return (
+                "Topic guidance: This is a MEDIUM TAKE-AWAY SUBTRACTION problem (starting amount 11–20). Use the 'Break Through 10' strategy.\n"
+                "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_MEDIUM_SUBTRACTION'. Do NOT split into multiple scenes.\n"
+                f"Equation MUST be '{_start_val} - {_sub_display}'.\n"
+                "Pick an appropriate item_type from (BLOCK_SVG, MANGO_SVG, APPLE_SVG, BIRD_SVG, FLOWER_SVG, etc.) based on the question.\n"
+                "In the 'narration' field, cover these Break Through 10 steps:\n"
+                f"1. 'Let us split {_start_val} into 10 and {_ones}.'\n"
+                f"2. 'Now subtract {_sub_display} from 10: 10 minus {_sub_display} equals {_ten_after}.'\n"
+                f"3. 'Add the remaining {_ones}: {_ten_after} plus {_ones} equals {_final}.'\n"
+                f"4. 'So, {_start_val} minus {_sub_display} equals {_final}.'"
+            )
+
         else:
             return (
                 "Topic guidance: This is a LARGER SUBTRACTION problem (value > 20). You MUST follow these rules:\n"
@@ -686,9 +703,9 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             for i in range(len(_all_nums)):
                 for j in range(i + 1, len(_all_nums)):
                     a, b = _all_nums[i], _all_nums[j]
-                    if a + b == _ans_val and _ans_val <= 20:
+                    if a + b == _ans_val and _ans_val <= 10:
                         return (
-                            "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 20). "
+                            "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 10). "
                             "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
                             "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question. NEVER use the generic words 'items' or 'objects'.\n"
                             "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Equation MUST simply be 'A + B' (e.g., '" + str(a) + " + " + str(b) + "').\n"
@@ -696,6 +713,20 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                             "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '" + str(a) + " + " + str(b) + "'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
                             "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Equation MUST be the full expression '" + str(a) + " + " + str(b) + " = " + str(_ans_val) + "'.\n"
                             "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
+                        )
+                    elif a + b == _ans_val and 11 <= _ans_val <= 20:
+                        _gap_count = 10 - a
+                        _rem = b - _gap_count
+                        return (
+                            "Topic guidance: This is a MEDIUM ADDITION problem (sum 11–20). Use the Make 10 strategy.\n"
+                            "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_MEDIUM_ADDITION'. Do NOT split into multiple scenes.\n"
+                            "Equation MUST be '" + str(a) + " + " + str(b) + "'.\n"
+                            "Pick an appropriate item_type from (BLOCK_SVG, MANGO_SVG, APPLE_SVG, BIRD_SVG, FLOWER_SVG, etc.) based on the question.\n"
+                            "In the 'narration' field, cover these Make 10 steps:\n"
+                            "1. Show " + str(a) + " blocks in a row of 10 (partially filled) and " + str(b) + " blocks separately.\n"
+                            "2. '" + str(a) + " needs " + str(_gap_count) + " more to make 10.'\n"
+                            "3. 'Split " + str(b) + " into " + str(_gap_count) + " and " + str(_rem) + ". Add " + str(_gap_count) + " to " + str(a) + " to make 10.'\n"
+                            "4. '10 and " + str(_rem) + " make " + str(_ans_val) + ".'"  
                         )
         return (
             "Topic guidance: Use ADD_ITEMS action.\n"
@@ -726,10 +757,10 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
             )
 
-        if _sum_val is not None and _sum_val <= 20:
-            # Class 1 Ch.4 (concept, ≤10) and Ch.7 (11-20): animated grouped objects
+        if _sum_val is not None and _sum_val <= 10:
+            # Class 1 Ch.4 (concept, ≤10): animated grouped objects
             return (
-                "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 20). "
+                "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 10). "
                 "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
                 "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question (e.g., '4 green mangoes and 3 ripe mangoes'). NEVER use the generic words 'items' or 'objects'.\n"
                 "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Narration e.g., 'Let us put 4 green mangoes and 3 ripe mangoes together.' Equation MUST simply be 'A + B' (e.g., '4 + 3').\n"
@@ -737,6 +768,20 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 3'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
                 "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, there are 7 mangoes altogether.' Equation MUST be the full expression 'A + B = C' (e.g., '4 + 3 = 7').\n"
                 "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
+            )
+        elif _sum_val is not None and 11 <= _sum_val <= 20:
+            # Class 1 Ch.7 (11-20): Make 10 / Bridge through 10 strategy
+            _gap = 10 - (_sum_val - _sum_val)  # placeholder, computed from A
+            return (
+                "Topic guidance: This is a MEDIUM ADDITION problem (sum 11–20). Use the 'Make 10' strategy.\n"
+                "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_MEDIUM_ADDITION'. Do NOT split into multiple scenes.\n"
+                "The equation MUST be 'A + B' (e.g., '9 + 4').\n"
+                "Pick an appropriate item_type from (BLOCK_SVG, MANGO_SVG, APPLE_SVG, BIRD_SVG, FLOWER_SVG, etc.) based on the question.\n"
+                "In the 'narration' field, summarize the Make 10 steps:\n"
+                "1. Show A blocks in a row of 10 (partially filled) and B blocks separately.\n"
+                "2. 'A needs X more to make 10.' (X = 10 - A)\n"
+                "3. 'Split B into X and (B - X). Add X to A to make 10.'\n"
+                "4. '10 and (B - X) make the answer.'"
             )
         else:
             # Class 1 Ch.15 (sums >20, up to 100): column arithmetic

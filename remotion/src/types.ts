@@ -98,7 +98,9 @@ export type SceneAction =
   | "SHOW_EVEN_ODD"
   | "SHOW_PERCENTAGE"
   | "SHOW_SMALL_ADDITION"
+  | "SHOW_MEDIUM_ADDITION"
   | "SHOW_SMALL_SUBTRACTION"
+  | "SHOW_MEDIUM_SUBTRACTION"
   | "SHOW_NUMBER_ORDERING";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";

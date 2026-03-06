@@ -10,8 +10,24 @@ from typing import Optional
 # NOTE: order matters — checked top to bottom, first match wins.
 # 'total' / 'bought' / 'received' removed: all appear in multiplication questions too
 # and must not be treated as guaranteed addition signals.
-ADD_WORDS = ["more", "together", "sum", "combined", "plus", "added", "add", "increased by", "in total", "altogether"]
-SUB_WORDS = ["less", "fewer", "left", "remain", "left now", "difference", "minus", "subtract", "took", "take away", "fly away", "flew away", "ate", "eaten", "gave away", "gave", "give away", "spent", "lost", "removed", "decreased by", "how many more", "how many less", "how many fewer", "wrote", "written on", "plucked", "caught", "used", "broke", "sold", "dropped", "have now", "left to", "left with", "are left", "how many boys", "how many girls"]
+ADD_WORDS = [
+    "more", "together", "sum", "combined", "plus", "added", "add",
+    "increased by", "in total", "altogether", "in all", "how many in all",
+    "came", "joined", "collected", "bought", "received",
+    "how many children", "how many guests", "how many people",
+    "do they have", "does he have", "does she have",
+]
+SUB_WORDS = [
+    "less", "fewer", "left", "remain", "left now", "difference", "minus",
+    "subtract", "took", "take away", "taking from", "taken from",
+    "fly away", "flew away", "ate", "eaten",
+    "gave away", "gave", "give away", "spent", "lost", "removed",
+    "decreased by", "how many more", "how many less", "how many fewer",
+    "wrote", "written on", "broken", "sold", "dropped",
+    "have now", "left to", "left with", "left in", "are left",
+    "from those", "from them", "deduct", "out of",
+    "how many boys", "how many girls",
+]
 
 # Division phrases that contain 'each' must be checked BEFORE bare 'each' in MUL_WORDS.
 # Check the whole phrase first so 'how many in each team' resolves as division.
