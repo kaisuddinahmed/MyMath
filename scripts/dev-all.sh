@@ -3,17 +3,16 @@ set -euo pipefail
 
 BACK_PID=""
 REMOTION_PID=""
-REMOTION_STUDIO_PID=""
 
 port_pids() {
-  lsof -tiTCP:1233 -sTCP:LISTEN 2>/dev/null || true
+  lsof -ti :1232 -ti :1233 -ti :1234 -ti :1235 2>/dev/null || true
 }
 
 ensure_port_free() {
   local pids=""
   pids="$(port_pids)"
   if [[ -n "${pids}" ]]; then
-    echo "[dev:all] Clearing existing process(es) on port 1233: ${pids}"
+    echo "[dev:all] Clearing existing process(es) on ports 1232, 1233, 1234, 1235: ${pids}"
   fi
 
   for _ in {1..30}; do
@@ -27,23 +26,23 @@ ensure_port_free() {
 
   pids="$(port_pids)"
   if [[ -n "${pids}" ]]; then
-    echo "[dev:all] Force-killing stubborn process(es) on port 1233: ${pids}"
+    echo "[dev:all] Force-killing stubborn process(es) on ports 1232, 1233, 1234, 1235: ${pids}"
     kill -9 ${pids} >/dev/null 2>&1 || true
     sleep 0.3
   fi
 
   pids="$(port_pids)"
   if [[ -n "${pids}" ]]; then
-    echo "[dev:all] Could not free port 1233. Stop the process manually and retry."
+    echo "[dev:all] Could not free ports 1232, 1233, 1234, 1235. Stop the process manually and retry."
     return 1
   fi
 }
 
 ensure_port_free
 
-.venv/bin/python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233 --reload-dir backend --reload-exclude ".venv/*" &
+.venv/bin/python -m uvicorn backend.main:app --reload --host localhost --port 1233 --reload-dir backend --reload-exclude ".venv/*" &
 BACK_PID=$!
-echo "[dev:all] Started backend on 127.0.0.1:1233 (pid ${BACK_PID})."
+echo "[dev:all] Started backend on localhost:1233 (pid ${BACK_PID})."
 
 BACKEND_READY=0
 for _ in {1..40}; do
@@ -51,7 +50,7 @@ for _ in {1..40}; do
     echo "[dev:all] Backend process exited before becoming ready."
     exit 1
   fi
-  if curl -sS -m 1 http://127.0.0.1:1233/children >/dev/null 2>&1; then
+  if curl -sS -m 1 http://localhost:1233/children >/dev/null 2>&1; then
     echo "[dev:all] Backend is ready."
     BACKEND_READY=1
     break
@@ -60,13 +59,11 @@ for _ in {1..40}; do
 done
 
 if [[ "${BACKEND_READY}" -ne 1 ]]; then
-  echo "[dev:all] Backend did not become ready on 127.0.0.1:1233."
+  echo "[dev:all] Backend did not become ready on localhost:1233."
   exit 1
 fi
 
 cleanup() {
-  if [[ -n "${REMOTION_STUDIO_PID}" ]] && kill -0 "${REMOTION_STUDIO_PID}" >/dev/null 2>&1; then
-    kill "${REMOTION_STUDIO_PID}" >/dev/null 2>&1 || true
   fi
   if [[ -n "${REMOTION_PID}" ]] && kill -0 "${REMOTION_PID}" >/dev/null 2>&1; then
     kill "${REMOTION_PID}" >/dev/null 2>&1 || true
@@ -93,11 +90,6 @@ if [[ -d "remotion" ]]; then
   REMOTION_PORT=1235 node remotion/render-api.js &
   REMOTION_PID=$!
   echo "[dev:all] Remotion render server started (pid ${REMOTION_PID})."
-
-  echo "[dev:all] Starting Remotion Studio..."
-  npm --prefix remotion run start &
-  REMOTION_STUDIO_PID=$!
-  echo "[dev:all] Remotion Studio started (pid ${REMOTION_STUDIO_PID})."
 fi
 
 npm --prefix frontend run dev

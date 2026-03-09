@@ -229,13 +229,14 @@ export default function ResultPage() {
           <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-slate-50">Video</h2>
           {videoUrl ? (
             <video
+              key={videoUrl}
               className="mt-3 w-full rounded-2xl border border-slate-200 bg-black dark:border-slate-700"
               controls
               playsInline
               preload="metadata"
               aria-label="Math explanation video"
+              src={videoUrl}
             >
-              <source src={videoUrl} type="video/mp4" />
               Your browser does not support video playback.
             </video>
           ) : (

@@ -127,8 +127,16 @@ def _pick_question(text: str) -> str:
     # Paragraph segments get priority because they contain full context
     para_segments = _build_paragraph_segments(text)
     all_candidates: List[str] = []
+
+    # If the total text is moderately short, it's highly likely a single cropped question.
+    # Joining all lines bypasses OCR artifacts (like phantom blank lines) splitting sentences.
+    full_flat = " ".join(raw_lines)
+    if full_flat and len(full_flat) <= 400:
+        all_candidates.append(full_flat)
+
     for seg in para_segments:
-        all_candidates.append(seg)           # full paragraph
+        if seg not in all_candidates:
+            all_candidates.append(seg)
     for line in raw_lines:
         if line not in all_candidates:       # individual lines (deduped)
             all_candidates.append(line)
@@ -151,8 +159,9 @@ def _pick_question(text: str) -> str:
     flat = _clean_text(text)
     if not flat:
         return ""
-    clipped = flat[:220]
-    if len(flat) > 220 and " " in clipped:
+    # Expand fallback truncation from 220 to 800 chars (plenty for any primary math question)
+    clipped = flat[:800]
+    if len(flat) > 800 and " " in clipped:
         clipped = clipped.rsplit(" ", 1)[0]
     return _strip_serial_prefix(clipped)
 
@@ -776,6 +785,7 @@ OCR TEXT:
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
             max_tokens=800,
+            timeout=12.0,  # Fail fast! (12 seconds). Don't hang for 3 minutes if LLM is down.
         )
         raw_response = response.choices[0].message.content.strip()
 

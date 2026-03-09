@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node render-api.js",
     "build": "tsc",
-    "studio": "npx remotion studio"
+    "studio": "npx remotion studio --port 1232"
   },
   "dependencies": {
     "remotion": "^4.0.0",

@@ -22,5 +22,8 @@ frontend/tsconfig.tsbuildinfo
 # Generated backend outputs
 backend/video_engine/output/
 
+# Remotion compiled output (should always build from src/)
+remotion/dist/
+
 # Logs
 *.log
