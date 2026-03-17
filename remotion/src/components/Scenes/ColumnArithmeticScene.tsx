@@ -119,14 +119,30 @@ export const ColumnArithmeticScene: React.FC<{
   }
 
   // Temporal Configuration
-  const setupEndFrame = timings[0]?.dur || 3 * fps;
-  const totalDuration = timings.reduce((acc: number, t: {dur: number}) => acc + t.dur, 0);
-  const lastSceneDur = timings[timings.length - 1]?.dur || 3 * fps;
-  const outroStartFrame = Math.max(setupEndFrame + 1, totalDuration - lastSceneDur);
-  
-  const calcStart = setupEndFrame;
-  const calcDuration = Math.max(1, outroStartFrame - setupEndFrame);
-  const colDuration = calcDuration / cols.length;
+  const localTimings: { start: number, dur: number }[] = [];
+  let currentLocalStart = 0;
+  for (const t of timings) {
+    localTimings.push({ start: currentLocalStart, dur: t.dur });
+    currentLocalStart += t.dur;
+  }
+  const totalDuration = currentLocalStart;
+
+  const getColStart = (idx: number) => {
+    if (idx < 0) return 0;
+    const tIdx = idx + 1; // 0 is setup, 1 is col 0 (ones)
+    if (tIdx < localTimings.length - 1) return localTimings[tIdx].start;
+    return (localTimings[0]?.dur || Math.max(0, 3 * fps)) + (idx * 3 * fps);
+  };
+
+  const getColDur = (idx: number) => {
+    const tIdx = idx + 1;
+    if (tIdx < localTimings.length - 1) return localTimings[tIdx].dur;
+    return 3 * fps;
+  };
+
+  const outroStartFrame = localTimings.length > 1 
+    ? localTimings[localTimings.length - 1].start 
+    : Math.max(0, totalDuration - 3 * fps);
 
   // Cell size
   const CELL = 80;
@@ -149,8 +165,9 @@ export const ColumnArithmeticScene: React.FC<{
         
         {/* Dynamic Column Highlight Box */}
         {cols.map((c, idx) => {
-           const colStart = calcStart + (idx * colDuration);
-           const colEnd = colStart + colDuration;
+           const colStart = getColStart(idx);
+           const colDur = getColDur(idx);
+           const colEnd = colStart + colDur;
            const isHighlight = frame >= colStart && frame < colEnd;
            const highlightOpacity = isHighlight 
              ? spring({frame: frame - colStart, fps, config: {damping: 15}}) 
@@ -178,19 +195,26 @@ export const ColumnArithmeticScene: React.FC<{
            let transformAnim = 0;
            
            if (operator === "+") {
-             const colStart = calcStart + ((c.colIndex - 1) * colDuration);
-             const appearFrame = colStart + (colDuration * 0.6);
+             const colStart = getColStart(c.colIndex - 1);
+             const colDur = getColDur(c.colIndex - 1);
+             const appearFrame = colStart + (colDur * 0.6);
              const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
              showValue = c.carryIn > 0 ? c.carryIn : "";
              opacityAnim = c.carryIn > 0 ? s : 0;
              transformAnim = 16 * (1 - s);
            } else if (operator === "-") {
              if (c.carryIn > 0) {
-               const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
-               const appearFrame = prevColStart + (colDuration * 0.2);
+               const prevColStart = getColStart(c.colIndex - 1);
+               const prevColDur = getColDur(c.colIndex - 1);
+               const appearFrame = prevColStart + (prevColDur * 0.2);
                const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
+               
+               const myColStart = getColStart(c.colIndex);
+               const myColDur = getColDur(c.colIndex);
+               const isMyTurnForBorrow = frame >= (myColStart + (myColDur * 0.2));
+               
                const topVal = c.topDigit === null || c.topDigit === "." ? 0 : parseInt(c.topDigit);
-               showValue = topVal - c.carryIn + (c.carryOut > 0 ? 10 : 0);
+               showValue = topVal - c.carryIn + ((c.carryOut > 0 && isMyTurnForBorrow) ? 10 : 0);
                opacityAnim = s;
                transformAnim = 16 * (1 - s);
              }
@@ -223,14 +247,16 @@ export const ColumnArithmeticScene: React.FC<{
           if (operator === "-") {
             if (c.carryOut > 0 && c.carryIn === 0 && c.topDigit !== "." && c.topDigit !== null) {
               hasPrefix1 = true;
-              const colStart = calcStart + (c.colIndex * colDuration);
-              const appearFrame = colStart + (colDuration * 0.2);
+              const colStart = getColStart(c.colIndex);
+              const colDur = getColDur(c.colIndex);
+              const appearFrame = colStart + (colDur * 0.2);
               prefix1Opacity = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
             }
             if (c.carryIn > 0 && c.topDigit !== "." && c.topDigit !== null) {
               hasStrikethrough = true;
-              const prevColStart = calcStart + ((c.colIndex - 1) * colDuration);
-              const appearFrame = prevColStart + (colDuration * 0.2);
+              const prevColStart = getColStart(c.colIndex - 1);
+              const prevColDur = getColDur(c.colIndex - 1);
+              const appearFrame = prevColStart + (prevColDur * 0.2);
               strikeScale = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
             }
           }
@@ -300,8 +326,9 @@ export const ColumnArithmeticScene: React.FC<{
         {/* Row 3: Result — appears column-by-column during calculation */}
         <div style={{gridColumn: 1, gridRow: 4}}></div>
         {cols.map(c => {
-            const colStart = calcStart + (c.colIndex * colDuration);
-            const appearFrame = colStart + (colDuration * 0.4);
+            const colStart = getColStart(c.colIndex);
+            const colDur = getColDur(c.colIndex);
+            const appearFrame = colStart + (colDur * 0.4);
             const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
             
             // Extra carry column: reveal during outro

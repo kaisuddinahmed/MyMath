@@ -64,7 +64,6 @@ if [[ "${BACKEND_READY}" -ne 1 ]]; then
 fi
 
 cleanup() {
-  fi
   if [[ -n "${REMOTION_PID}" ]] && kill -0 "${REMOTION_PID}" >/dev/null 2>&1; then
     kill "${REMOTION_PID}" >/dev/null 2>&1 || true
   fi

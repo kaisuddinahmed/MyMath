@@ -3,51 +3,63 @@ import { useVideoConfig, useCurrentFrame, spring, interpolate } from "remotion";
 import type { DirectorScene } from "../../types";
 
 /**
- * MediumAdditionScene — "Make 10" / "Split Tens" for sums 11–20.
+ * MediumAdditionScene — Unified "Arrive & Join" for A + B where sum is 11–20.
  *
- * Two sub-strategies handled automatically:
+ * MIRRORS MediumSubtractionScene exactly (reverse animation):
+ *   Sub: B blocks turn red and LEAVE the row (float down)
+ *   Add: B blocks are emerald and ARRIVE to join the row (float up)
  *
- * Case A — both numbers ≤ 10 (e.g. 9 + 4):
- *   Make 10: larger is the "base" in a ten-frame, smaller splits to fill the gap.
- *   9 needs 1 → split 4 into (1 + 3) → 9+1=10 → 10+3=13
+ * Animation (4 steps, single scene duration):
+ *   Step 1: Show A blocks in a row (indigo) — the starting group
+ *   Step 2: B new blocks appear to the right (highlighted emerald, floating up from below)
+ *   Step 3: B blocks settle into position — full row of A+B is complete
+ *   Step 4: Final equation fades in
  *
- * Case B — one number > 10 (e.g. 12 + 4, or 6 + 12):
- *   Split tens: larger is split into 10 + ones, add smaller to ones.
- *   12 = 10+2, 2+4=6 → 10+6=16
+ * Works for all 11-20 cases (9+4, 12+4, 6+12 etc.) — no sub-strategy needed.
  */
 
-const BLOCK_SIZE = 44;
-const BLOCK_GAP = 6;
-const BLOCK_RADIUS = 8;
+const BLOCK_SIZE = 48;
+const BLOCK_GAP = 8;
+const BLOCK_RADIUS = 10;
 
-const Block: React.FC<{ color: string; opacity?: number; scale?: number }> = ({
-  color, opacity = 1, scale = 1,
-}) => (
-  <div style={{
-    width: BLOCK_SIZE, height: BLOCK_SIZE, borderRadius: BLOCK_RADIUS,
-    backgroundColor: color, opacity, transform: `scale(${scale})`,
-    border: "2px solid rgba(255,255,255,0.15)", flexShrink: 0,
-  }} />
-);
+type BlockState = "existing" | "arriving";
 
-const EmptySlot: React.FC<{ filled?: boolean; fillColor?: string; fillScale?: number }> = ({
-  filled = false, fillColor = "#6366f1", fillScale = 1,
-}) => (
-  <div style={{ position: "relative", width: BLOCK_SIZE, height: BLOCK_SIZE, flexShrink: 0 }}>
-    <div style={{
-      position: "absolute", inset: 0, borderRadius: BLOCK_RADIUS,
-      border: "2px dashed rgba(255,255,255,0.22)",
-      backgroundColor: "rgba(255,255,255,0.03)",
-    }} />
-    {filled && (
-      <div style={{
-        position: "absolute", inset: 0, borderRadius: BLOCK_RADIUS,
-        backgroundColor: fillColor, transform: `scale(${fillScale})`,
+const Block: React.FC<{
+  type: BlockState;
+  arriveProgress?: number;
+}> = ({ type, arriveProgress = 0 }) => {
+  const colors: Record<BlockState, string> = {
+    existing: "#6366f1",   // indigo — matches subtraction "tens" color
+    arriving: "#10b981",   // emerald — the new blocks joining
+  };
+
+  // Arriving blocks float UP into position (mirror of subtraction's downward exit)
+  const yShift = type === "arriving"
+    ? interpolate(arriveProgress, [0, 1], [60, 0], { extrapolateRight: "clamp" })
+    : 0;
+  const opacity = type === "arriving"
+    ? interpolate(arriveProgress, [0, 1], [0, 1], { extrapolateRight: "clamp" })
+    : 1;
+  const scale = type === "arriving"
+    ? interpolate(arriveProgress, [0, 1], [0.4, 1], { extrapolateRight: "clamp" })
+    : 1;
+
+  return (
+    <div
+      style={{
+        width: BLOCK_SIZE,
+        height: BLOCK_SIZE,
+        borderRadius: BLOCK_RADIUS,
+        backgroundColor: colors[type],
+        opacity,
+        transform: `translateY(${yShift}px) scale(${scale})`,
         border: "2px solid rgba(255,255,255,0.15)",
-      }} />
-    )}
-  </div>
-);
+        flexShrink: 0,
+        transition: "background-color 0.3s",
+      }}
+    />
+  );
+};
 
 export const MediumAdditionScene: React.FC<{
   groupedScenes: DirectorScene[];
@@ -56,217 +68,132 @@ export const MediumAdditionScene: React.FC<{
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
 
-  // Parse equation "A + B" — always normalise so bigNum >= smallNum
+  // Parse equation "A + B" — normalise so bigNum ≥ smallNum (larger first)
   const eqStr = groupedScenes[0]?.equation || "9 + 4";
   const numMatches = eqStr.match(/\d+/g);
   const raw1 = numMatches && numMatches.length >= 1 ? parseInt(numMatches[0], 10) : 9;
   const raw2 = numMatches && numMatches.length >= 2 ? parseInt(numMatches[1], 10) : 4;
-  const bigNum = Math.max(raw1, raw2);
-  const smallNum = Math.min(raw1, raw2);
-  const total = bigNum + smallNum;
+  // A = larger (existing group), B = smaller (arriving group) — mirrors subtraction
+  const A = Math.max(raw1, raw2);
+  const B = Math.min(raw1, raw2);
+  const total = A + B;
 
-  // Decide strategy
-  const useSplitTens = bigNum > 10; // Case B: one number already > 10
-  //   Case A: Make 10 (bigNum ≤ 10)
-
-  // --- Case A: Make 10 ---
-  const gapA = 10 - bigNum;           // blocks needed to complete 10
-  const remainderA = smallNum - gapA; // what's left of smallNum after bridging
-
-  // --- Case B: Split Tens ---
-  const onesB = bigNum - 10;          // ones digit of the larger number (e.g. 12 → 2)
-  const sumOnesB = onesB + smallNum;  // ones sum: e.g. 2 + 4 = 6   → 10 + 6 = 16
-
-  // Colors
-  const colorBig = "#6366f1";     // indigo — base / tens frame
-  const colorSmall = "#10b981";   // emerald — small group
-  const colorBridge = "#f59e0b";  // amber — the bridging blocks
-
-  // Timings
+  // Internal 4-step timings — identical structure to MediumSubtractionScene
   const totalDur = timings[0]?.dur || 20 * fps;
   const step = totalDur / 4;
   const step1End = step;
   const step2End = step * 2;
   const step3End = step * 3;
 
+  // Step 1: pop in
   const popIn = spring({ frame, fps, config: { damping: 12 } });
-  const step2Progress = spring({ frame: Math.max(0, frame - step1End), fps, config: { damping: 14 } });
-  const step3Progress = spring({ frame: Math.max(0, frame - step2End), fps, config: { damping: 14 } });
-  const eqOpacity = spring({ frame: Math.max(0, frame - step3End), fps, from: 0, to: 1, durationInFrames: 12 });
 
-  // Ten-frame slots for Case A
-  const tenFrameSlotsA = Array.from({ length: 10 }, (_, i) => {
-    if (i < bigNum) return { type: "filled" };
-    const slotIdx = i - bigNum;
-    if (slotIdx < gapA) {
-      const delay = step1End + (slotIdx / Math.max(1, gapA)) * step;
-      const fillProg = spring({ frame: Math.max(0, frame - delay), fps, config: { damping: 14 } });
-      return { type: "empty", filled: fillProg > 0.05, fillScale: fillProg };
-    }
-    return { type: "empty", filled: false };
+  // Step 2: arriving blocks appear (colour label)
+  const colorFlip = frame >= step1End;
+
+  // Step 3: blocks animate in — stagger each arriving block (mirror of remove stagger)
+  const getArriveProgress = (blockIdx: number): number => {
+    const staggerOffset = (blockIdx / Math.max(1, B)) * (step * 0.6);
+    const startF = step2End + staggerOffset;
+    return spring({ frame: Math.max(0, frame - startF), fps, config: { damping: 14 } });
+  };
+
+  // Step 3b: count all blocks sequentially
+  const getCountProgress = (idx: number): number => {
+    // start counting shortly after the first arriving block starts
+    const staggerOffset = (idx / Math.max(1, total)) * step;
+    const startF = step2End + (step * 0.5) + staggerOffset;
+    return spring({ frame: Math.max(0, frame - startF), fps, config: { damping: 14 } });
+  };
+
+  // Step 4: equation fades in
+  const eqOpacity = spring({
+    frame: Math.max(0, frame - step3End),
+    fps, from: 0, to: 1, durationInFrames: 12,
   });
+
+  // Build block array of length total (A existing + B arriving):
+  // First A blocks = "existing" (indigo)
+  // Next B blocks = "arriving" (emerald, staggered float-in)
+  const blocks = [
+    ...Array.from({ length: A }, (_, i) => ({ type: "existing" as BlockState, arriveIdx: -1 })),
+    ...Array.from({ length: B }, (_, i) => ({ type: "arriving" as BlockState, arriveIdx: i })),
+  ];
 
   return (
     <div style={{
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
-      height: "100%", gap: 28,
+      height: "100%", gap: 32,
     }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 24, transform: `scale(${popIn})` }}>
 
-        {useSplitTens ? (
-          /* ── CASE B: Split Tens (e.g. 12 + 4 = 16) ── */
-          <>
-            {/* Row 1: ten-frame (10 filled) + ones (onesB filled) */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, fontFamily: "'Inter',sans-serif" }}>
-                Split {bigNum} = 10 + {onesB}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12 }}>
-                {/* Full ten-frame */}
-                <div style={{
-                  display: "flex", flexDirection: "row", gap: BLOCK_GAP,
-                  border: "2px solid rgba(99,102,241,0.4)", borderRadius: 10, padding: 6,
-                }}>
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <Block key={`ten-${i}`} color={colorBig} />
-                  ))}
-                </div>
-                {/* Ones blocks */}
-                <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP }}>
-                  {Array.from({ length: onesB }).map((_, i) => (
-                    <Block key={`ones-${i}`} color={colorBig} opacity={0.65} />
-                  ))}
-                </div>
-              </div>
-            </div>
+      {/* ── Main row: A existing + B arriving blocks ── */}
+      <div style={{
+        display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12,
+        transform: `scale(${popIn})`,
+      }}>
+        {/* Label — mirrors subtraction label exactly */}
+        <div style={{
+          color: "rgba(255,255,255,0.45)", fontSize: 18, fontFamily: "'Inter', sans-serif",
+          display: "flex", gap: 24,
+        }}>
+          <span>
+            Starting with <span style={{ color: "#818cf8" }}>{A}</span>
+          </span>
+          {colorFlip && (
+            <span style={{ color: "#10b981" }}>
+              {B} more joining
+            </span>
+          )}
+        </div>
 
-            {/* Row 2: smallNum blocks */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, fontFamily: "'Inter',sans-serif" }}>
-                Add {smallNum}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP }}>
-                {Array.from({ length: smallNum }).map((_, i) => (
-                  <Block key={`sm-${i}`} color={colorSmall} />
-                ))}
+        {/* The block row with counting numbers below */}
+        <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP, alignItems: "flex-end" }}>
+          {blocks.map((b, i) => {
+            const countProg = getCountProgress(i);
+            return (
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+                <Block
+                  type={b.type}
+                  arriveProgress={b.arriveIdx >= 0 ? getArriveProgress(b.arriveIdx) : 1}
+                />
+                <div style={{ height: 24, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  <span style={{
+                    fontSize: 20,
+                    fontWeight: 600,
+                    fontFamily: "'Inter', sans-serif",
+                    color: "rgba(255,255,255,0.7)",
+                    opacity: countProg,
+                    transform: `scale(${interpolate(countProg, [0, 1], [0.5, 1], { extrapolateRight: "clamp" })})`
+                  }}>
+                    {i + 1}
+                  </span>
+                </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
+      </div>
 
-            {/* Row 3: ones + small merge */}
-            <div style={{
-              opacity: interpolate(step2Progress, [0.3, 1], [0, 1], { extrapolateRight: "clamp" }),
-              display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8,
-            }}>
-              <span style={{ color: colorBridge, fontSize: 18, fontWeight: 700, fontFamily: "'Inter',sans-serif" }}>
-                {onesB} + {smallNum} = {sumOnesB}, so 10 + {sumOnesB} = {total}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <div style={{
-                  display: "flex", flexDirection: "row", gap: BLOCK_GAP,
-                  border: "2px solid #10b981", borderRadius: 10, padding: 6,
-                }}>
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <Block key={`res-ten-${i}`} color={colorBig} />
-                  ))}
-                </div>
-                <span style={{ fontSize: 36, color: "#10b981", fontWeight: 800 }}>+</span>
-                <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP }}>
-                  {Array.from({ length: sumOnesB }).map((_, i) => (
-                    <Block key={`res-ones-${i}`} color={i < onesB ? colorBig : colorSmall} opacity={0.9} />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* ── CASE A: Make 10 (e.g. 9 + 4 = 13) ── */
-          <>
-            {/* Row 1: Ten-frame for bigNum */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, fontFamily: "'Inter',sans-serif" }}>
-                Make 10 from {bigNum}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 12 }}>
-                <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP }}>
-                  {tenFrameSlotsA.map((slot, i) =>
-                    slot.type === "filled" ? (
-                      <Block key={`tf-${i}`} color={colorBig} />
-                    ) : (
-                      <EmptySlot key={`tf-${i}`}
-                        filled={(slot as any).filled}
-                        fillColor={colorBridge}
-                        fillScale={(slot as any).fillScale ?? 1}
-                      />
-                    )
-                  )}
-                </div>
-                <span style={{
-                  opacity: step2Progress, color: colorBridge, fontSize: 18,
-                  fontWeight: 700, fontFamily: "'Inter',sans-serif",
-                }}>
-                  needs {gapA} →
-                </span>
-              </div>
-            </div>
-
-            {/* Row 2: smallNum group — bridge blocks fade, remainder stays */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, fontFamily: "'Inter',sans-serif" }}>
-                Split {smallNum} → {gapA} + {remainderA}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP, alignItems: "center" }}>
-                {Array.from({ length: gapA }).map((_, i) => {
-                  const delay = step1End + (i / Math.max(1, gapA)) * step;
-                  const bridgeProg = spring({ frame: Math.max(0, frame - delay), fps, config: { damping: 14 } });
-                  return (
-                    <Block key={`bridge-${i}`} color={colorBridge}
-                      opacity={interpolate(bridgeProg, [0, 1], [1, 0.05], { extrapolateRight: "clamp" })}
-                      scale={interpolate(bridgeProg, [0, 1], [1, 0.3], { extrapolateRight: "clamp" })}
-                    />
-                  );
-                })}
-                {remainderA > 0 && <div style={{ width: 2, height: BLOCK_SIZE, backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 2 }} />}
-                {Array.from({ length: remainderA }).map((_, i) => (
-                  <Block key={`rem-${i}`} color={colorSmall} />
-                ))}
-              </div>
-            </div>
-
-            {/* Row 3: 10 + remainder */}
-            <div style={{
-              opacity: interpolate(step3Progress, [0.2, 1], [0, 1], { extrapolateRight: "clamp" }),
-              display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8,
-            }}>
-              <span style={{ color: colorBridge, fontSize: 18, fontWeight: 700, fontFamily: "'Inter',sans-serif" }}>
-                10 + {remainderA} = {total}
-              </span>
-              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
-                <div style={{
-                  display: "flex", flexDirection: "row", gap: BLOCK_GAP,
-                  border: "2px solid #10b981", borderRadius: 10, padding: 6,
-                }}>
-                  {Array.from({ length: 10 }).map((_, i) => (
-                    <Block key={`full-${i}`} color={i < bigNum ? colorBig : colorBridge} />
-                  ))}
-                </div>
-                {remainderA > 0 && (
-                  <>
-                    <span style={{ fontSize: 36, color: "#10b981", fontWeight: 800 }}>+</span>
-                    <div style={{ display: "flex", flexDirection: "row", gap: BLOCK_GAP }}>
-                      {Array.from({ length: remainderA }).map((_, i) => (
-                        <Block key={`rem2-${i}`} color={colorSmall} />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </>
+      {/* ── Total count label (appears after arrival) — mirrors "X balls remain" ── */}
+      <div style={{
+        opacity: interpolate(
+          spring({ frame: Math.max(0, frame - step2End), fps, config: { damping: 14 } }),
+          [0, 1], [0, 1], { extrapolateRight: "clamp" }
+        ),
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+      }}>
+        {total >= 3 && (
+          <span style={{
+            color: "rgba(255,255,255,0.55)", fontSize: 18,
+            fontFamily: "'Inter', sans-serif",
+          }}>
+            {total} altogether
+          </span>
         )}
       </div>
 
-      {/* Step 4: Final equation */}
+      {/* ── Step 4: Final equation — identical style to subtraction but indigo ── */}
       <div style={{
         opacity: eqOpacity,
         transform: `translateY(${interpolate(eqOpacity, [0, 1], [24, 0])}px)`,
@@ -278,12 +205,6 @@ export const MediumAdditionScene: React.FC<{
           fontFamily: "'Inter', sans-serif", margin: 0, letterSpacing: 2,
         }}>
           {raw1} + {raw2} = {total}
-        </p>
-        <p style={{
-          color: "rgba(255,255,255,0.4)", fontSize: 20,
-          fontFamily: "'Inter', sans-serif", margin: "4px 0 0", textAlign: "center",
-        }}>
-          {useSplitTens ? `10 + ${sumOnesB} = ${total}` : `10 + ${remainderA} = ${total}`}
         </p>
       </div>
     </div>

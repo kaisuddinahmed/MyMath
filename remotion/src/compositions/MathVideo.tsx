@@ -90,12 +90,17 @@ export const MathVideo: React.FC<{
     if (sceneDurations && sceneDurations[i]) {
       // Use exact duration calculated from the audio file
       dur = sceneDurations[i];
+      // Ensure medium scenes have enough time for child-paced animation
+      if (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") {
+        dur = Math.max(dur, 22 * fps);
+      }
     } else if (!scene.narration || scene.narration.trim() === "") {
-      dur = 4 * fps; 
+      dur = 4 * fps;
     } else {
       const wordCount = scene.narration.split(/\s+/).length;
       // 2.5 words per sec + 1.5 seconds of visual breathing room
-      const estimatedSeconds = Math.max(3, (wordCount / 2.5) + 1.5);
+      const minSeconds = (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") ? 22 : 3;
+      const estimatedSeconds = Math.max(minSeconds, (wordCount / 2.5) + 1.5);
       dur = Math.round(estimatedSeconds * fps);
     }
     

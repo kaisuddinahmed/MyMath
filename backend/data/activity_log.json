@@ -854,5 +854,205 @@
     "template": "number_line_back",
     "score": 25,
     "timestamp": "2026-03-09T08:14:10.488205+00:00"
+  },
+  {
+    "child_id": "b0fafb51-474d-4817-bf5a-f9ff6d12b98c",
+    "question": "There are 14 balls in the almirah of school. Children are playing with 4 balls taking from the almirah. How many balls are in the almirah now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-09T08:40:29.136678+00:00"
+  },
+  {
+    "child_id": "fbab4045-2879-494f-8c77-50790ea9c043",
+    "question": "There are 14 balls in the almirah of school. Children are playing with 4 balls taking from the almirah. How many balls are in the almirah now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-09T09:30:28.277979+00:00"
+  },
+  {
+    "child_id": "10622c2e-3cc7-4575-910d-9a394c2c9eb4",
+    "question": "There are 14 balls in the almirah of school. Children are playing with 4 balls taking from the almirah. How many balls are in the almirah now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-09T09:50:52.117452+00:00"
+  },
+  {
+    "child_id": "5d49caa6-3a49-46fb-a504-10cf3cdddd65",
+    "question": "There are 14 balls in the almirah of school. Children are playing with 4 balls taking from the almirah. How many balls are in the almirah now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-09T09:55:00.940357+00:00"
+  },
+  {
+    "child_id": "58e762c7-badf-4888-9b2d-f9e12e9163e5",
+    "question": "There are 14 balls in the almirah of school. Children are playing with 4 balls taking from the almirah. How many balls are in the almirah now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-09T10:15:56.478075+00:00"
+  },
+  {
+    "child_id": "58e762c7-badf-4888-9b2d-f9e12e9163e5",
+    "question": "At first, Mina had 5 mangoes. Then, she was given 3 more mangoes. Now, how many mangoes does she have?",
+    "topic": "counting",
+    "template": "count_objects",
+    "score": 30,
+    "timestamp": "2026-03-09T10:17:25.707455+00:00"
+  },
+  {
+    "child_id": "d6e3e55c-a85d-4d52-832e-e8736f715fa8",
+    "question": "At first, Mina had 5 mangoes. Then, she was given 3 more mangoes. Now, how many mangoes does she have?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 55,
+    "timestamp": "2026-03-09T10:30:50.965034+00:00"
+  },
+  {
+    "child_id": "d6e3e55c-a85d-4d52-832e-e8736f715fa8",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-03-09T10:35:12.908260+00:00"
+  },
+  {
+    "child_id": "510fca51-4832-475d-a580-a1512bd162c1",
+    "question": "There are 9 mangoes on the large tree and 4 mangoes on the small tree. How many mangoes are there altogether?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-03-17T06:10:25.186384+00:00"
+  },
+  {
+    "child_id": "510fca51-4832-475d-a580-a1512bd162c1",
+    "question": "1233+44",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T06:34:50.677696+00:00"
+  },
+  {
+    "child_id": "510fca51-4832-475d-a580-a1512bd162c1",
+    "question": "1277+89",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T06:35:57.296228+00:00"
+  },
+  {
+    "child_id": "510fca51-4832-475d-a580-a1512bd162c1",
+    "question": "1221-87",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T06:37:08.180112+00:00"
+  },
+  {
+    "child_id": "510fca51-4832-475d-a580-a1512bd162c1",
+    "question": "1234-98",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T06:49:24.588896+00:00"
+  },
+  {
+    "child_id": "fa309f43-b5ea-463a-a475-f404b7291632",
+    "question": "1455-78",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T07:02:41.921442+00:00"
+  },
+  {
+    "child_id": "fa309f43-b5ea-463a-a475-f404b7291632",
+    "question": "1457-98",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T07:14:08.724394+00:00"
+  },
+  {
+    "child_id": "fa309f43-b5ea-463a-a475-f404b7291632",
+    "question": "1245-88",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T07:19:43.337844+00:00"
+  },
+  {
+    "child_id": "fa309f43-b5ea-463a-a475-f404b7291632",
+    "question": "1675-98",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T07:23:25.788190+00:00"
+  },
+  {
+    "child_id": "44bcde51-137d-4206-b448-eac44813c9e2",
+    "question": "1451-97",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T07:24:46.362886+00:00"
+  },
+  {
+    "child_id": "ced23390-8d27-476f-b21f-c45a9b246d7a",
+    "question": "1254-78",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:15:17.333834+00:00"
+  },
+  {
+    "child_id": "e007ba04-3ed2-4e37-a382-56435dc9ef0c",
+    "question": "1467-79",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:31:45.603596+00:00"
+  },
+  {
+    "child_id": "fa843104-b276-43b3-bb6c-6b68d9d25d33",
+    "question": "1313-96",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:40:12.976400+00:00"
+  },
+  {
+    "child_id": "fa843104-b276-43b3-bb6c-6b68d9d25d33",
+    "question": "1567-47",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:42:28.281437+00:00"
+  },
+  {
+    "child_id": "fa843104-b276-43b3-bb6c-6b68d9d25d33",
+    "question": "1468-59",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:43:55.733860+00:00"
+  },
+  {
+    "child_id": "fa843104-b276-43b3-bb6c-6b68d9d25d33",
+    "question": "1234+65",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:45:18.180693+00:00"
+  },
+  {
+    "child_id": "fa843104-b276-43b3-bb6c-6b68d9d25d33",
+    "question": "1234+89",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T08:45:59.593363+00:00"
   }
 ]

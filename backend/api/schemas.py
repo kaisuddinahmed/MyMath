@@ -62,6 +62,8 @@ class SolveResponse(BaseModel):
     answer: str
     steps: List[Step]
     smaller_example: str
+    parsed_context: Optional[Dict[str, Any]] = None
+    parsed_steps: Optional[List[Dict[str, Any]]] = None
 
 
 class PromptAttempt(BaseModel):
@@ -97,6 +99,8 @@ class SolveAndPromptResponse(BaseModel):
     video_url: Optional[str] = None
     video_cached: bool = False
     video_generated_by: str = "none"  # "remotion" | "template" | "none"
+    parsed_context: Optional[Dict[str, Any]] = None
+    parsed_steps: Optional[List[Dict[str, Any]]] = None
 
 
 # --- Video ---

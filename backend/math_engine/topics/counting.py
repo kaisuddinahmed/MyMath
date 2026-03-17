@@ -69,16 +69,11 @@ def solve_counting(question: str) -> Optional[dict]:
             "smaller_example": f"Smaller example: count by {step}s from 0: 0, {step}, {step*2}, {step*3}...",
         }
 
-    # Ordinal words — only fire if not followed by another noun (e.g., "first 5 multiples")
-    SKIP_CONTEXTS = ["multiples", "factors", "prime", "number", "question", "step", "chapter"]
+    # Ordinal words — requires specific context so we don't catch "At first, Mina..."
     for word in ORDINAL_WORDS:
-        if word in ql:
-            # Find position and check what follows
-            idx = ql.index(word)
-            after = ql[idx + len(word):idx + len(word) + 40]
-            # Skip if this ordinal is a quantifier before another noun (e.g. "first 5 multiples")
-            if any(ctx in after for ctx in SKIP_CONTEXTS):
-                continue
+        # Check if it's explicitly asking for the ordinal/position, or if it's a very short query
+        pattern = rf"\b(?:what is the|find the)\s+{word}\b|\b{word}\s+(?:ordinal|position|place)\b"
+        if re.search(pattern, ql) or (len(ql.split()) <= 3 and word in ql):
             n = ORDINAL_WORDS.index(word) + 1
             return {
                 "topic": "counting",

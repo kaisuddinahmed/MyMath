@@ -86,6 +86,8 @@ def solve(req: SolveRequest):
         answer=result.answer,
         steps=[Step(title=s.title, text=s.text) for s in result.steps],
         smaller_example=result.smaller_example,
+        parsed_context=getattr(result, "parsed_context", None),
+        parsed_steps=getattr(result, "parsed_steps", None),
     )
 
 
@@ -249,7 +251,14 @@ def _run_solve_and_prompt(
         pre_solved_steps=pre_solved_steps,
     )
     topic = result.topic
+    
+    parsed_context = getattr(result, "parsed_context", None)
+    parsed_steps = getattr(result, "parsed_steps", None)
+    
     template = result.template
+    if parsed_steps and len(parsed_steps) > 1:
+        template = "multi_step_word_problem"
+        
     review_data = build_review(topic, template, result.is_above_grade, [])
 
     review = ReviewSummary(
@@ -275,6 +284,8 @@ def _run_solve_and_prompt(
             final_score=0,
             video_prompt_json=None,
             schema_valid=False,
+            parsed_context=parsed_context,
+            parsed_steps=parsed_steps,
         )
 
     verified_answer = result.answer
@@ -289,6 +300,7 @@ def _run_solve_and_prompt(
     # Build topic-specific guidance for the LLM director
     effective_topic = question_type if question_type in ("mcq", "true_false") else topic
     topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template, question=question)
+    print(f"\n{'='*60}\n[DEBUG] TOPIC GUIDANCE sent to LLM:\n{topic_guidance}\n{'='*60}\n")
 
     # --- Curriculum style block -------------------------------------------------
     # Load the curriculum style and inject cultural/visual context into the prompt
@@ -355,6 +367,22 @@ def _run_solve_and_prompt(
     
     pedagogy_note = "\n".join(pedagogy_note_lines)
 
+    context_block = ""
+    if parsed_context or (parsed_steps and len(parsed_steps) > 1):
+        context_block += "CONTEXT:\n"
+        if parsed_context:
+            for k in ["object", "location", "actors", "action"]:
+                if k in parsed_context and parsed_context[k]:
+                    context_block += f"- {k}: {parsed_context[k]}\n"
+        if parsed_steps and len(parsed_steps) > 1:
+            context_block += "STEPS:\n"
+            for i, st in enumerate(parsed_steps, 1):
+                op = str(st.get("operation", "")) if isinstance(st, dict) else ""
+                nums = st.get("numbers", []) if isinstance(st, dict) else []
+                num_str = " + ".join(str(n) for n in nums) if isinstance(nums, list) else str(nums)
+                context_block += f"- step {i}: {op} + {num_str}\n"
+        context_block += "\n"
+
     base_content = f"""
 You are a video director for a children's math learning app.
 Generate a Director Script as STRICT JSON for this problem.
@@ -396,7 +424,7 @@ Vocabulary: {style["vocab"]}
 {curriculum_block}
 {topic_guidance}
 
-Problem: {question}
+{context_block}Problem: {question}
 Correct answer (must match): {verified_answer}
 
 {level_note}
@@ -470,6 +498,12 @@ Retry with stricter enforcement:
         if passed:
             break
 
+    # ── POST-PROCESS: Force-overwrite narration for column arithmetic ──
+    # The LLM is unreliable at math narration. We overwrite its narration
+    # with deterministically computed text AFTER it generates the JSON.
+    if final_prompt_json and topic in ("subtraction", "addition") and template != "small_addition":
+        final_prompt_json = _force_column_narrations(final_prompt_json, topic, question)
+
     return SolveAndPromptResponse(
         topic=topic,
         verified_answer=verified_answer,
@@ -484,7 +518,170 @@ Retry with stricter enforcement:
         final_score=final_score,
         video_prompt_json=final_prompt_json,
         schema_valid=final_schema_valid,
+        parsed_context=parsed_context,
+        parsed_steps=parsed_steps,
     )
+
+
+# ---------------------------------------------------------------------------
+# POST-PROCESSING: Force deterministic narration for column arithmetic
+# ---------------------------------------------------------------------------
+
+def _build_column_narrations(topic: str, question: str) -> list[str]:
+    """Build a list of deterministic narration strings for column arithmetic.
+    Returns: [setup_narration, col0_narration, col1_narration, ..., answer_narration]
+    """
+    import re
+    nums = re.findall(r"\d+", str(question))
+    if len(nums) < 2:
+        return []
+    
+    num1, num2 = int(nums[0]), int(nums[1])
+    
+    if topic == "subtraction":
+        # Ensure num1 >= num2
+        if num2 > num1:
+            num1, num2 = num2, num1
+        answer = num1 - num2
+        equation_str = f"{num1} - {num2}"
+        
+        narrations = [
+            f"Let us solve {equation_str}. We will subtract column by column, starting from the ones place on the right."
+        ]
+        
+        s1 = str(num1)[::-1]
+        s2 = str(num2)[::-1]
+        max_len = max(len(s1), len(s2))
+        orig_vals = [int(s1[i]) if i < len(s1) else 0 for i in range(max_len)]
+        top_vals = list(orig_vals)
+        col_names = ["ones", "tens", "hundreds", "thousands", "ten thousands"]
+        
+        for i in range(max_len):
+            bot = int(s2[i]) if i < len(s2) else 0
+            top = top_vals[i]
+            original = orig_vals[i]
+            cname = col_names[i] if i < len(col_names) else "next column"
+            has_lended = top < original
+            
+            if i >= len(s1) and bot == 0:
+                continue
+            
+            lend_prefix = ""
+            if has_lended:
+                lend_prefix = f"We lended 1 earlier from the {cname} column, so the {original} became {top}. "
+            
+            if top < bot:
+                nname = col_names[i+1] if i+1 < len(col_names) else "next column"
+                if i + 1 < len(top_vals) and top_vals[i+1] > 0:
+                    old_next = top_vals[i+1]
+                    top_vals[i+1] -= 1
+                    result = top + 10 - bot
+                    narrations.append(
+                        f"Now the {cname} column. {lend_prefix}"
+                        f"{top} is smaller than {bot}, so we cannot subtract directly. "
+                        f"We borrow 1 from the {nname} column. The {old_next} in the {nname} place becomes {top_vals[i+1]}. "
+                        f"Now {top} becomes {top + 10}. {top + 10} minus {bot} equals {result}. We write {result}."
+                    )
+                else:
+                    borrow_idx = i + 1
+                    while borrow_idx < len(top_vals) and top_vals[borrow_idx] == 0:
+                        borrow_idx += 1
+                    if borrow_idx < len(top_vals):
+                        top_vals[borrow_idx] -= 1
+                        for k in range(borrow_idx - 1, i, -1):
+                            top_vals[k] += 9
+                        result = top + 10 - bot
+                        narrations.append(
+                            f"Now the {cname} column. {lend_prefix}"
+                            f"{top} is smaller than {bot}, so we need to borrow. "
+                            f"We borrow across the zeros from the left. "
+                            f"Now {top} becomes {top + 10}. {top + 10} minus {bot} equals {result}. We write {result}."
+                        )
+                    else:
+                        result = top - bot
+                        narrations.append(f"Now the {cname} column. {lend_prefix}{top} minus {bot} equals {result}. We write {result}.")
+            else:
+                result = top - bot
+                narrations.append(f"Now the {cname} column. {lend_prefix}{top} minus {bot} is {result}. We write {result}.")
+        
+        narrations.append(f"So, {equation_str} equals {answer}. Great job!")
+        return narrations
+    
+    elif topic == "addition":
+        answer = num1 + num2
+        equation_str = f"{num1} + {num2}"
+        
+        narrations = [
+            f"Let us solve {equation_str}. We will add column by column, starting from the ones place on the right."
+        ]
+        
+        s1 = str(num1)[::-1]
+        s2 = str(num2)[::-1]
+        max_len = max(len(s1), len(s2))
+        col_names = ["ones", "tens", "hundreds", "thousands", "ten thousands"]
+        carry = 0
+        
+        for i in range(max_len):
+            d1 = int(s1[i]) if i < len(s1) else 0
+            d2 = int(s2[i]) if i < len(s2) else 0
+            cname = col_names[i] if i < len(col_names) else "next column"
+            
+            col_sum = d1 + d2 + carry
+            result_digit = col_sum % 10
+            new_carry = col_sum // 10
+            
+            narration = f"Now the {cname} column. "
+            if carry > 0:
+                narration += f"We carried {carry} from the previous column, so we add {carry} more. "
+                narration += f"{d1} plus {d2} plus {carry} equals {col_sum}. "
+            else:
+                narration += f"{d1} plus {d2} equals {col_sum}. "
+            
+            if new_carry > 0:
+                next_cname = col_names[i+1] if i+1 < len(col_names) else "next"
+                narration += f"We write {result_digit} and carry {new_carry} to the {next_cname} column."
+            else:
+                narration += f"We write {result_digit}."
+            
+            narrations.append(narration)
+            carry = new_carry
+        
+        if carry > 0:
+            cname = col_names[max_len] if max_len < len(col_names) else "next column"
+            narrations.append(f"We still have a carry of {carry}, so we write {carry} in the {cname} place.")
+        
+        narrations.append(f"So, {equation_str} equals {answer}. Great job!")
+        return narrations
+    
+    return []
+
+
+def _force_column_narrations(prompt_json: dict, topic: str, question: str) -> dict:
+    """Post-process the LLM's JSON output: forcefully overwrite narration
+    for SHOW_COLUMN_ARITHMETIC scenes with deterministic text.
+    """
+    if not prompt_json:
+        return prompt_json
+    
+    narrations = _build_column_narrations(topic, question)
+    if not narrations:
+        return prompt_json
+    
+    # Find scenes with SHOW_COLUMN_ARITHMETIC action
+    scenes = prompt_json.get("scenes", [])
+    col_scenes = [s for s in scenes if s.get("action") == "SHOW_COLUMN_ARITHMETIC"]
+    
+    if not col_scenes:
+        return prompt_json
+    
+    # Overwrite narration for each column arithmetic scene
+    for i, scene in enumerate(col_scenes):
+        if i < len(narrations):
+            scene["narration"] = narrations[i]
+
+    
+
+    return prompt_json
 
 
 # ---------------------------------------------------------------------------
@@ -660,30 +857,127 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
         elif 11 <= (_start_val or 0) <= 20:
             _ones = _start_val - 10
             _sub_display = _sub_val if _sub_val is not None else "B"
-            _ten_after = 10 - (_sub_val or 0)
             _final = _start_val - (_sub_val or 0)
             return (
-                "Topic guidance: This is a MEDIUM TAKE-AWAY SUBTRACTION problem (starting amount 11–20). Use the 'Break Through 10' strategy.\n"
-                "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_MEDIUM_SUBTRACTION'. Do NOT split into multiple scenes.\n"
+                f"Topic guidance: This is a MEDIUM TAKE-AWAY SUBTRACTION problem (starting amount {_start_val}, removing {_sub_display}, result {_final}).\n"
+                "CRITICAL: Output EXACTLY ONE (1) JSON scene element. NO MORE. Do NOT generate ADD_ITEMS, REMOVE_ITEMS, or any other action.\n"
+                "Action MUST be 'SHOW_MEDIUM_SUBTRACTION'.\n"
                 f"Equation MUST be '{_start_val} - {_sub_display}'.\n"
-                "Pick an appropriate item_type from (BLOCK_SVG, MANGO_SVG, APPLE_SVG, BIRD_SVG, FLOWER_SVG, etc.) based on the question.\n"
-                "In the 'narration' field, cover these Break Through 10 steps:\n"
-                f"1. 'Let us split {_start_val} into 10 and {_ones}.'\n"
-                f"2. 'Now subtract {_sub_display} from 10: 10 minus {_sub_display} equals {_ten_after}.'\n"
-                f"3. 'Add the remaining {_ones}: {_ten_after} plus {_ones} equals {_final}.'\n"
-                f"4. 'So, {_start_val} minus {_sub_display} equals {_final}.'"
+                "Pick an appropriate item_type from (BALL_SVG, BLOCK_SVG, BALLOON_SVG, APPLE_SVG, BIRD_SVG, MANGO_SVG, CHOCOLATE_SVG, PENCIL_SVG, etc.) based on the question subject.\n"
+                "In the 'narration' field, write a FULL child-friendly story of 80 to 100 words covering ALL of these beats IN ORDER:\n"
+                f"1. READ THE PROBLEM: Re-tell the story in simple words (e.g., 'There are {_start_val} balls in the almirah. The children want to play, so they take {_sub_display} balls out.').\n"
+                f"2. WHY SUBTRACTION: Explain clearly, 'When we take some things AWAY from a group, we use subtraction. Here, {_sub_display} balls are being taken away, so we subtract.'\n"
+                f"3. SHOW THE GROUP: 'Let us see all {_start_val} [items] together in a row.'\n"
+                f"4. HIGHLIGHT REMOVAL: 'See these {_sub_display} [items] turning red. These are the ones being taken away. Watch them leave the group!'\n"
+                f"5. COUNT REMAINING (only if {_final} >= 3): 'Now let us count what is left. 1, 2, 3, 4, 5... {_final} [items] are still here.'\n"
+                f"6. FINAL ANSWER: 'So, {_start_val} minus {_sub_display} equals {_final}. The answer is {_final}.'\n"
+                "Write this as ONE single flowing paragraph (do NOT use numbered points in the narration text itself). "
+                "Use warm, simple, encouraging language a 6-year-old will understand. AIM FOR 80-100 WORDS."
             )
 
         else:
+            # Build deterministic scene-by-scene narrations so the LLM does ZERO math
+            scene_narrations = []
+            equation_str = f"{_start_val} - {_sub_val}" if _start_val and _sub_val else str(question)
+            
+            # Scene 1: Setup
+            scene_narrations.append(
+                f'Scene 1 (Setup): action "SHOW_COLUMN_ARITHMETIC", equation "{equation_str}", '
+                f'narration MUST be exactly: "Let us solve {equation_str}. We will subtract column by column, starting from the ones place on the right."'
+            )
+            
+            if _start_val is not None and _sub_val is not None:
+                try:
+                    s1 = str(_start_val)[::-1]
+                    s2 = str(_sub_val)[::-1]
+                    max_len = max(len(s1), len(s2))
+                    orig_vals = [int(s1[i]) if i < len(s1) else 0 for i in range(max_len)]
+                    top_vals = list(orig_vals)  # mutable working copy
+                    col_names = ["ones", "tens", "hundreds", "thousands", "ten thousands"]
+                    scene_idx = 2
+                    
+                    for i in range(max_len):
+                        bot = int(s2[i]) if i < len(s2) else 0
+                        top = top_vals[i]
+                        original = orig_vals[i]
+                        cname = col_names[i] if i < len(col_names) else "next column"
+                        has_lended = top < original  # this column lent to the previous one
+                        
+                        if i >= len(s1) and bot == 0:
+                            continue
+                        
+                        # Build lending prefix
+                        lend_prefix = ""
+                        if has_lended:
+                            lend_prefix = f"We lended 1 earlier from the {cname} column, so the {original} became {top}. "
+                        
+                        narration = ""
+                        if top < bot:
+                            nname = col_names[i+1] if i+1 < len(col_names) else "next column"
+                            if i + 1 < len(top_vals) and top_vals[i+1] > 0:
+                                old_next = top_vals[i+1]
+                                top_vals[i+1] -= 1
+                                result = top + 10 - bot
+                                narration = (
+                                    f"Now the {cname} column. {lend_prefix}"
+                                    f"{top} is smaller than {bot}, so we cannot subtract directly. "
+                                    f"We borrow 1 from the {nname} column. The {old_next} in the {nname} place becomes {top_vals[i+1]}. "
+                                    f"Now {top} becomes {top + 10}. {top + 10} minus {bot} equals {result}. We write {result}."
+                                )
+                            else:
+                                borrow_idx = i + 1
+                                while borrow_idx < len(top_vals) and top_vals[borrow_idx] == 0:
+                                    borrow_idx += 1
+                                if borrow_idx < len(top_vals):
+                                    top_vals[borrow_idx] -= 1
+                                    for k in range(borrow_idx - 1, i, -1):
+                                        top_vals[k] += 9
+                                    result = top + 10 - bot
+                                    narration = (
+                                        f"Now the {cname} column. {lend_prefix}"
+                                        f"{top} is smaller than {bot}, so we need to borrow. "
+                                        f"We borrow across the zeros from the left. "
+                                        f"Now {top} becomes {top + 10}. {top + 10} minus {bot} equals {result}. We write {result}."
+                                    )
+                                else:
+                                    result = top - bot
+                                    narration = f"Now the {cname} column. {lend_prefix}{top} minus {bot} equals {result}. We write {result}."
+                        else:
+                            result = top - bot
+                            narration = f"Now the {cname} column. {lend_prefix}{top} minus {bot} is {result}. We write {result}."
+                        
+                        scene_narrations.append(
+                            f'Scene {scene_idx} ({cname.capitalize()} column): action "SHOW_COLUMN_ARITHMETIC", '
+                            f'equation "{equation_str}", '
+                            f'narration MUST be exactly: "{narration}"'
+                        )
+                        scene_idx += 1
+                    
+                    # Final scene
+                    scene_narrations.append(
+                        f'Scene {scene_idx} (Answer): action "SHOW_COLUMN_ARITHMETIC", '
+                        f'equation "{equation_str} = {verified_answer}", '
+                        f'narration MUST be exactly: "So, {equation_str} equals {verified_answer}. Great job!"'
+                    )
+                except Exception:
+                    scene_narrations.append(
+                        f'Final scene: narration "So, the answer is {verified_answer}."'
+                    )
+
+            scenes_block = "\n".join([f"  {s}" for s in scene_narrations])
+            
             return (
                 "Topic guidance: This is a LARGER SUBTRACTION problem (value > 20). You MUST follow these rules:\n"
                 "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
                 "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
-                "Scene 1 — Setup: State the problem briefly.\n"
-                "Scene per column (ones, then tens, etc.): show column-by-column subtraction.\n"
-                "  If borrowing: explain it simply — '3 is smaller than 8, so we borrow 1 from the tens. 13 minus 8 is 5.'\n"
-                f"Final scene: 'So, the answer is {verified_answer}.' Include full equation with = answer.\n"
-                "Sound warm and encouraging. Do NOT rush."
+                "- You MUST produce EXACTLY the scenes listed below, one JSON object per scene.\n"
+                "- You MUST copy each narration WORD-FOR-WORD. Do NOT rephrase, do NOT add extra words, do NOT do your own math.\n"
+                "- Do NOT say 'we borrowed' for a column unless the narration below explicitly says so.\n"
+                "\n"
+                "HERE ARE YOUR EXACT SCENES (copy narration verbatim):\n"
+                f"{scenes_block}\n"
+                "\n"
+                "CRITICAL: The narrations above are MATHEMATICALLY VERIFIED. Do NOT change any numbers or wording."
             )
     elif topic == "counting":
         # Safety net: if this is actually an addition word problem misclassified
@@ -770,31 +1064,126 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                 "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
             )
         elif _sum_val is not None and 11 <= _sum_val <= 20:
-            # Class 1 Ch.7 (11-20): Make 10 / Bridge through 10 strategy
-            _gap = 10 - (_sum_val - _sum_val)  # placeholder, computed from A
+            # Class 1 Ch.7 (11-20): Arrive & Join animation
+            # Extract A (larger) and B (smaller) to show in the narration
+            import re as _re2
+            _add_nums = _re2.findall(r"\d+", str(question))
+            _a_val = max([int(x) for x in _add_nums if int(x) < _sum_val], default=_sum_val - 1)
+            _b_val = _sum_val - _a_val
             return (
-                "Topic guidance: This is a MEDIUM ADDITION problem (sum 11–20). Use the 'Make 10' strategy.\n"
-                "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_MEDIUM_ADDITION'. Do NOT split into multiple scenes.\n"
-                "The equation MUST be 'A + B' (e.g., '9 + 4').\n"
-                "Pick an appropriate item_type from (BLOCK_SVG, MANGO_SVG, APPLE_SVG, BIRD_SVG, FLOWER_SVG, etc.) based on the question.\n"
-                "In the 'narration' field, summarize the Make 10 steps:\n"
-                "1. Show A blocks in a row of 10 (partially filled) and B blocks separately.\n"
-                "2. 'A needs X more to make 10.' (X = 10 - A)\n"
-                "3. 'Split B into X and (B - X). Add X to A to make 10.'\n"
-                "4. '10 and (B - X) make the answer.'"
+                f"Topic guidance: This is a MEDIUM ADDITION problem (sum {_sum_val}, adding {_a_val} and {_b_val}).\n"
+                "CRITICAL: Output EXACTLY ONE (1) JSON scene element. NO MORE. Do NOT generate ADD_ITEMS, REMOVE_ITEMS, or any other action.\n"
+                "Action MUST be 'SHOW_MEDIUM_ADDITION'.\n"
+                f"Equation MUST be '{_a_val} + {_b_val}' (larger number first).\n"
+                "Pick an appropriate item_type from (BALL_SVG, BLOCK_SVG, BALLOON_SVG, APPLE_SVG, BIRD_SVG, MANGO_SVG, PENCIL_SVG, etc.) based on the question subject.\n"
+                "In the 'narration' field, write a FULL child-friendly story of 80 to 100 words covering ALL of these beats IN ORDER:\n"
+                f"1. READ THE PROBLEM: Re-tell the story in simple words (e.g., 'First, there are {_a_val} balls. Then, {_b_val} more balls join them.').\n"
+                f"2. WHY ADDITION: Explain clearly, 'When we put things TOGETHER into one big group, we use addition. So we add the {_a_val} and the {_b_val}.'\n"
+                f"3. SHOW FIRST GROUP: 'Let us see the first {_a_val} [items] sitting together in a row.'\n"
+                f"4. HIGHLIGHT ARRIVAL: 'Now look! Here come the {_b_val} new [items]. Watch them join the group!'\n"
+                f"5. COUNT TOGETHER: 'Let us count them all together. 1, 2, 3, 4, 5... {_sum_val} [items] in total.'\n"
+                f"6. FINAL ANSWER: 'So, {_a_val} plus {_b_val} equals {_sum_val}. The answer is {_sum_val}.'\n"
+                "Write this as ONE single flowing paragraph (do NOT use numbered points in the narration text itself). "
+                "Use warm, simple, encouraging language a 6-year-old will understand. AIM FOR 80-100 WORDS. DO NOT mention 'Make 10', 'tens', or 'strategy'."
             )
         else:
-            # Class 1 Ch.15 (sums >20, up to 100): column arithmetic
-            return (
-                "Topic guidance: This is a LARGER ADDITION problem (sum > 20). You MUST follow these rules:\n"
-                "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
-                "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
-                "Scene 1 — Setup: State the problem briefly.\n"
-                "Scene per column (ones, then tens, etc.): show column-by-column addition.\n"
-                "  If carrying: explain it simply — 'We write the ones digit and carry 1 to the tens.'\n"
-                f"Final scene: 'So, the answer is {verified_answer}.' Include full equation with = answer.\n"
-                "Sound warm and encouraging. Do NOT rush."
-            )
+            # Class 1 Ch.15 (sums >20, up to 100): column arithmetic — deterministic narration
+            scene_narrations = []
+            _add_nums = None
+            _num1 = _num2 = None
+            try:
+                import re as _re3
+                _add_nums = _re3.findall(r"\d+", str(question))
+                if len(_add_nums) >= 2:
+                    _num1, _num2 = int(_add_nums[0]), int(_add_nums[1])
+            except Exception:
+                pass
+            
+            if _num1 is not None and _num2 is not None:
+                equation_str = f"{_num1} + {_num2}"
+                
+                scene_narrations.append(
+                    f'Scene 1 (Setup): action "SHOW_COLUMN_ARITHMETIC", equation "{equation_str}", '
+                    f'narration MUST be exactly: "Let us solve {equation_str}. We will add column by column, starting from the ones place on the right."'
+                )
+                
+                s1 = str(_num1)[::-1]
+                s2 = str(_num2)[::-1]
+                max_len = max(len(s1), len(s2))
+                col_names = ["ones", "tens", "hundreds", "thousands", "ten thousands"]
+                carry = 0
+                scene_idx = 2
+                
+                for i in range(max_len):
+                    d1 = int(s1[i]) if i < len(s1) else 0
+                    d2 = int(s2[i]) if i < len(s2) else 0
+                    cname = col_names[i] if i < len(col_names) else "next column"
+                    
+                    col_sum = d1 + d2 + carry
+                    result_digit = col_sum % 10
+                    new_carry = col_sum // 10
+                    
+                    narration = f"Now the {cname} column. "
+                    if carry > 0:
+                        narration += f"We carried {carry} from the previous column, so we add {carry} more. "
+                        narration += f"{d1} plus {d2} plus {carry} equals {col_sum}. "
+                    else:
+                        narration += f"{d1} plus {d2} equals {col_sum}. "
+                    
+                    if new_carry > 0:
+                        narration += f"We write {result_digit} and carry {new_carry} to the {col_names[i+1] if i+1 < len(col_names) else 'next'} column."
+                    else:
+                        narration += f"We write {result_digit}."
+                    
+                    scene_narrations.append(
+                        f'Scene {scene_idx} ({cname.capitalize()} column): action "SHOW_COLUMN_ARITHMETIC", '
+                        f'equation "{equation_str}", '
+                        f'narration MUST be exactly: "{narration}"'
+                    )
+                    carry = new_carry
+                    scene_idx += 1
+                
+                # If there's a final carry
+                if carry > 0:
+                    cname = col_names[max_len] if max_len < len(col_names) else "next column"
+                    scene_narrations.append(
+                        f'Scene {scene_idx} ({cname.capitalize()} column): action "SHOW_COLUMN_ARITHMETIC", '
+                        f'equation "{equation_str}", '
+                        f'narration MUST be exactly: "We still have a carry of {carry}, so we write {carry} in the {cname} place."'
+                    )
+                    scene_idx += 1
+                
+                scene_narrations.append(
+                    f'Scene {scene_idx} (Answer): action "SHOW_COLUMN_ARITHMETIC", '
+                    f'equation "{equation_str} = {verified_answer}", '
+                    f'narration MUST be exactly: "So, {equation_str} equals {verified_answer}. Great job!"'
+                )
+                
+                scenes_block = "\n".join([f"  {s}" for s in scene_narrations])
+                
+                return (
+                    "Topic guidance: This is a LARGER ADDITION problem (sum > 20). You MUST follow these rules:\n"
+                    "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
+                    "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
+                    "- You MUST produce EXACTLY the scenes listed below, one JSON object per scene.\n"
+                    "- You MUST copy each narration WORD-FOR-WORD. Do NOT rephrase, do NOT add extra words, do NOT do your own math.\n"
+                    "\n"
+                    "HERE ARE YOUR EXACT SCENES (copy narration verbatim):\n"
+                    f"{scenes_block}\n"
+                    "\n"
+                    "CRITICAL: The narrations above are MATHEMATICALLY VERIFIED. Do NOT change any numbers or wording."
+                )
+            else:
+                return (
+                    "Topic guidance: This is a LARGER ADDITION problem (sum > 20). You MUST follow these rules:\n"
+                    "- EVERY scene MUST use action \"SHOW_COLUMN_ARITHMETIC\".\n"
+                    "- EVERY scene MUST include an \"equation\" field with the equation string.\n"
+                    "Scene 1 — Setup: State the problem briefly.\n"
+                    "Scene per column (ones, then tens, etc.): show column-by-column addition.\n"
+                    "  If carrying: explain it simply — 'We write the ones digit and carry 1 to the tens.'\n"
+                    f"Final scene: 'So, the answer is {verified_answer}.' Include full equation with = answer.\n"
+                    "Sound warm and encouraging. Do NOT rush."
+                )
     elif topic == "comparison":
         # Check if this is a qualitative comparison (Class 1 Ch.1)
         import re as _re

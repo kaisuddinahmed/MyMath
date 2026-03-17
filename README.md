@@ -26,6 +26,31 @@ For each question:
 
 ---
 
+## Video Narration Architecture
+
+### Column Arithmetic (Addition & Subtraction)
+
+For column arithmetic problems (e.g. `1254 - 78`, `456 + 78`), the narration is **never trusted to the LLM**. Instead:
+
+1. **Deterministic Python computation** (`_build_column_narrations` in `backend/api/routes/solve.py`) calculates the exact narration for every scene, column by column:
+   - **Subtraction:** tracks the actual remaining digit after lending (e.g. `"We lended 1 earlier from the tens column, so the 5 became 4."`), then shows the borrow and result step by step.
+   - **Addition:** tracks carry-forward between columns (e.g. `"We carried 1 from the previous column, so we add 1 more. 5 plus 7 plus 1 equals 13."`).
+
+2. **LLM generates JSON structure only** — it produces the scene skeleton (actions, equations, scene count).
+
+3. **Post-processing override** (`_force_column_narrations`) runs immediately after the LLM response and **overwrites every `narration` field** in `SHOW_COLUMN_ARITHMETIC` scenes with the pre-computed deterministic text. The LLM's math narration is discarded entirely.
+
+This design is intentional. LLMs are unreliable at chained arithmetic state (e.g. they forget that a digit was already reduced by a borrow when computing the next column). By separating structure (LLM) from math narration (Python), narration is **always mathematically correct regardless** of what the LLM generates.
+
+**Files involved:**
+| Function | Location | Purpose |
+| --- | --- | --- |
+| `_build_column_narrations(topic, question)` | `backend/api/routes/solve.py` | Computes per-scene narration list |
+| `_force_column_narrations(json, topic, question)` | `backend/api/routes/solve.py` | Overwrites LLM JSON with correct narration |
+| `_build_topic_guidance(...)` | `backend/api/routes/solve.py` | Builds prompt guidance (still sent to LLM as scene-count/structure hint) |
+
+---
+
 ## Backend — 5 Isolated Layers
 
 | Layer        | Path                    | Purpose                                                  |

@@ -9,9 +9,8 @@ question = "Five children are playing in the park. Then two more children have c
 print("\n--- TOPIC GUIDANCE ---")
 guidance = _build_topic_guidance(
     topic="addition",
-    grade=1,
-    question=question,
     verified_answer="7",
-    is_above_grade=False
+    template="",
+    question=question
 )
 print(guidance)
