@@ -184,6 +184,10 @@ def detect_operation(q: str, nums_count: int = 2) -> Optional[str]:
                 op = "-"
                 break
 
+        # If no explicit subtraction verb is found, check if it's a part-whole subset problem
+        if not op and detect_part_whole(q):
+            op = "-"
+
     return op
 
 
@@ -255,10 +259,16 @@ def extract_steps(q: str) -> List[Dict[str, Any]]:
     return steps
 
 def detect_part_whole(q: str) -> bool:
-    """Detect if a subtraction problem is breaking a total into subsets (e.g., students -> girls/boys)."""
+    """Detect if a subtraction problem is breaking a total into subsets."""
+    lower_q = q.lower()
     # Strong signal phrases
-    if re.search(r"\b(among\b.*|out of\b.*|of these\b.*|rest are\b.*)\b", q.lower()):
+    if re.search(r"\b(among\b.*|out of\b.*|of these\b.*|rest are\b.*)\b", lower_q):
         return True
+        
+    # Adjective-based subsetting (e.g. "7 apples and 3 are rotten, how many are fresh?")
+    if re.search(r"\b\d+\b.*\b\d+\b\s+are\b.*how many\b", lower_q):
+        return True
+        
     return False
 
 def parse_word_problem(question: str) -> Optional[dict]:

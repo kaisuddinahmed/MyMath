@@ -52,10 +52,12 @@ export const PartWholeScene: React.FC<{
   // We use a CSS filter to tint them (e.g. pinkish), and bump their scale slightly
   const highlightProgress = spring({ frame: Math.max(0, frame - p2), fps, config: { damping: 14 } });
   const highlightScale = interpolate(highlightProgress, [0, 1], [1, 1.15]);
-  
+  // Render variables
+  const itemSize = totalCount > 10 ? 50 : 80;
+
   // Phase 3 Separation
   const separateProgress = spring({ frame: Math.max(0, frame - p3), fps, config: { damping: 15 } });
-  const gapSize = interpolate(separateProgress, [0, 1], [20, 160]);
+  const gapSize = interpolate(separateProgress, [0, 1], [itemSize * 0.2, 160]);
   
   // Phase 4 Equation appearance
   const eq4Progress = spring({ frame: Math.max(0, frame - p4), fps });
@@ -74,9 +76,8 @@ export const PartWholeScene: React.FC<{
   };
   const confettiProgress = spring({ frame: Math.max(0, frame - p5 - (fps * 2)), fps });
 
-  // Render variables
+  // Render containers
   const containerWidth = 1000;
-  const itemSize = totalCount > 10 ? 50 : 80;
 
   return (
     <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -98,13 +99,16 @@ export const PartWholeScene: React.FC<{
           
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", gap: itemSize * 0.2 }}>
             {Array.from({ length: subsetCount }).map((_, i) => (
-              <div key={`sub-${i}`} style={{
-                transform: `scale(${popProgress * highlightScale})`,
-                // Highlight filter (hue shift towards pink/magenta if possible, plus brightness)
-                filter: frame >= p2 ? "sepia(1) hue-rotate(-50deg) saturate(3) brightness(1.2)" : "none",
-                transition: "filter 0.5s ease"
-              }}>
-                <ItemComponent itemType={itemType} size={itemSize} />
+              <div key={`sub-${i}`} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{
+                  transform: `scale(${popProgress * highlightScale})`,
+                  filter: frame >= p2 ? "sepia(1) hue-rotate(-50deg) saturate(3) brightness(1.2)" : "none",
+                  transition: "filter 0.5s ease"
+                }}>
+                  <ItemComponent itemType={itemType} size={itemSize} />
+                </div>
+                {/* Spacer to perfectly match the remainder group's vertical height */}
+                <span style={{ fontSize: 24, fontWeight: "bold", marginTop: 5, opacity: 0, pointerEvents: "none" }}>0</span>
               </div>
             ))}
           </div>

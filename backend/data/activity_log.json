@@ -1158,5 +1158,61 @@
     "template": "counters_remove",
     "score": 90,
     "timestamp": "2026-03-25T06:56:38.805522+00:00"
+  },
+  {
+    "child_id": "f3b36079-f813-4e90-ae68-838262d325aa",
+    "question": "9 students are sitting in a classroom. Among them 5 are girls. How many boys are there?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 60,
+    "timestamp": "2026-03-25T07:02:35.784540+00:00"
+  },
+  {
+    "child_id": "dadacdef-b051-4066-8609-60a0232c029f",
+    "question": "9 students are sitting in a classroom. Among them 5 are girls. How many boys are there?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 90,
+    "timestamp": "2026-03-25T07:08:26.303329+00:00"
+  },
+  {
+    "child_id": "dadacdef-b051-4066-8609-60a0232c029f",
+    "question": "If there are 7 apples and 3 are rotten, how many are fresh?",
+    "topic": "counting",
+    "template": "count_objects",
+    "score": 0,
+    "timestamp": "2026-03-25T07:09:08.936301+00:00"
+  },
+  {
+    "child_id": "42d04fd7-d77a-487b-af2a-68e4028d471e",
+    "question": "If there are 7 apples and 3 are rotten, how many are fresh?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 60,
+    "timestamp": "2026-03-25T07:14:07.886716+00:00"
+  },
+  {
+    "child_id": "42d04fd7-d77a-487b-af2a-68e4028d471e",
+    "question": "If there are 7 apples and 3 are rotten, how many are fresh?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 60,
+    "timestamp": "2026-03-25T07:15:43.119027+00:00"
+  },
+  {
+    "child_id": "42d04fd7-d77a-487b-af2a-68e4028d471e",
+    "question": "There are 5 fish in a bucket at the fish market, and 2 of them are already sold, how many fish are left?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-25T07:16:31.950863+00:00"
+  },
+  {
+    "child_id": "42d04fd7-d77a-487b-af2a-68e4028d471e",
+    "question": "If there are 10 toys and 4 are cars, how many are not cars?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 60,
+    "timestamp": "2026-03-25T07:17:19.704928+00:00"
   }
 ]
