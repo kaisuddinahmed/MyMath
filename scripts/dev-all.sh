@@ -9,6 +9,12 @@ port_pids() {
 }
 
 ensure_port_free() {
+  # Force kill known problem processes that might hang before binding a port
+  pkill -9 -f "uvicorn backend.main:app" >/dev/null 2>&1 || true
+  pkill -9 -f "node remotion/render-api.js" >/dev/null 2>&1 || true
+  pkill -9 -f "next dev" >/dev/null 2>&1 || true
+  pkill -9 -f "remotion studio" >/dev/null 2>&1 || true
+
   local pids=""
   pids="$(port_pids)"
   if [[ -n "${pids}" ]]; then
@@ -40,17 +46,26 @@ ensure_port_free() {
 
 ensure_port_free
 
-.venv/bin/python -m uvicorn backend.main:app --reload --host localhost --port 1233 --reload-dir backend --reload-exclude ".venv/*" &
+# macOS "Optimize Mac Storage" converts unused files into dataless iCloud stubs after 4-5 days.
+# When python tries to read these stubs using specific mmaps, it deadlocks the kernel.
+# This forces the kernel to instantly materialize all project files before starting the servers.
+brctl download . >/dev/null 2>&1 || true
+
+# macOS quarantine/provenance tracking attributes frequently cause Python's read() syscalls to deadlock.
+# This recursively strips them from the backend/ directory to permanently prevent silent server hangs.
+xattr -rc backend/ >/dev/null 2>&1 || true
+
+.venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 1233 &
 BACK_PID=$!
-echo "[dev:all] Started backend on localhost:1233 (pid ${BACK_PID})."
+echo "[dev:all] Started backend on 127.0.0.1:1233 (pid ${BACK_PID})."
 
 BACKEND_READY=0
-for _ in {1..40}; do
+for _ in {1..80}; do
   if ! kill -0 "${BACK_PID}" >/dev/null 2>&1; then
     echo "[dev:all] Backend process exited before becoming ready."
     exit 1
   fi
-  if curl -sS -m 1 http://localhost:1233/children >/dev/null 2>&1; then
+  if curl -sS -m 1 http://127.0.0.1:1233/children >/dev/null 2>&1; then
     echo "[dev:all] Backend is ready."
     BACKEND_READY=1
     break

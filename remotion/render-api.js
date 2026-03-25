@@ -22,20 +22,32 @@ if (!fs.existsSync(OUTPUT_DIR)) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 }
 
-let bundled = null;
+let serveUrl = null;
+let bundlePromise = null;
 
 async function ensureBundle() {
-  // Always re-bundle to pick up latest source code changes.
-  // The Remotion bundler is fast enough for dev workflows.
-  const { bundle } = require("@remotion/bundler");
-  console.log("[remotion] Bundling project...");
-  const entryPoint = path.resolve(__dirname, "src", "index.ts");
-  bundled = await bundle({
-    entryPoint,
-    webpackOverride: (config) => config,
-  });
-  console.log("[remotion] Bundle ready.");
-  return bundled;
+  if (serveUrl) return serveUrl;
+  if (bundlePromise) return bundlePromise;
+
+  bundlePromise = (async () => {
+    const { bundle } = require("@remotion/bundler");
+    console.log("[remotion] Bundling project...");
+    const entryPoint = path.resolve(__dirname, "src", "index.ts");
+    const result = await bundle({
+      entryPoint,
+      webpackOverride: (config) => config,
+    });
+    console.log("[remotion] Bundle ready.");
+    serveUrl = result;
+    return result;
+  })();
+
+  try {
+    return await bundlePromise;
+  } catch (err) {
+    bundlePromise = null;
+    throw err;
+  }
 }
 
 const app = express();

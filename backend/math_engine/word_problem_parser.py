@@ -15,8 +15,8 @@ ADD_WORDS = [
     "came", "joined", "collected", "bought", "received", "found",
     "how many children", "how many guests", "how many people",
     "do they have", "does he have", "does she have", "total",
-    "gives her", "gives him", "gives me", "gives them",
-    "gave her", "gave him", "gave me", "gave them"
+    r"re:\bgives\s+(him|her|me|them|us)\b(?!\s+(boy|girl|brother|sister|mother|father|friend|teacher|student))",
+    r"re:\bgave\s+(him|her|me|them|us)\b(?!\s+(boy|girl|brother|sister|mother|father|friend|teacher|student))"
 ]
 
 SUB_WORDS = [
@@ -137,13 +137,8 @@ def extract_context(q: str) -> Dict[str, Any]:
 def detect_operation(q: str, nums_count: int = 2) -> Optional[str]:
     """Detect math operation from keywords, resolving ambiguities."""
     # Priority: Subtraction triggers first (how many more/left)
-    if "how many more" in q or "left" in q and not "left to" in q:
-        # Extra safeguard: "left" defaults to sub
-        pass
-        
     op = None
-    
-    if "how many more" in q:
+    if re.search(r"how many more|left(?! to)|have now|remain", q):
         op = "-"
 
     if not op:
@@ -175,7 +170,11 @@ def detect_operation(q: str, nums_count: int = 2) -> Optional[str]:
 
     if not op:
         for w in ADD_WORDS:
-            if w in q:
+            if w.startswith("re:"):
+                if re.search(w[3:], q):
+                    op = "+"
+                    break
+            elif w in q:
                 op = "+"
                 break
 
@@ -255,6 +254,13 @@ def extract_steps(q: str) -> List[Dict[str, Any]]:
         })
     return steps
 
+def detect_part_whole(q: str) -> bool:
+    """Detect if a subtraction problem is breaking a total into subsets (e.g., students -> girls/boys)."""
+    # Strong signal phrases
+    if re.search(r"\b(among\b.*|out of\b.*|of these\b.*|rest are\b.*)\b", q.lower()):
+        return True
+    return False
+
 def parse_word_problem(question: str) -> Optional[dict]:
     """
     Returns {numbers, operation, expression, answer, confidence, ...} or None.
@@ -307,6 +313,9 @@ def parse_word_problem(question: str) -> Optional[dict]:
         "answer": ans_str,
         "confidence": "high" if len(nums) == 2 else "medium"
     }
+    
+    if op == "-":
+        result["is_part_whole"] = detect_part_whole(question)
     
     # Merge optional fields
     result.update(context)

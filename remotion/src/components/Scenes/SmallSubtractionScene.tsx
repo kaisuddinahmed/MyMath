@@ -1,157 +1,50 @@
 import React from "react";
-import { useVideoConfig, useCurrentFrame, spring, interpolate } from "remotion";
+import { useVideoConfig } from "remotion";
 import type { DirectorScene } from "../../types";
-import { ItemComponent } from "../../assets/items/ItemSvgs";
+import { ObjectArray } from "../Engines/ObjectArray";
 
 export const SmallSubtractionScene: React.FC<{
   groupedScenes: DirectorScene[];
   timings: { scene: DirectorScene; start: number; dur: number }[];
 }> = ({ groupedScenes, timings }) => {
   const { fps } = useVideoConfig();
-  const frame = useCurrentFrame();
 
   // Parse the equation from the first scene (expected "A - B")
   const eqStr = groupedScenes[0]?.equation || "8 - 3";
   const numMatches = eqStr.match(/\d+/g);
   const totalCount = numMatches && numMatches.length >= 1 ? parseInt(numMatches[0], 10) : 8;
   const subtractCount = numMatches && numMatches.length >= 2 ? parseInt(numMatches[1], 10) : 3;
+  
+  // For the ObjectArray engine:
+  // "leftCount" is the number that stays.
+  // "rightCount" is the number that fades/falls away.
   const remainCount = totalCount - subtractCount;
   const itemType = groupedScenes[0]?.item_type || "APPLE_SVG";
 
-  // Internal 4-step timings derived from the single scene duration
+  // Calculate timelines explicitly
   const totalDuration = timings[0]?.dur || 16 * fps;
   const stepSplit = totalDuration / 4;
 
-  const step1End = stepSplit;        // Pop in as one group
-  const step2End = stepSplit * 2;    // Subtracted items animate away
-  const step3Dur = remainCount >= 3 ? stepSplit : 0;
+  const step1End = stepSplit;        // Pop in
+  const step2End = stepSplit * 2;    // Subtracted items fall away
+  const step3Dur = remainCount >= 3 ? stepSplit : 2 * fps;
   const step3End = step2End + step3Dur;
-  const hasCountingStep = step3Dur > 0;
-
-  // Step 1: All items pop in together as one group
-  const step1Pop = spring({ frame, fps, config: { damping: 12 } });
-
-  // Step 2: Split progress — drives the rightmost items moving right + fading
-  const splitProgress = spring({
-    frame: Math.max(0, frame - step1End),
-    fps,
-    config: { damping: 14 },
-  });
-
-  // Step 3: Counting numbers stagger in under REMAINING items only
-  const getCountOpacity = (index: number) => {
-    if (!hasCountingStep) return 0;
-    const staggerFrames = step3Dur / Math.max(1, remainCount);
-    const delay = step2End + index * staggerFrames;
-    return spring({ frame: Math.max(0, frame - delay), fps, from: 0, to: 1, durationInFrames: 10 });
-  };
-
-  // Step 4: Final equation fades in
-  const step4Opacity = spring({
-    frame: Math.max(0, frame - step3End),
-    fps,
-    from: 0,
-    to: 1,
-    durationInFrames: 15,
-  });
-
-  // Per-item split animation for each subtracted item
-  const getItemSplitStyle = (idx: number): React.CSSProperties => {
-    if (idx < remainCount) return {}; // Remaining items just stay in place
-
-    // Subtracted items — slide right and fade out
-    const itemSplitOffset = interpolate(splitProgress, [0, 1], [0, 100 + (idx - remainCount) * 10]);
-    const itemFade = interpolate(splitProgress, [0, 0.7, 1], [1, 0.5, 0.15], { extrapolateRight: "clamp" });
-    return {
-      transform: `translateX(${itemSplitOffset}px)`,
-      opacity: itemFade,
-    };
-  };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100%",
+    <ObjectArray
+      action="SUBTRACT"
+      itemType={itemType}
+      leftCount={remainCount}
+      rightCount={subtractCount}
+      equationStr={`${totalCount} - ${subtractCount} = ${remainCount}`}
+      timings={{
+        popInEnd: step1End * 0.5,
+        actionStart: step1End,
+        actionEnd: step2End,
+        countStart: step2End + 5,
+        equationStart: step3End
       }}
-    >
-      {/* Single flat row — all totalCount items with equal gap */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 20,
-          transform: `scale(${step1Pop})`,
-        }}
-      >
-        {Array.from({ length: totalCount }).map((_, idx) => {
-          const isSubtracted = idx >= remainCount;
-          const countOpacity = getCountOpacity(idx);
-
-          return (
-            <div
-              key={`item-${idx}`}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-                ...getItemSplitStyle(idx),
-              }}
-            >
-              <div style={{ transform: "scale(0.9)" }}>
-                <ItemComponent itemType={itemType} />
-              </div>
-              {/* Counting number — only under remaining items, step 3 */}
-              {!isSubtracted && (
-                <div
-                  style={{
-                    color: "#fcd34d",
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    opacity: countOpacity,
-                    transform: `translateY(${interpolate(countOpacity, [0, 1], [10, 0])}px)`,
-                  }}
-                >
-                  {idx + 1}
-                </div>
-              )}
-              {/* Spacer for subtracted items so layout doesn't shift when counters appear on remaining */}
-              {isSubtracted && <div style={{ fontSize: 26, opacity: 0 }}>0</div>}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Final Equation Block (Step 4) */}
-      <div
-        style={{
-          marginTop: 80,
-          opacity: step4Opacity,
-          transform: `translateY(${interpolate(step4Opacity, [0, 1], [30, 0])}px)`,
-          background: "rgba(239, 68, 68, 0.12)",
-          borderRadius: 20,
-          padding: "20px 60px",
-          border: "2px solid rgba(239, 68, 68, 0.3)",
-        }}
-      >
-        <p
-          style={{
-            color: "#fee2e2",
-            fontSize: 60,
-            fontWeight: 800,
-            fontFamily: "'Inter', sans-serif",
-            margin: 0,
-            letterSpacing: 2,
-          }}
-        >
-          {totalCount} - {subtractCount} = {remainCount}
-        </p>
-      </div>
-    </div>
+    />
   );
 };
+

@@ -1054,5 +1054,109 @@
     "template": "column_arithmetic",
     "score": 80,
     "timestamp": "2026-03-17T08:45:59.593363+00:00"
+  },
+  {
+    "child_id": "a26d0b4a-d8d9-451d-935d-a6cad5cbc7da",
+    "question": "4+2",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 25,
+    "timestamp": "2026-03-17T09:41:50.959652+00:00"
+  },
+  {
+    "child_id": "a26d0b4a-d8d9-451d-935d-a6cad5cbc7da",
+    "question": "3+5",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 25,
+    "timestamp": "2026-03-17T09:42:55.477785+00:00"
+  },
+  {
+    "child_id": "a26d0b4a-d8d9-451d-935d-a6cad5cbc7da",
+    "question": "6-3",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-17T09:43:51.547094+00:00"
+  },
+  {
+    "child_id": "a26d0b4a-d8d9-451d-935d-a6cad5cbc7da",
+    "question": "7-3",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-17T09:51:37.119022+00:00"
+  },
+  {
+    "child_id": "19ba32a7-6ac3-4635-9a80-537c16f12faf",
+    "question": "9-3",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-17T10:12:50.218839+00:00"
+  },
+  {
+    "child_id": "87ebef5f-d3f5-445f-afec-1f163e63a95d",
+    "question": "1245+98",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T17:00:38.286454+00:00"
+  },
+  {
+    "child_id": "87ebef5f-d3f5-445f-afec-1f163e63a95d",
+    "question": "1245+98",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-17T17:00:38.400338+00:00"
+  },
+  {
+    "child_id": "de1fd970-d0ec-442a-979b-cff921b38bdb",
+    "question": "Nidhi had 8 toys. She gave her brother 5 toys. How many toys does she have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-03-25T06:07:01.990210+00:00"
+  },
+  {
+    "child_id": "de1fd970-d0ec-442a-979b-cff921b38bdb",
+    "question": "Nidhi had 8 toys. She gave her brother 5 toys. How many toys does she have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-03-25T06:21:08.640138+00:00"
+  },
+  {
+    "child_id": "d7978696-26c8-4b27-8e62-7c5da37d5bff",
+    "question": "Nidhi had 8 toys. She gave her brother 5 toys. How many toys does she have now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-25T06:22:41.473719+00:00"
+  },
+  {
+    "child_id": "d7978696-26c8-4b27-8e62-7c5da37d5bff",
+    "question": "Ruma had 8 sheets of paper. She wrote down on three sheets. How many sheets of paper are left to write on?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-25T06:24:02.952786+00:00"
+  },
+  {
+    "child_id": "d7978696-26c8-4b27-8e62-7c5da37d5bff",
+    "question": "9 students are sitting in a classroom. Among them 5 are girls. How many boys are there?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-25T06:25:15.298769+00:00"
+  },
+  {
+    "child_id": "2d0879cc-8275-4cd6-8c23-41e3a6643d1a",
+    "question": "9 students are sitting in a classroom. Among them 5 are girls. How many boys are there?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 90,
+    "timestamp": "2026-03-25T06:56:38.805522+00:00"
   }
 ]

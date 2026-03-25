@@ -1,13 +1,13 @@
 import React from "react";
-import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, interpolate, Easing } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
 import type { DirectorScene } from "../../types";
+import { VerticalGrid, ColumnData, VerticalGridAction } from "../Engines/VerticalGrid";
 
 export const ColumnArithmeticScene: React.FC<{
   groupedScenes: DirectorScene[];
   timings: { scene: DirectorScene; start: number; dur: number }[];
 }> = ({ groupedScenes, timings }) => {
   const { fps } = useVideoConfig();
-  const frame = useCurrentFrame();
 
   // Try to find the equation from any scene in the group
   let eqStr = "";
@@ -46,15 +46,6 @@ export const ColumnArithmeticScene: React.FC<{
     num2Str = num2Str.padEnd(num2Str.length + (maxFrac - frac2), "0");
   }
 
-  interface ColumnData {
-    colIndex: number;      
-    topDigit: string | null;
-    botDigit: string | null;
-    carryIn: number;       
-    carryOut: number;      
-    resultDigit: string;
-  }
-
   const cols: ColumnData[] = [];
   const s1 = num1Str.split("").reverse();
   const s2 = num2Str.split("").reverse();
@@ -88,10 +79,10 @@ export const ColumnArithmeticScene: React.FC<{
       carry = Math.floor(colSum / 10);
     } else {
       // Subtraction with borrowing
-      colSum = d1 - d2 - carry;
+      colSum = d1 - d2 + carry; // 'carry' acts as 'borrowed 10'
       if (colSum < 0) {
-        colSum += 10; // borrow from next column
-        carry = 1;
+        colSum += 10; 
+        carry = -1; // We took a loan from the next column
       } else {
         carry = 0;
       }
@@ -101,8 +92,11 @@ export const ColumnArithmeticScene: React.FC<{
       colIndex: i,
       topDigit: i < s1.length ? s1[i] : null,
       botDigit: i < s2.length ? s2[i] : null,
-      carryIn: currCarryIn,
-      carryOut: carry,
+      // For the engine: 
+      // Add: carryIn is standard. carryOut is 0.
+      // Sub: carryIn means "we received a loan of 10". carryOut means "we gave a loan to the previous col".
+      carryIn: operator === "+" ? currCarryIn : (currCarryIn < 0 ? 10 : 0),
+      carryOut: operator === "+" ? carry : (carry < 0 ? 1 : 0),
       resultDigit: operator === "+" ? (colSum % 10).toString() : colSum.toString()
     });
   }
@@ -118,243 +112,20 @@ export const ColumnArithmeticScene: React.FC<{
     });
   }
 
-  // Temporal Configuration
-  const localTimings: { start: number, dur: number }[] = [];
-  let currentLocalStart = 0;
+  // Temporal Configuration Mapping
+  const localDurations: number[] = [];
   for (const t of timings) {
-    localTimings.push({ start: currentLocalStart, dur: t.dur });
-    currentLocalStart += t.dur;
+    localDurations.push(t.dur);
   }
-  const totalDuration = currentLocalStart;
-
-  const getColStart = (idx: number) => {
-    if (idx < 0) return 0;
-    const tIdx = idx + 1; // 0 is setup, 1 is col 0 (ones)
-    if (tIdx < localTimings.length - 1) return localTimings[tIdx].start;
-    return (localTimings[0]?.dur || Math.max(0, 3 * fps)) + (idx * 3 * fps);
-  };
-
-  const getColDur = (idx: number) => {
-    const tIdx = idx + 1;
-    if (tIdx < localTimings.length - 1) return localTimings[tIdx].dur;
-    return 3 * fps;
-  };
-
-  const outroStartFrame = localTimings.length > 1 
-    ? localTimings[localTimings.length - 1].start 
-    : Math.max(0, totalDuration - 3 * fps);
-
-  // Cell size
-  const CELL = 80;
-  const FONT = 72;
 
   return (
-    <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", backgroundColor: "#0F172A" }}>
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: `40px repeat(${cols.length}, ${CELL}px)`, 
-        gridTemplateRows: "50px 80px 80px 80px",
-        gap: '4px 0', 
-        fontSize: FONT, 
-        fontFamily: "'Courier New', Courier, monospace", 
-        fontWeight: 700,
-        textAlign: "center",
-        color: "white",
-        position: "relative"
-      }}>
-        
-        {/* Dynamic Column Highlight Box */}
-        {cols.map((c, idx) => {
-           const colStart = getColStart(idx);
-           const colDur = getColDur(idx);
-           const colEnd = colStart + colDur;
-           const isHighlight = frame >= colStart && frame < colEnd;
-           const highlightOpacity = isHighlight 
-             ? spring({frame: frame - colStart, fps, config: {damping: 15}}) 
-             : (frame >= colEnd ? Math.max(0, 1 - (frame - colEnd) / 10) : 0);
-           
-           return (
-             <div key={`hl-${c.colIndex}`} style={{
-               position: "absolute",
-               bottom: 0, top: 0,
-               width: CELL,
-               right: idx * CELL,
-               backgroundColor: "rgba(99, 102, 241, 0.12)",
-               borderRadius: 12,
-               opacity: highlightOpacity,
-               pointerEvents: "none"
-             }} />
-           );
-        })}
-
-        {/* Row 0: Carry / Borrow Row */}
-        <div style={{gridColumn: 1, gridRow: 1}}></div>
-        {cols.map(c => {
-           let showValue: string | number = "";
-           let opacityAnim = 0;
-           let transformAnim = 0;
-           
-           if (operator === "+") {
-             const colStart = getColStart(c.colIndex - 1);
-             const colDur = getColDur(c.colIndex - 1);
-             const appearFrame = colStart + (colDur * 0.6);
-             const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
-             showValue = c.carryIn > 0 ? c.carryIn : "";
-             opacityAnim = c.carryIn > 0 ? s : 0;
-             transformAnim = 16 * (1 - s);
-           } else if (operator === "-") {
-             if (c.carryIn > 0) {
-               const prevColStart = getColStart(c.colIndex - 1);
-               const prevColDur = getColDur(c.colIndex - 1);
-               const appearFrame = prevColStart + (prevColDur * 0.2);
-               const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 12 } });
-               
-               const myColStart = getColStart(c.colIndex);
-               const myColDur = getColDur(c.colIndex);
-               const isMyTurnForBorrow = frame >= (myColStart + (myColDur * 0.2));
-               
-               const topVal = c.topDigit === null || c.topDigit === "." ? 0 : parseInt(c.topDigit);
-               showValue = topVal - c.carryIn + ((c.carryOut > 0 && isMyTurnForBorrow) ? 10 : 0);
-               opacityAnim = s;
-               transformAnim = 16 * (1 - s);
-             }
-           }
-           
-           return (
-             <div key={`carry-${c.colIndex}`} style={{
-               gridColumn: cols.length - c.colIndex + 1, 
-               gridRow: 1, 
-               fontSize: 36,
-               color: "#f87171",
-               fontWeight: 600,
-               opacity: opacityAnim,
-               transform: `translateY(${transformAnim}px)`,
-               display: "flex", alignItems: "center", justifyContent: "center"
-             }}>
-               {showValue}
-             </div>
-           );
-        })}
-
-        {/* Row 1: Top Number — always visible with optional borrowing visuals */}
-        <div style={{gridColumn: 1, gridRow: 2}}></div>
-        {cols.map(c => {
-          let hasPrefix1 = false;
-          let prefix1Opacity = 0;
-          let hasStrikethrough = false;
-          let strikeScale = 0;
-
-          if (operator === "-") {
-            if (c.carryOut > 0 && c.carryIn === 0 && c.topDigit !== "." && c.topDigit !== null) {
-              hasPrefix1 = true;
-              const colStart = getColStart(c.colIndex);
-              const colDur = getColDur(c.colIndex);
-              const appearFrame = colStart + (colDur * 0.2);
-              prefix1Opacity = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
-            }
-            if (c.carryIn > 0 && c.topDigit !== "." && c.topDigit !== null) {
-              hasStrikethrough = true;
-              const prevColStart = getColStart(c.colIndex - 1);
-              const prevColDur = getColDur(c.colIndex - 1);
-              const appearFrame = prevColStart + (prevColDur * 0.2);
-              strikeScale = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
-            }
-          }
-
-          return (
-            <div key={`top-${c.colIndex}`} style={{
-              gridColumn: cols.length - c.colIndex + 1, 
-              gridRow: 2,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              position: "relative"
-            }}>
-              {c.topDigit || ""}
-              {hasPrefix1 && (
-                <span style={{
-                   position: "absolute",
-                   left: -5,
-                   top: -10,
-                   fontSize: 36,
-                   color: "#f87171",
-                   opacity: prefix1Opacity,
-                   pointerEvents: "none"
-                }}>1</span>
-              )}
-              {hasStrikethrough && (
-                <div style={{
-                   position: "absolute",
-                   height: 4,
-                   backgroundColor: "#ef4444",
-                   top: "50%",
-                   left: "10%",
-                   width: "80%",
-                   transform: `translateY(-50%) scaleX(${strikeScale})`,
-                   transformOrigin: "left center",
-                   pointerEvents: "none"
-                }} />
-              )}
-            </div>
-          );
-        })}
-
-        {/* Row 2: Operator & Bottom Number — always visible, right-aligned */}
-        <div style={{
-            gridColumn: 1, 
-            gridRow: 3, 
-            borderBottom: "4px solid rgba(255,255,255,0.6)", 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "center",
-            color: "#94a3b8",
-            fontSize: FONT * 0.7,
-            paddingBottom: 8,
-        }}>
-          {operator}
-        </div>
-        {cols.map(c => (
-          <div key={`bot-${c.colIndex}`} style={{
-              gridColumn: cols.length - c.colIndex + 1, 
-              gridRow: 3, 
-              borderBottom: "4px solid rgba(255,255,255,0.6)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              paddingBottom: 8,
-          }}>
-            {c.botDigit || ""}
-          </div>
-        ))}
-
-        {/* Row 3: Result — appears column-by-column during calculation */}
-        <div style={{gridColumn: 1, gridRow: 4}}></div>
-        {cols.map(c => {
-            const colStart = getColStart(c.colIndex);
-            const colDur = getColDur(c.colIndex);
-            const appearFrame = colStart + (colDur * 0.4);
-            const s = spring({ frame: Math.max(0, frame - appearFrame), fps, config: { damping: 14 } });
-            
-            // Extra carry column: reveal during outro
-            const isExtraCol = c.topDigit === null && c.botDigit === null;
-            const isOutro = frame >= outroStartFrame;
-            const revealOpacity = isExtraCol 
-              ? (isOutro ? spring({frame: frame - outroStartFrame, fps}) : 0)
-              : s;
-
-            return (
-              <div key={`res-${c.colIndex}`} style={{
-                gridColumn: cols.length - c.colIndex + 1, 
-                gridRow: 4, 
-                color: "#fcd34d",
-                paddingTop: 8,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                opacity: revealOpacity,
-                transform: `translateY(${20 * (1 - revealOpacity)}px)`
-              }}>
-                {c.resultDigit}
-              </div>
-            );
-        })}
-
-      </div>
-    </AbsoluteFill>
+    <VerticalGrid 
+      action={operator === "+" ? "ADD" : "SUBTRACT"}
+      operatorStr={operator}
+      columns={cols}
+      stepDurations={localDurations}
+    />
   );
 };
+
 

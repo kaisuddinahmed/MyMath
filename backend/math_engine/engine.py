@@ -61,6 +61,7 @@ class SolveResult:
     solver_used: str = "deterministic"   # "deterministic" | "word_problem" | "unsupported"
     min_grade_for_topic: int = 1
     is_above_grade: bool = False
+    is_part_whole: bool = False
     meta: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -435,6 +436,7 @@ def solve(
             solver_used="word_problem",
             min_grade_for_topic=1,
             is_above_grade=False,
+            is_part_whole=parsed.get("is_part_whole", False),
         )
 
     # --- 4. Detect topic for LLM video prompt context, even if unsupported ---

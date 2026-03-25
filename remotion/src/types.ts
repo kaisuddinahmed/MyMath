@@ -20,6 +20,7 @@ export type ItemType =
   | "BASE10_BLOCK"
   | "TALLY_MARK"
   | "NUMBER_LINE"
+  | "CHILD_SVG"
   | "FOOTBALL_SVG"
   | "PEN_SVG"
   | "PENCIL_SVG"
@@ -101,7 +102,8 @@ export type SceneAction =
   | "SHOW_MEDIUM_ADDITION"
   | "SHOW_SMALL_SUBTRACTION"
   | "SHOW_MEDIUM_SUBTRACTION"
-  | "SHOW_NUMBER_ORDERING";
+  | "SHOW_NUMBER_ORDERING"
+  | "SHOW_PART_WHOLE_SUBTRACTION";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";
 
@@ -123,6 +125,8 @@ export interface DirectorScene {
    * Scenes should use this to pick the right icon/object to animate.
    */
   visual_metaphor?: string;
+  subset_label?: string;
+  remainder_label?: string;
 }
 
 export interface DirectorScript {

@@ -299,8 +299,7 @@ def _run_solve_and_prompt(
 
     # Build topic-specific guidance for the LLM director
     effective_topic = question_type if question_type in ("mcq", "true_false") else topic
-    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template, question=question)
-    print(f"\n{'='*60}\n[DEBUG] TOPIC GUIDANCE sent to LLM:\n{topic_guidance}\n{'='*60}\n")
+    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template, question=question, is_part_whole=result.is_part_whole)
 
     # --- Curriculum style block -------------------------------------------------
     # Load the curriculum style and inject cultural/visual context into the prompt
@@ -688,7 +687,7 @@ def _force_column_narrations(prompt_json: dict, topic: str, question: str) -> di
 # Topic-specific director guidance
 # ---------------------------------------------------------------------------
 
-def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", question: str = "") -> str:
+def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", question: str = "", is_part_whole: bool = False) -> str:
     # Template-level override: when the math engine routes to column_arithmetic,
     # force the LLM to use SHOW_COLUMN_ARITHMETIC regardless of topic name.
     if template == "column_arithmetic":
@@ -798,6 +797,21 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             'Narration must mention "equal parts".'
         )
     elif topic == "subtraction":
+        if is_part_whole:
+            return (
+                "Topic guidance: This is a PART-WHOLE SUBTRACTION problem (finding a missing subset from a total).\n"
+                "CRITICAL: You MUST output exactly SIX (6) JSON scene elements in your array for this sequence.\n"
+                "Action MUST be 'SHOW_PART_WHOLE_SUBTRACTION' for all 6 scenes.\n"
+                "You MUST include two new fields in every scene: 'subset_label' (e.g. 'girls', 'rotten apples') and 'remainder_label' (e.g. 'boys', 'fresh apples').\n"
+                "Scene 1: Setup. Narration: 'There are [Total] [items].'\n"
+                "Scene 2: Highlight Subset. Narration: 'Out of them, [Subset] are [subset_label].'\n"
+                "Scene 3: Separate Groups. Narration: 'Let us separate the [subset_label]. How many [remainder_label] are there?'\n"
+                "Scene 4: Subtraction Viz. Narration: 'We take away [Subset] from [Total].'\n"
+                "Scene 5: Answer Reveal. Narration: Count the remainder out loud (e.g. '1... 2... 3... 4...'). Then say: '[Remainder] are left. So there are [Remainder] [remainder_label].'\n"
+                "Scene 6: Reinforcement. Narration: '[Total] minus [Subset] equals [Remainder].'\n"
+                "Equation MUST be 'Total - Subset' (e.g., '9 - 5') in scenes 4, 5, 6.\n"
+            )
+
         # Extract the starting value (A from A - B) to decide rendering approach
         _start_val = None
         _sub_val = None
