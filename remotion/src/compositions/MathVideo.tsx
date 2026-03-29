@@ -31,6 +31,7 @@ import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScen
 import { MediumSubtractionScene } from "../components/Scenes/MediumSubtractionScene";
 import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 import { PartWholeScene } from "../components/Scenes/PartWholeScene";
+import { NumberBondScene } from "../components/Scenes/NumberBondScene";
 
 const BG_COLOR = "#0F172A";
 const FPS = 24;
@@ -133,7 +134,8 @@ export const MathVideo: React.FC<{
         (lastGroup.action === "SHOW_SMALL_SUBTRACTION" && scene.action === "SHOW_SMALL_SUBTRACTION") ||
         (lastGroup.action === "SHOW_MEDIUM_SUBTRACTION" && scene.action === "SHOW_MEDIUM_SUBTRACTION") ||
         (lastGroup.action === "SHOW_NUMBER_ORDERING" && scene.action === "SHOW_NUMBER_ORDERING") ||
-        (lastGroup.action === "SHOW_PART_WHOLE_SUBTRACTION" && scene.action === "SHOW_PART_WHOLE_SUBTRACTION")
+        (lastGroup.action === "SHOW_PART_WHOLE_SUBTRACTION" && scene.action === "SHOW_PART_WHOLE_SUBTRACTION") ||
+        (lastGroup.action === "SHOW_NUMBER_BOND" && scene.action === "SHOW_NUMBER_BOND")
       )
     ) {
       lastGroup.durationInFrames += timing.dur;
@@ -184,6 +186,8 @@ export const MathVideo: React.FC<{
               <NumberOrderingScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_PART_WHOLE_SUBTRACTION" ? (
               <PartWholeScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : group.action === "SHOW_NUMBER_BOND" ? (
+              <NumberBondScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : (
               sceneComponent(group.subScenes[0].scene)
             )}
@@ -193,7 +197,14 @@ export const MathVideo: React.FC<{
 
       {/* Narration Bars — skip for grouped timeline scenes (TTS handles it natively inside) */}
       {script.scenes.map((scene, i) => (
-        scene.action === "SHOW_COLUMN_ARITHMETIC" || scene.action === "SHOW_SMALL_ADDITION" || scene.action === "SHOW_MEDIUM_ADDITION" || scene.action === "SHOW_SMALL_SUBTRACTION" || scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_NUMBER_ORDERING" || scene.action === "SHOW_PART_WHOLE_SUBTRACTION" ? null : (
+        scene.action === "SHOW_COLUMN_ARITHMETIC" || 
+        scene.action === "SHOW_SMALL_ADDITION" || 
+        scene.action === "SHOW_MEDIUM_ADDITION" || 
+        scene.action === "SHOW_SMALL_SUBTRACTION" || 
+        scene.action === "SHOW_MEDIUM_SUBTRACTION" ||
+        scene.action === "SHOW_NUMBER_ORDERING" ||
+        scene.action === "SHOW_PART_WHOLE_SUBTRACTION" ||
+        scene.action === "SHOW_NUMBER_BOND" ? null : (
         <Sequence
           key={`narration-${i}`}
           from={sceneStarts[i].start}

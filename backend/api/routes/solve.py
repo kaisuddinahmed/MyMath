@@ -299,7 +299,14 @@ def _run_solve_and_prompt(
 
     # Build topic-specific guidance for the LLM director
     effective_topic = question_type if question_type in ("mcq", "true_false") else topic
-    topic_guidance = _build_topic_guidance(effective_topic, verified_answer, template, question=question, is_part_whole=result.is_part_whole)
+    topic_guidance = _build_topic_guidance(
+        effective_topic, 
+        verified_answer, 
+        template, 
+        question=question, 
+        is_part_whole=result.is_part_whole,
+        bond_data=result.bond_data
+    )
 
     # --- Curriculum style block -------------------------------------------------
     # Load the curriculum style and inject cultural/visual context into the prompt
@@ -687,7 +694,7 @@ def _force_column_narrations(prompt_json: dict, topic: str, question: str) -> di
 # Topic-specific director guidance
 # ---------------------------------------------------------------------------
 
-def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", question: str = "", is_part_whole: bool = False) -> str:
+def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", question: str = "", is_part_whole: bool = False, bond_data: dict = None) -> str:
     # Template-level override: when the math engine routes to column_arithmetic,
     # force the LLM to use SHOW_COLUMN_ARITHMETIC regardless of topic name.
     if template == "column_arithmetic":
@@ -795,6 +802,21 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             "Topic guidance: Use SPLIT_ITEM action with PIE_CHART or BAR_CHART.\n"
             "Set numerator and denominator fields.\n"
             'Narration must mention "equal parts".'
+        )
+    elif topic == "number_bonds":
+        # Extract bond values
+        w = bond_data.get("whole", "?") if bond_data else "?"
+        p1 = bond_data.get("part1", "?") if bond_data else "?"
+        p2 = bond_data.get("part2", "?") if bond_data else "?"
+        m = bond_data.get("missing", "part2") if bond_data else "part2"
+        return (
+            "Topic guidance: This is a NUMBER BONDS / MAKING 10 composition problem.\n"
+            "CRITICAL: Output exactly ONE (1) JSON scene element with action 'SHOW_NUMBER_BOND'.\n"
+            f"You MUST set the exact bond values: bond_whole={w}, bond_part1={p1}, bond_part2={p2}.\n"
+            f"You MUST set bond_missing='{m}'.\n"
+            "In your scene narration, explain the relation between the parts and the whole simply. "
+            "For example: 'We need to make 10. We already have 8. What is missing? 10 minus 8 is 2. So 8 and 2 make 10!'\n"
+            "Equation MUST reflect the math operation used to find the missing part."
         )
     elif topic == "subtraction":
         if is_part_whole:

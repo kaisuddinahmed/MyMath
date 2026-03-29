@@ -39,6 +39,7 @@ from backend.math_engine.topics.data import solve_data
 from backend.math_engine.topics.bodmas import solve_bodmas
 from backend.math_engine.topics.algebra import solve_algebra
 from backend.math_engine.topics.number_properties import solve_number_properties
+from backend.math_engine.topics.number_bonds import solve_number_bonds
 
 
 # ---------------------------------------------------------------------------
@@ -62,6 +63,7 @@ class SolveResult:
     min_grade_for_topic: int = 1
     is_above_grade: bool = False
     is_part_whole: bool = False
+    bond_data: Optional[Dict[str, Any]] = None
     meta: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -136,6 +138,7 @@ def _dict_to_result(d: dict, topic: str, grade: int) -> SolveResult:
         solver_used="deterministic",
         min_grade_for_topic=min_grade,
         is_above_grade=grade < min_grade,
+        bond_data=d.get("bond_data")
     )
 
 
@@ -328,7 +331,11 @@ def solve(
     if mcq_result:
         return _dict_to_result(mcq_result, mcq_result.get("topic", "place_value"), grade)
 
-    # --- 0.5 High-priority structural interceptors (Algebra, BODMAS) ---
+    # --- 0.5 High-priority structural interceptors (Number Bonds, Algebra, BODMAS) ---
+    bond_result = solve_number_bonds(q)
+    if bond_result:
+        return _dict_to_result(bond_result, "number_bonds", grade)
+
     alg_result = solve_algebra(q)
     if alg_result:
         return _dict_to_result(alg_result, "algebra", grade)

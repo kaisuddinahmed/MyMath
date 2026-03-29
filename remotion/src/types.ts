@@ -103,7 +103,8 @@ export type SceneAction =
   | "SHOW_SMALL_SUBTRACTION"
   | "SHOW_MEDIUM_SUBTRACTION"
   | "SHOW_NUMBER_ORDERING"
-  | "SHOW_PART_WHOLE_SUBTRACTION";
+  | "SHOW_PART_WHOLE_SUBTRACTION"
+  | "SHOW_NUMBER_BOND";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";
 
@@ -127,6 +128,10 @@ export interface DirectorScene {
   visual_metaphor?: string;
   subset_label?: string;
   remainder_label?: string;
+  bond_whole?: number;
+  bond_part1?: number;
+  bond_part2?: number;
+  bond_missing?: "whole" | "part1" | "part2" | "split";
 }
 
 export interface DirectorScript {

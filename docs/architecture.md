@@ -122,6 +122,27 @@ LLM pre-solved fast path  (from extraction — for MCQ, fill-blank, true/false, 
   → AI-assisted           (returns topic + signals LLM)
 ```
 
+### Solver coverage
+15 topic categories, 20/21 solvers ready (95%).
+
+| Topic             | Operations                                          |
+| ----------------- | --------------------------------------------------- |
+| Arithmetic        | Add, subtract, multiply, divide (exact + remainder) |
+| Fractions         | N/D of whole, add/sub same-denominator              |
+| Place value       | Digit value, expanded form                          |
+| Comparison        | >, <, between, which is bigger                      |
+| Counting          | Skip-count, ordinals                                |
+| Patterns          | Arithmetic + geometric sequences                    |
+| Measurement       | Length, weight, volume, time unit conversion        |
+| Currency          | Add/subtract money, make change (taka, £, $, ₹, €)  |
+| Geometry          | Shape facts, perimeter, area (rect/square/triangle) |
+| Averages          | Mean                                                |
+| Factors/Multiples | Factors, LCM, GCD, is-prime                         |
+| Decimals          | Add, subtract, round                                |
+| Percentages       | % of N, what %, discount/increase                   |
+| Ratio             | Simplify, divide in ratio, unitary method           |
+| Data              | Mode, range                                         |
+
 **Public interface:**
 
 ```python
@@ -195,6 +216,24 @@ remotion/              # Remotion animated video renderer (Node.js service)
 
 Available actions: `ADD_ITEMS` · `REMOVE_ITEMS` · `GROUP_ITEMS` · `SPLIT_ITEM` · `SHOW_EQUATION` · `HIGHLIGHT` · `JUMP_NUMBER_LINE` · `SHOW_PLACE_VALUE` · `SHOW_COLUMN_ARITHMETIC` · `SHOW_BODMAS` · `SHOW_EVEN_ODD` · `SHOW_PERCENTAGE` · `DRAW_SHAPE` · `PLOT_CHART` · `MEASURE` · `BALANCE`
 Available animations: `BOUNCE_IN` · `FADE_IN` · `SLIDE_LEFT` · `POP` · `NONE`
+
+### Column arithmetic narration
+For column arithmetic problems (e.g. `1254 - 78`, `456 + 78`), narration is never trusted to the LLM.
+
+1. `backend/api/routes/solve.py` computes deterministic narration first.
+   - `SUBTRACTION` tracks borrow state and remaining digits.
+   - `ADDITION` tracks carry-forward values.
+2. The LLM still generates the scene skeleton and structure.
+3. `_force_column_narrations` overwrites every `narration` field in `SHOW_COLUMN_ARITHMETIC` scenes with deterministic text.
+
+This keeps column-by-column math narration mathematically correct even when the LLM scene structure is used for visuals.
+
+**Files involved:**
+| Function | Location | Purpose |
+| --- | --- | --- |
+| `_build_column_narrations(topic, question)` | `backend/api/routes/solve.py` | Computes deterministic narration per column |
+| `_force_column_narrations(json, topic, question)` | `backend/api/routes/solve.py` | Replaces LLM narration in `SHOW_COLUMN_ARITHMETIC` scenes |
+| `_build_topic_guidance(...)` | `backend/api/routes/solve.py` | Builds the LLM prompt guidance for scene structure |
 
 **Cost:** ~$0.008 TTS + $0 Remotion = **~$0.02/new video**. Cache hit = **$0**.
 
