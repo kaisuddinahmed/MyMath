@@ -31,11 +31,11 @@
           "duration": { "type": "integer", "minimum": 1 },
           "action": {
             "type": "string",
-            "enum": ["ADD_ITEMS", "REMOVE_ITEMS", "GROUP_ITEMS", "SPLIT_ITEM", "SHOW_EQUATION", "HIGHLIGHT", "DRAW_SHAPE", "MEASURE", "BALANCE", "PLOT_CHART", "JUMP_NUMBER_LINE", "SHOW_PLACE_VALUE", "SHOW_COLUMN_ARITHMETIC", "SHOW_BODMAS", "SHOW_EVEN_ODD", "SHOW_PERCENTAGE", "SHOW_SMALL_ADDITION", "SHOW_SMALL_SUBTRACTION", "SHOW_PART_WHOLE_SUBTRACTION", "SHOW_NUMBER_BOND"]
+            "enum": ["ADD_ITEMS", "REMOVE_ITEMS", "GROUP_ITEMS", "SPLIT_ITEM", "SHOW_EQUATION", "HIGHLIGHT", "DRAW_SHAPE", "MEASURE", "BALANCE", "PLOT_CHART", "JUMP_NUMBER_LINE", "SHOW_PLACE_VALUE", "SHOW_COLUMN_ARITHMETIC", "SHOW_BODMAS", "SHOW_EVEN_ODD", "SHOW_PERCENTAGE", "SHOW_SMALL_ADDITION", "SHOW_SMALL_SUBTRACTION", "SHOW_PART_WHOLE_SUBTRACTION", "SHOW_NUMBER_BOND", "CHOREOGRAPH_SUBTRACTION"]
           },
           "item_type": {
             "type": "string",
-            "enum": ["APPLE_SVG", "BLOCK_SVG", "STAR_SVG", "CHILD_SVG", "COUNTER", "PIE_CHART", "BAR_CHART", "COIN", "NOTE", "RULER", "CLOCK", "SHAPE_2D", "SHAPE_3D", "BASE10_BLOCK", "TALLY_MARK", "NUMBER_LINE"]
+            "enum": ["APPLE_SVG", "BLOCK_SVG", "STAR_SVG", "CHILD_SVG", "COUNTER", "PIE_CHART", "BAR_CHART", "COIN", "NOTE", "RULER", "CLOCK", "SHAPE_2D", "SHAPE_3D", "BASE10_BLOCK", "TALLY_MARK", "NUMBER_LINE", "BIRD_SVG", "FRUIT_SVG"]
           },
           "count": { "type": "integer", "minimum": 1 },
           "groups": { "type": "integer", "minimum": 1 },
@@ -53,7 +53,10 @@
           "bond_whole": { "type": "integer" },
           "bond_part1": { "type": "integer" },
           "bond_part2": { "type": "integer" },
-          "bond_missing": { "type": "string", "enum": ["whole", "part1", "part2", "split"] }
+          "bond_missing": { "type": "string", "enum": ["whole", "part1", "part2", "split"] },
+          "choreography_total": { "type": "integer" },
+          "choreography_amount": { "type": "integer" },
+          "choreography_environment": { "type": "string" }
         }
       }
     },

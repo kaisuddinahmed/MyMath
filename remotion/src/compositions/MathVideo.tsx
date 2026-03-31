@@ -29,7 +29,7 @@ import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
 import { MediumAdditionScene } from "../components/Scenes/MediumAdditionScene";
 import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScene";
 import { ChoreographyScene } from "../components/Scenes/ChoreographyScene";
-import { generateBirdChoreography } from "../mockChoreography";
+import { generateStoryChoreography } from "../mockChoreography";
 import { MediumSubtractionScene } from "../components/Scenes/MediumSubtractionScene";
 import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 import { PartWholeScene } from "../components/Scenes/PartWholeScene";
@@ -183,15 +183,23 @@ export const MathVideo: React.FC<{
               <SmallAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_MEDIUM_ADDITION" ? (
               <MediumAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+            ) : group.action === "CHOREOGRAPH_SUBTRACTION" ? (
+              (() => {
+                const total = group.subScenes[0]?.scene?.choreography_total || 5;
+                const amt = group.subScenes[0]?.scene?.choreography_amount || 1;
+                const env = group.subScenes[0]?.scene?.choreography_environment || "TREE_BRANCH";
+                const type = group.subScenes[0]?.scene?.item_type || "BIRD_SVG";
+                return <ChoreographyScene script={generateStoryChoreography(total, amt, type, env, group.subScenes)} />;
+              })()
             ) : group.action === "SHOW_SMALL_SUBTRACTION" ? (
-              // Prototype: Route bird subtraction to the DATA-DRIVEN Universal Stage
+              // Fallback for cached V2 problems mapping to the new V3 engine
               group.subScenes[0]?.scene?.item_type?.includes("BIRD") ? (
                 (() => {
                   const eqStr = group.subScenes[0]?.scene?.equation || "7 - 4";
                   const nums = eqStr.match(/\d+/g);
                   const total = nums && nums.length >= 1 ? parseInt(nums[0], 10) : 7;
                   const amt = nums && nums.length >= 2 ? parseInt(nums[1], 10) : 4;
-                  return <ChoreographyScene script={generateBirdChoreography(total, amt, group.subScenes)} />;
+                  return <ChoreographyScene script={generateStoryChoreography(total, amt, group.subScenes[0].scene.item_type || "BIRD_SVG", "TREE_BRANCH", group.subScenes)} />;
                 })()
               ) : (
                 <SmallSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />

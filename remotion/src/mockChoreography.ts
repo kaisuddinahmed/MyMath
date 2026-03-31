@@ -1,12 +1,14 @@
-import { ChoreographyScript } from "./types";
+import { ChoreographyScript, ItemType } from "./types";
 import { SVG_BRANCH_LEFT, SVG_BRANCH_RIGHT } from "./assets/items/TreeBranch";
 
 // Map bird positions for the mock generator (matching the logic in getBirdPositions)
 const BIRD_Y = 1280;
 
-export const generateBirdChoreography = (
+export const generateStoryChoreography = (
   total: number, 
   amount: number,
+  itemType: string,
+  environment: string,
   timings: { start: number; dur: number; audioDur?: number }[]
 ): ChoreographyScript => {
   const gap = total <= 1 ? 0 : (SVG_BRANCH_RIGHT - SVG_BRANCH_LEFT) / (total - 1);
@@ -32,8 +34,8 @@ export const generateBirdChoreography = (
   return {
     environment: "TREE_BRANCH",
     actors: Array.from({ length: total }).map((_, i) => ({
-      id: `bird-${i}`,
-      type: "BIRD_SVG",
+      id: `actor-${i}`,
+      type: (itemType || "BIRD_SVG") as ItemType,
       colorIndex: i,
       startX: getBirdX(i) - 55, // Center offset for 110px bird
       startY: BIRD_Y,
@@ -41,7 +43,7 @@ export const generateBirdChoreography = (
     events: [
       // --- ACT 1: POP IN (during first sentence) ---
       ...Array.from({ length: total }).map((_, i) => ({
-        targetId: `bird-${i}`,
+        targetId: `actor-${i}`,
         startFrame: 8 + i * 5,
         action: "POP_IN" as const,
         text: `${i + 1}`, // Show badge 1-N
@@ -51,7 +53,7 @@ export const generateBirdChoreography = (
       ...Array.from({ length: amount }).map((_, index) => {
         const i = total - 1 - index; // rightmost birds fly away
         return {
-          targetId: `bird-${i}`,
+          targetId: `actor-${i}`,
           startFrame: act2Start + index * 8, 
           action: "FLY_AWAY_ARC" as const,
           endX: 600 + i * 40,
@@ -60,14 +62,14 @@ export const generateBirdChoreography = (
 
       // --- WOBBLE FOR REMAINING ---
       ...Array.from({ length: remaining }).map((_, i) => ({
-        targetId: `bird-${i}`,
+        targetId: `actor-${i}`,
         startFrame: act2Start, 
         action: "WOBBLE" as const,
       })),
 
       // --- ACT 3: COUNT REMAINING (during 3rd sentence) ---
       ...Array.from({ length: remaining }).map((_, i) => ({
-        targetId: `bird-${i}`,
+        targetId: `actor-${i}`,
         startFrame: act3Start + i * 15, // slower counting
         action: "SHOW_COUNT_BADGE" as const,
         text: `${i + 1}`,

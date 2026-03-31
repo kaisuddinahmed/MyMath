@@ -105,6 +105,7 @@ export type SceneAction =
   | "SHOW_NUMBER_ORDERING"
   | "SHOW_PART_WHOLE_SUBTRACTION"
   | "SHOW_NUMBER_BOND"
+  | "CHOREOGRAPH_SUBTRACTION"
   | "PROTOTYPE_CHOREOGRAPHY";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";
@@ -167,6 +168,12 @@ export interface DirectorScene {
   bond_part1?: number;
   bond_part2?: number;
   bond_missing?: "whole" | "part1" | "part2" | "split";
+  
+  // V3 Choreography Metadata
+  choreography_total?: number;
+  choreography_amount?: number;
+  choreography_environment?: string;
+  
   /** V2 Choreography data payload for entirely data-driven scenes */
   choreography?: ChoreographyScript;
 }

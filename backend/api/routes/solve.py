@@ -412,8 +412,10 @@ the animation engine what to render. Available actions and when to use them:
 - JUMP_NUMBER_LINE: Show frogs/bunnies jumping on a number line
 - SHOW_PLACE_VALUE: Emphasize Base-10 blocks grouped by 10s and 100s
 - SHOW_COLUMN_ARITHMETIC: Show right-to-left columnar addition or subtraction
+- CHOREOGRAPH_SUBTRACTION: ONLY use for subtraction word problems involving physical objects or animals (e.g., birds flying away, eating apples).
+  → IMPORTANT: requires "choreography_total" (start amount), "choreography_amount" (amount subtracted), and "choreography_environment" ("TREE_BRANCH" or "PLAIN"). Do NOT use REMOVE_ITEMS for these stories.
 
-Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG, CHILD_SVG.
+Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG, CHILD_SVG, FRUIT_SVG.
 Available animation_style: BOUNCE_IN, FADE_IN, SLIDE_LEFT, POP, NONE
 
 
@@ -685,8 +687,15 @@ def _force_column_narrations(prompt_json: dict, topic: str, question: str) -> di
         if i < len(narrations):
             scene["narration"] = narrations[i]
 
-    
-
+    # If the LLM didn't generate enough scenes for all columns, append duplicate scenes to carry the rest of the narrations
+    if len(narrations) > len(col_scenes):
+        last_scene = col_scenes[-1].copy()
+        for i in range(len(col_scenes), len(narrations)):
+            new_scene = last_scene.copy()
+            new_scene["narration"] = narrations[i]
+            scenes.append(new_scene)
+            
+    prompt_json["scenes"] = scenes
     return prompt_json
 
 
