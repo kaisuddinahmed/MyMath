@@ -1,6 +1,7 @@
 import React from "react";
 import { useVideoConfig, useCurrentFrame, spring, interpolate } from "remotion";
 import type { DirectorScene } from "../../types";
+import { Confetti } from "../primitives/Confetti";
 
 /**
  * MediumSubtractionScene — Unified "Highlight & Remove" for A - B where 11 ≤ A ≤ 20
@@ -17,30 +18,30 @@ import type { DirectorScene } from "../../types";
  *   17 - 3 = 14  →  ones=7, B=3:  last 3 of the ones turn red and leave
  */
 
-const BLOCK_SIZE = 48;
-const BLOCK_GAP = 8;
-const BLOCK_RADIUS = 10;
+const BLOCK_SIZE = 52;
+const BLOCK_GAP = 10;
+const BLOCK_RADIUS = 14;
 
 type BlockState = "tens" | "ones" | "removing";
 
+// Bright kid-friendly block colours
+const BLOCK_COLORS: Record<BlockState, string> = {
+  tens: "#4ECDC4",      // teal — staying tens
+  ones: "#FFD93D",      // yellow — ones digit
+  removing: "#FF6B6B",  // red — being taken away
+};
 const Block: React.FC<{
   type: BlockState;
   removeProgress?: number;
 }> = ({ type, removeProgress = 0 }) => {
-  const colors: Record<BlockState, string> = {
-    tens: "#6366f1",      // indigo
-    ones: "#818cf8",      // lighter indigo (ones digit)
-    removing: "#ef4444",  // red — being taken away
-  };
-
   const yShift = type === "removing"
-    ? interpolate(removeProgress, [0, 1], [0, 80], { extrapolateRight: "clamp" })
+    ? interpolate(removeProgress, [0, 1], [0, 100], { extrapolateRight: "clamp" })
     : 0;
   const opacity = type === "removing"
     ? interpolate(removeProgress, [0, 1], [1, 0], { extrapolateRight: "clamp" })
     : 1;
   const scale = type === "removing"
-    ? interpolate(removeProgress, [0, 1], [1, 0.4], { extrapolateRight: "clamp" })
+    ? interpolate(removeProgress, [0, 1], [1, 0.3], { extrapolateRight: "clamp" })
     : 1;
 
   return (
@@ -49,12 +50,12 @@ const Block: React.FC<{
         width: BLOCK_SIZE,
         height: BLOCK_SIZE,
         borderRadius: BLOCK_RADIUS,
-        backgroundColor: colors[type],
+        backgroundColor: BLOCK_COLORS[type],
         opacity,
         transform: `translateY(${yShift}px) scale(${scale})`,
-        border: "2px solid rgba(255,255,255,0.15)",
+        border: "3px solid rgba(255,255,255,0.5)",
+        boxShadow: "0 4px 0 rgba(0,0,0,0.15)",
         flexShrink: 0,
-        transition: "background-color 0.3s",
       }}
     />
   );
@@ -142,11 +143,11 @@ export const MediumSubtractionScene: React.FC<{
           display: "flex", gap: 24,
         }}>
           <span>
-            {A} = <span style={{ color: "#818cf8" }}>10</span> + <span style={{ color: "#a5b4fc" }}>{ones}</span>
-          </span>
+              {A} = <span style={{ color: "#4ECDC4", fontWeight: 900 }}>10</span> + <span style={{ color: "#FFD93D", fontWeight: 900 }}>{ones}</span>
+            </span>
           {colorFlip && (
-            <span style={{ color: "#ef4444" }}>
-              taking away {B}
+            <span style={{ color: "#FF6B6B", fontWeight: 900 }}>
+              taking away {B} 👋
             </span>
           )}
         </div>
@@ -192,24 +193,29 @@ export const MediumSubtractionScene: React.FC<{
       }}>
         {result >= 3 && (
           <span style={{
-            color: "rgba(255,255,255,0.55)", fontSize: 18,
-            fontFamily: "'Inter', sans-serif",
+            color: "rgba(0,0,0,0.5)", fontSize: 20,
+            fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+            fontWeight: 700,
           }}>
-            {result} remaining
+            {result} remaining 🎉
           </span>
         )}
       </div>
 
-      {/* ── Step 4: Final equation ── */}
+      {/* Step 4: Confetti + equation */}
+      {frame >= step3End && <Confetti startFrame={step3End} />}
       <div style={{
         opacity: eqOpacity,
-        transform: `translateY(${interpolate(eqOpacity, [0, 1], [24, 0])}px)`,
-        background: "rgba(239,68,68,0.12)", borderRadius: 20,
-        padding: "16px 52px", border: "2px solid rgba(239,68,68,0.35)",
+        transform: `translateY(${interpolate(eqOpacity, [0, 1], [28, 0])}px)`,
+        background: "linear-gradient(135deg, #FF6B6B, #FF8E53)",
+        borderRadius: 28,
+        padding: "20px 60px",
+        boxShadow: "0 8px 0 rgba(0,0,0,0.18), 0 16px 32px rgba(255,107,107,0.35)",
       }}>
         <p style={{
-          color: "#fee2e2", fontSize: 54, fontWeight: 800,
-          fontFamily: "'Inter', sans-serif", margin: 0, letterSpacing: 2,
+          color: "#FFFFFF", fontSize: 64, fontWeight: 900,
+          fontFamily: "'Nunito', 'Comic Sans MS', cursive", margin: 0, letterSpacing: 3,
+          textShadow: "0 4px 0 rgba(0,0,0,0.18)",
         }}>
           {A} − {B} = {result}
         </p>

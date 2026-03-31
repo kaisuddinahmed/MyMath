@@ -101,13 +101,4 @@ def solve_number_bonds(question: str) -> Optional[Dict[str, Any]]:
             }
         }
     
-    # 4. Fallback for "Adding ___ to X to make Y" if strictly written as numbers
-    add_match = re.search(r"(\d+)\s*\+\s*_\+_\s*=\s*(\d+)", q) # handles X + ___ = Y
-    if not add_match:
-        add_match = re.search(r"_\*_\s*\+\s*(\d+)\s*=\s*(\d+)", q)
-        
-    if add_match:
-        # Not doing full regex algebra here, keeping it to standard word questions for now.
-        pass
-
     return None

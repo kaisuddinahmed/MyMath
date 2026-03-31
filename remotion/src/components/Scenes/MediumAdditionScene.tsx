@@ -1,6 +1,7 @@
 import React from "react";
 import { useVideoConfig, useCurrentFrame, spring, interpolate } from "remotion";
 import type { DirectorScene } from "../../types";
+import { Confetti } from "../primitives/Confetti";
 
 /**
  * MediumAdditionScene — Unified "Arrive & Join" for A + B where sum is 11–20.
@@ -29,8 +30,8 @@ const Block: React.FC<{
   arriveProgress?: number;
 }> = ({ type, arriveProgress = 0 }) => {
   const colors: Record<BlockState, string> = {
-    existing: "#6366f1",   // indigo — matches subtraction "tens" color
-    arriving: "#10b981",   // emerald — the new blocks joining
+    existing: "#4ECDC4",   // teal — the existing group
+    arriving: "#6BCB77",   // green — the new blocks joining
   };
 
   // Arriving blocks float UP into position (mirror of subtraction's downward exit)
@@ -53,9 +54,9 @@ const Block: React.FC<{
         backgroundColor: colors[type],
         opacity,
         transform: `translateY(${yShift}px) scale(${scale})`,
-        border: "2px solid rgba(255,255,255,0.15)",
+        border: "3px solid rgba(255,255,255,0.5)",
+        boxShadow: "0 4px 0 rgba(0,0,0,0.15)",
         flexShrink: 0,
-        transition: "background-color 0.3s",
       }}
     />
   );
@@ -134,15 +135,15 @@ export const MediumAdditionScene: React.FC<{
       }}>
         {/* Label — mirrors subtraction label exactly */}
         <div style={{
-          color: "rgba(255,255,255,0.45)", fontSize: 18, fontFamily: "'Inter', sans-serif",
-          display: "flex", gap: 24,
+          color: "rgba(0,0,0,0.55)", fontSize: 20, fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+          display: "flex", gap: 24, fontWeight: 700,
         }}>
           <span>
-            Starting with <span style={{ color: "#818cf8" }}>{A}</span>
+            Starting with <span style={{ color: "#4ECDC4", fontWeight: 900 }}>{A}</span>
           </span>
           {colorFlip && (
-            <span style={{ color: "#10b981" }}>
-              {B} more joining
+            <span style={{ color: "#6BCB77", fontWeight: 900 }}>
+              {B} more joining! 🎉
             </span>
           )}
         </div>
@@ -159,12 +160,12 @@ export const MediumAdditionScene: React.FC<{
                 />
                 <div style={{ height: 24, display: "flex", justifyContent: "center", alignItems: "center" }}>
                   <span style={{
-                    fontSize: 20,
-                    fontWeight: 600,
-                    fontFamily: "'Inter', sans-serif",
-                    color: "rgba(255,255,255,0.7)",
+                    fontSize: 22,
+                    fontWeight: 800,
+                    fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+                    color: "rgba(0,0,0,0.7)",
                     opacity: countProg,
-                    transform: `scale(${interpolate(countProg, [0, 1], [0.5, 1], { extrapolateRight: "clamp" })})`
+                    transform: `scale(${interpolate(countProg, [0, 1], [0.4, 1], { extrapolateRight: "clamp" })})`
                   }}>
                     {i + 1}
                   </span>
@@ -185,24 +186,29 @@ export const MediumAdditionScene: React.FC<{
       }}>
         {total >= 3 && (
           <span style={{
-            color: "rgba(255,255,255,0.55)", fontSize: 18,
-            fontFamily: "'Inter', sans-serif",
+            color: "rgba(0,0,0,0.5)", fontSize: 20,
+            fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+            fontWeight: 700,
           }}>
-            {total} altogether
+            {total} altogether 🌟
           </span>
         )}
       </div>
 
-      {/* ── Step 4: Final equation — identical style to subtraction but indigo ── */}
+      {/* Step 4: Confetti + equation */}
+      {frame >= step3End && <Confetti startFrame={step3End} />}
       <div style={{
         opacity: eqOpacity,
-        transform: `translateY(${interpolate(eqOpacity, [0, 1], [24, 0])}px)`,
-        background: "rgba(99,102,241,0.12)", borderRadius: 20,
-        padding: "16px 52px", border: "2px solid rgba(99,102,241,0.35)",
+        transform: `translateY(${interpolate(eqOpacity, [0, 1], [28, 0])}px)`,
+        background: "linear-gradient(135deg, #6BCB77, #4ECDC4)",
+        borderRadius: 28,
+        padding: "20px 60px",
+        boxShadow: "0 8px 0 rgba(0,0,0,0.15), 0 16px 32px rgba(107,203,119,0.35)",
       }}>
         <p style={{
-          color: "#E0E7FF", fontSize: 54, fontWeight: 800,
-          fontFamily: "'Inter', sans-serif", margin: 0, letterSpacing: 2,
+          color: "#FFFFFF", fontSize: 64, fontWeight: 900,
+          fontFamily: "'Nunito', 'Comic Sans MS', cursive", margin: 0, letterSpacing: 3,
+          textShadow: "0 4px 0 rgba(0,0,0,0.15)",
         }}>
           {raw1} + {raw2} = {total}
         </p>

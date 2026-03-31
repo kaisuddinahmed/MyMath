@@ -228,17 +228,26 @@ export default function ResultPage() {
         <section className="rounded-3xl border border-blue-100 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-slate-900">
           <h2 className="font-display text-2xl font-extrabold text-slate-900 dark:text-slate-50">Video</h2>
           {videoUrl ? (
-            <video
-              key={videoUrl}
-              className="mt-3 w-full rounded-2xl border border-slate-200 bg-black dark:border-slate-700"
-              controls
-              playsInline
-              preload="metadata"
-              aria-label="Math explanation video"
-              src={videoUrl}
-            >
-              Your browser does not support video playback.
-            </video>
+            <div className="mt-3 flex justify-center">
+              <video
+                key={videoUrl}
+                className="rounded-2xl border border-slate-200 bg-black dark:border-slate-700"
+                style={{
+                  width: "100%",
+                  maxWidth: 400,
+                  maxHeight: "80vh",
+                  aspectRatio: "9 / 16",
+                  objectFit: "contain",
+                }}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label="Math explanation video"
+                src={videoUrl}
+              >
+                Your browser does not support video playback.
+              </video>
+            </div>
           ) : (
             <p className="mt-3 text-base font-bold text-rose-700 dark:text-rose-300">Video is not available for this result.</p>
           )}

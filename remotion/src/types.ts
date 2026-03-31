@@ -104,9 +104,44 @@ export type SceneAction =
   | "SHOW_MEDIUM_SUBTRACTION"
   | "SHOW_NUMBER_ORDERING"
   | "SHOW_PART_WHOLE_SUBTRACTION"
-  | "SHOW_NUMBER_BOND";
+  | "SHOW_NUMBER_BOND"
+  | "PROTOTYPE_CHOREOGRAPHY";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";
+
+// ==========================================
+// V2 CHOREOGRAPHY ENGINE TYPES
+// ==========================================
+
+export interface ChoreographyActor {
+  id: string;
+  type: ItemType;       // e.g. "BIRD_SVG"
+  colorIndex?: number;  // for distinct visual variations
+  startX: number;
+  startY: number;
+  startScale?: number;
+  startOpacity?: number;
+}
+
+export interface ChoreographyEvent {
+  targetId: string; // The actor ID to animate (or "scene" for global events)
+  startFrame: number;
+  action: "POP_IN" | "FLY_AWAY_ARC" | "WOBBLE" | "SHOW_COUNT_BADGE" | "SHOW_EQUATION" | "CONFETTI";
+  // Action payloads
+  text?: string;
+  endX?: number;
+  endY?: number;
+}
+
+export interface ChoreographyScript {
+  environment: "TREE_BRANCH" | "NONE";
+  actors: ChoreographyActor[];
+  events: ChoreographyEvent[];
+}
+
+// ==========================================
+// V1 SCENE TYPES
+// ==========================================
 
 export interface DirectorScene {
   duration: number;
@@ -132,6 +167,8 @@ export interface DirectorScene {
   bond_part1?: number;
   bond_part2?: number;
   bond_missing?: "whole" | "part1" | "part2" | "split";
+  /** V2 Choreography data payload for entirely data-driven scenes */
+  choreography?: ChoreographyScript;
 }
 
 export interface DirectorScript {

@@ -123,6 +123,7 @@ LLM pre-solved fast path  (from extraction — for MCQ, fill-blank, true/false, 
 ```
 
 ### Solver coverage
+
 15 topic categories, 20/21 solvers ready (95%).
 
 | Topic             | Operations                                          |
@@ -175,7 +176,15 @@ knowledge/
 
 ---
 
-### Layer 4 — `backend/video_engine/` + `remotion/` — Video Engine (V2)
+### Layer 4 — `backend/video_engine/` + `remotion/` — Video Engine (V2 & V3 Vision)
+
+#### V3 Vision: Dynamic Choreography Engine
+
+_MyMath is currently migrating from V2 (Template-based rendering) to V3 (Data-driven Choreography)._
+Instead of the LLM picking a hardcoded React template (e.g., `StorySubtractionScene`), the LLM will dynamically write the exact X/Y coordinate animations for every object in a `ChoreographyScript` JSON payload, enabling infinite visual variety without developer intervention. The system will leverage video "likes/dislikes" to continuously self-optimize these LLM-generated JSON scripts.
+👉 **See full roadmap:** [`docs/vision_dynamic_choreography.md`](./vision_dynamic_choreography.md)
+
+#### V2 Current Architecture
 
 ```
 video_engine/
@@ -218,6 +227,7 @@ Available actions: `ADD_ITEMS` · `REMOVE_ITEMS` · `GROUP_ITEMS` · `SPLIT_ITEM
 Available animations: `BOUNCE_IN` · `FADE_IN` · `SLIDE_LEFT` · `POP` · `NONE`
 
 ### Column arithmetic narration
+
 For column arithmetic problems (e.g. `1254 - 78`, `456 + 78`), narration is never trusted to the LLM.
 
 1. `backend/api/routes/solve.py` computes deterministic narration first.

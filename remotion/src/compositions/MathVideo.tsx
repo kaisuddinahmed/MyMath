@@ -28,13 +28,19 @@ import { PercentageScene } from "../components/Scenes/PercentageScene";
 import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
 import { MediumAdditionScene } from "../components/Scenes/MediumAdditionScene";
 import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScene";
+import { ChoreographyScene } from "../components/Scenes/ChoreographyScene";
+import { generateBirdChoreography } from "../mockChoreography";
 import { MediumSubtractionScene } from "../components/Scenes/MediumSubtractionScene";
 import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 import { PartWholeScene } from "../components/Scenes/PartWholeScene";
 import { NumberBondScene } from "../components/Scenes/NumberBondScene";
+import { CartoonBackground, themeForTopic } from "../components/primitives/CartoonBackground";
+import { CelebrationBurst } from "../components/primitives/CelebrationBurst";
 
-const BG_COLOR = "#0F172A";
-const FPS = 24;
+const FPS = 30;
+
+// Nunito font family string — applied inline to all text elements
+const KID_FONT = "'Nunito', 'Comic Sans MS', cursive";
 
 function sceneComponent(scene: DirectorScene) {
   switch (scene.action) {
@@ -78,55 +84,52 @@ export const MathVideo: React.FC<{
   sceneDurations?: number[];
 }> = ({ script, audioUrl, audioUrls, sceneDurations }) => {
   const { fps } = useVideoConfig();
+  const theme = themeForTopic(script.topic || "");
 
   let currentFrame = 0;
 
-  // Calculate scene starts
-  // If `sceneDurations` is provided by Root `calculateMetadata`, use the exact audio lengths.
-  // Otherwise, fallback to the ~150 wpm word-count strategy.
   const sceneStarts = script.scenes.map((scene, i) => {
     const start = currentFrame;
-    
+
     let dur = 4 * fps;
-    
+    let audioDur = 4 * fps;
+
     if (sceneDurations && sceneDurations[i]) {
-      // Use exact duration calculated from the audio file
-      dur = sceneDurations[i];
-      // Ensure medium scenes have enough time for child-paced animation
+      audioDur = sceneDurations[i];
+      // Add 1.5s of "digestion padding" so scenes don't rush into the next one the millisecond the voice stops
+      dur = sceneDurations[i] + (1.5 * fps);
       if (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") {
         dur = Math.max(dur, 22 * fps);
       }
     } else if (!scene.narration || scene.narration.trim() === "") {
       dur = 4 * fps;
+      audioDur = 4 * fps;
     } else {
       const wordCount = scene.narration.split(/\s+/).length;
-      // 2.5 words per sec + 1.5 seconds of visual breathing room
       const minSeconds = (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") ? 22 : 3;
       const estimatedSeconds = Math.max(minSeconds, (wordCount / 2.5) + 1.5);
       dur = Math.round(estimatedSeconds * fps);
+      audioDur = dur;
     }
-    
+
     currentFrame += dur;
-    return { start, dur };
+    return { start, dur, audioDur };
   });
 
-
-
-  // Group scenes for continuous visual animation (e.g., Column Arithmetic)
+  // Group scenes for continuous visual animation
   const visualGroups: {
     start: number;
     durationInFrames: number;
     action: string;
-    subScenes: { scene: DirectorScene; start: number; dur: number }[];
+    subScenes: { scene: DirectorScene; start: number; dur: number; audioDur?: number }[];
   }[] = [];
 
   script.scenes.forEach((scene, i) => {
     const timing = sceneStarts[i];
     const lastGroup = visualGroups[visualGroups.length - 1];
-    
-    // Group scenes that should share continuous visual state (e.g. Columns, Small Addition)
+
     if (
-      lastGroup && 
+      lastGroup &&
       (
         (lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") ||
         (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION") ||
@@ -145,24 +148,26 @@ export const MathVideo: React.FC<{
         start: timing.start,
         durationInFrames: timing.dur,
         action: scene.action,
-        subScenes: [{ scene, ...timing }]
+        subScenes: [{ scene, ...timing }],
       });
     }
   });
 
+  // Determine celebration start (last scene)
+  // Total video duration accumulated from all scene durations
+  const totalVideoFrames = currentFrame;
+
+  // Celebration is an ADDITIONAL sequence that plays AFTER all scenes finish
+  const CELEBRATION_FRAMES = 4 * FPS; // 4 seconds
+  const showCelebration = !!script.correct_answer && script.scenes.length > 0;
+  // Starts exactly when all math scene content is done
+  const celebrationStart = totalVideoFrames;
+
   return (
-    <AbsoluteFill style={{ backgroundColor: BG_COLOR }}>
-      {/* Background gradient overlay */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.08) 0%, transparent 60%), " +
-            "radial-gradient(ellipse at 70% 80%, rgba(16,185,129,0.06) 0%, transparent 50%)",
-          pointerEvents: "none",
-        }}
-      />
+    <AbsoluteFill>
+
+      {/* Bright cartoon sky/ground background — full video */}
+      <CartoonBackground theme={theme} />
 
       {/* Visual Scenes */}
       {visualGroups.map((group, i) => (
@@ -179,7 +184,18 @@ export const MathVideo: React.FC<{
             ) : group.action === "SHOW_MEDIUM_ADDITION" ? (
               <MediumAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_SMALL_SUBTRACTION" ? (
-              <SmallSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              // Prototype: Route bird subtraction to the DATA-DRIVEN Universal Stage
+              group.subScenes[0]?.scene?.item_type?.includes("BIRD") ? (
+                (() => {
+                  const eqStr = group.subScenes[0]?.scene?.equation || "7 - 4";
+                  const nums = eqStr.match(/\d+/g);
+                  const total = nums && nums.length >= 1 ? parseInt(nums[0], 10) : 7;
+                  const amt = nums && nums.length >= 2 ? parseInt(nums[1], 10) : 4;
+                  return <ChoreographyScene script={generateBirdChoreography(total, amt, group.subScenes)} />;
+                })()
+              ) : (
+                <SmallSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              )
             ) : group.action === "SHOW_MEDIUM_SUBTRACTION" ? (
               <MediumSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_NUMBER_ORDERING" ? (
@@ -195,37 +211,49 @@ export const MathVideo: React.FC<{
         </Sequence>
       ))}
 
-      {/* Narration Bars — skip for grouped timeline scenes (TTS handles it natively inside) */}
-      {script.scenes.map((scene, i) => (
-        scene.action === "SHOW_COLUMN_ARITHMETIC" || 
-        scene.action === "SHOW_SMALL_ADDITION" || 
-        scene.action === "SHOW_MEDIUM_ADDITION" || 
-        scene.action === "SHOW_SMALL_SUBTRACTION" || 
+      {/* Narration Bars */}
+      {script.scenes.map((scene, i) =>
+        scene.action === "SHOW_COLUMN_ARITHMETIC" ||
+        scene.action === "SHOW_SMALL_ADDITION" ||
+        scene.action === "SHOW_MEDIUM_ADDITION" ||
+        scene.action === "SHOW_SMALL_SUBTRACTION" ||
         scene.action === "SHOW_MEDIUM_SUBTRACTION" ||
         scene.action === "SHOW_NUMBER_ORDERING" ||
         scene.action === "SHOW_PART_WHOLE_SUBTRACTION" ||
         scene.action === "SHOW_NUMBER_BOND" ? null : (
-        <Sequence
-          key={`narration-${i}`}
-          from={sceneStarts[i].start}
-          durationInFrames={sceneStarts[i].dur}
-        >
+          <Sequence
+            key={`narration-${i}`}
+            from={sceneStarts[i].start}
+            durationInFrames={sceneStarts[i].dur}
+          >
+            <AbsoluteFill>
+              <NarrationBar text={scene.narration} />
+            </AbsoluteFill>
+          </Sequence>
+        )
+      )}
+
+      {/* Celebration burst — final 4 seconds ONLY */}
+      {showCelebration && (
+        <Sequence from={celebrationStart} durationInFrames={CELEBRATION_FRAMES}>
           <AbsoluteFill>
-            <NarrationBar text={scene.narration} />
+            <CelebrationBurst
+              answer={script.correct_answer}
+              startFrame={0}
+            />
           </AbsoluteFill>
         </Sequence>
-        )
-      ))}
+      )}
 
       {/* Audio track(s) */}
       {audioUrls && audioUrls.length > 0 ? (
-        audioUrls.map((url, i) => (
+        audioUrls.map((url, i) =>
           url ? (
             <Sequence key={i} from={sceneStarts[i].start + Math.round(fps * 0.5)}>
               <Audio src={url} />
             </Sequence>
           ) : null
-        ))
+        )
       ) : audioUrl ? (
         <Sequence from={0}>
           <Audio src={audioUrl} />

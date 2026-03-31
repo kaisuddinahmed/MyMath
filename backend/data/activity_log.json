@@ -1214,5 +1214,181 @@
     "template": "number_line_back",
     "score": 60,
     "timestamp": "2026-03-25T07:17:19.704928+00:00"
+  },
+  {
+    "child_id": "6a729b84-aad6-4b33-8529-8e9eb2381f7a",
+    "question": "There are 6 red apples and 2 green apples. How many apples are there in total?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-03-29T08:31:43.559043+00:00"
+  },
+  {
+    "child_id": "8ec9dbf8-ac62-4496-9d7d-f5257dec1dad",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T04:33:12.264331+00:00"
+  },
+  {
+    "child_id": "8ec9dbf8-ac62-4496-9d7d-f5257dec1dad",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T04:39:25.486515+00:00"
+  },
+  {
+    "child_id": "8ec9dbf8-ac62-4496-9d7d-f5257dec1dad",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T04:48:19.851873+00:00"
+  },
+  {
+    "child_id": "8ec9dbf8-ac62-4496-9d7d-f5257dec1dad",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T04:49:19.265195+00:00"
+  },
+  {
+    "child_id": "5278e2b4-2f80-4cc3-afb1-a685b728bd01",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T04:50:24.094120+00:00"
+  },
+  {
+    "child_id": "1f2c372b-25d4-4af5-b068-a92780df8dbe",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T05:00:40.345319+00:00"
+  },
+  {
+    "child_id": "9f0ccdf5-3ed9-4f76-b50d-26c5441bb359",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T09:53:31.472907+00:00"
+  },
+  {
+    "child_id": "6f6cf1b3-b40b-4dfa-880e-6ef5f7f9a7c8",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T09:59:50.647534+00:00"
+  },
+  {
+    "child_id": "6f6cf1b3-b40b-4dfa-880e-6ef5f7f9a7c8",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T10:00:42.202128+00:00"
+  },
+  {
+    "child_id": "fc53a5ee-a379-41f3-a967-d263804643bb",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T10:08:45.194752+00:00"
+  },
+  {
+    "child_id": "5bff2591-c080-46ea-a3e7-109136325b8c",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T10:21:58.581708+00:00"
+  },
+  {
+    "child_id": "f1655330-7c8b-4d52-9da6-cc16cb63dd11",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T10:29:26.755839+00:00"
+  },
+  {
+    "child_id": "eba8c022-7935-4990-8eb1-3ae11528e756",
+    "question": "6 birds were sitting on the branch of a tree. Then 2 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T10:59:08.920884+00:00"
+  },
+  {
+    "child_id": "e525bc65-c1cc-493c-adbf-8c2970eedf29",
+    "question": "6 birds were sitting on the branch of a tree. Then 2 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T11:12:11.098242+00:00"
+  },
+  {
+    "child_id": "cf1832f8-b510-43de-9405-5771e558f5c2",
+    "question": "If 5 birds were sitting on a tree and 1 flew away, how many birds are left?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T11:19:34.959734+00:00"
+  },
+  {
+    "child_id": "6e1580f9-1c01-4082-a3c0-85fee1ac2800",
+    "question": "If 5 birds were sitting on a tree and 1 flew away, how many birds are left?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T11:24:46.642249+00:00"
+  },
+  {
+    "child_id": "6e1580f9-1c01-4082-a3c0-85fee1ac2800",
+    "question": "If 5 birds were sitting on a tree and 1 flew away, how many birds are left?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T11:25:40.100976+00:00"
+  },
+  {
+    "child_id": "d40c47a5-1da0-4aae-aefc-c8f9bad59152",
+    "question": "If 5 birds were sitting on a tree and 1 flew away, how many birds are left?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T11:36:53.393094+00:00"
+  },
+  {
+    "child_id": "90abb7a8-b8e1-40e8-aeaa-3626ada2d00f",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T12:00:02.014285+00:00"
+  },
+  {
+    "child_id": "cef55133-0137-40d8-a1f4-334e015455c4",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 25,
+    "timestamp": "2026-03-31T12:11:20.441218+00:00"
+  },
+  {
+    "child_id": "fa0a3801-2b43-4f83-b43a-31bfb06851fd",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T12:19:50.077292+00:00"
   }
 ]

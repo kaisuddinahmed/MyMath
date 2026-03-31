@@ -8,9 +8,10 @@ import {
   StarSvg,
   CounterSvg,
 } from "../assets/items/ItemSvgs";
+import { Confetti } from "./primitives/Confetti";
 
 /**
- * Renders a caption bar at the bottom of the screen.
+ * Renders a caption bar at the bottom of the screen — large, kid-friendly.
  */
 export const NarrationBar: React.FC<{ text: string }> = ({ text }) => {
   const frame = useCurrentFrame();
@@ -23,25 +24,28 @@ export const NarrationBar: React.FC<{ text: string }> = ({ text }) => {
     <div
       style={{
         position: "absolute",
-        bottom: 24,
-        left: 24,
-        right: 24,
-        background: "rgba(15, 23, 42, 0.85)",
-        backdropFilter: "blur(8px)",
-        borderRadius: 16,
-        padding: "14px 24px",
+        bottom: 36,
+        left: 28,
+        right: 28,
+        background: "rgba(0, 0, 0, 0.72)",
+        backdropFilter: "blur(10px)",
+        borderRadius: 28,
+        padding: "20px 32px",
         opacity: fadeIn,
-        transform: `translateY(${interpolate(fadeIn, [0, 1], [20, 0])}px)`,
+        transform: `translateY(${interpolate(fadeIn, [0, 1], [24, 0])}px)`,
+        border: "3px solid rgba(255,255,255,0.18)",
       }}
     >
       <p
         style={{
-          color: "#F8FAFC",
-          fontSize: 22,
-          fontFamily: "'Inter', 'Segoe UI', sans-serif",
-          fontWeight: 600,
+          color: "#FFF176",
+          fontSize: 38,
+          fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+          fontWeight: 800,
           margin: 0,
           lineHeight: 1.4,
+          textAlign: "center",
+          textShadow: "0 2px 8px rgba(0,0,0,0.5)",
         }}
       >
         {text}
@@ -57,8 +61,8 @@ export const TitleCard: React.FC<{
 }> = ({ problem }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const scale = spring({ frame, fps, from: 0.8, to: 1, durationInFrames: 30 });
-  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 20 });
+  const scale = spring({ frame, fps, from: 0.5, to: 1, config: { stiffness: 200, damping: 14 } });
+  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 15 });
 
   return (
     <div
@@ -75,23 +79,23 @@ export const TitleCard: React.FC<{
     >
       <div
         style={{
-          background: "rgba(255,255,255,0.08)",
-          backdropFilter: "blur(16px)",
-          borderRadius: 24,
-          padding: "50px 70px",
-          border: "1px solid rgba(255,255,255,0.15)",
+          background: "linear-gradient(135deg, #FF6B6B, #FFD93D)",
+          borderRadius: 36,
+          padding: "48px 64px",
+          boxShadow: "0 10px 0 rgba(0,0,0,0.18), 0 20px 40px rgba(0,0,0,0.2)",
           textAlign: "center",
-          maxWidth: 1000,
+          maxWidth: 940,
         }}
       >
         <p
           style={{
-            color: "#F8FAFC",
-            fontSize: 40,
-            fontWeight: 700,
+            color: "#FFFFFF",
+            fontSize: 52,
+            fontWeight: 900,
             margin: 0,
-            fontFamily: "'Inter', sans-serif",
-            lineHeight: 1.5,
+            fontFamily: "'Nunito', 'Comic Sans MS', cursive",
+            lineHeight: 1.4,
+            textShadow: "0 4px 0 rgba(0,0,0,0.15)",
           }}
         >
           {problem}
@@ -411,7 +415,7 @@ export const GroupScene: React.FC<{ scene: DirectorScene }> = ({ scene }) => {
 
 
 /**
- * EquationScene — Shows a math equation prominently.
+ * EquationScene — Shows a math equation prominently with a vibrant, kid-friendly design.
  */
 export const EquationScene: React.FC<{ scene: DirectorScene }> = ({
   scene,
@@ -421,12 +425,14 @@ export const EquationScene: React.FC<{ scene: DirectorScene }> = ({
   const scale = spring({
     frame,
     fps,
-    from: 0.6,
+    from: 0.3,
     to: 1,
-    durationInFrames: 20,
-    config: { damping: 10 },
+    config: { stiffness: 220, damping: 14 },
   });
-  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 12 });
+  const opacity = spring({ frame, fps, from: 0, to: 1, durationInFrames: 10 });
+
+  // Confetti fires after equation fully pops in
+  const showConfetti = frame > 18;
 
   return (
     <div
@@ -438,25 +444,29 @@ export const EquationScene: React.FC<{ scene: DirectorScene }> = ({
         height: "100%",
         opacity,
         transform: `scale(${scale})`,
+        position: "relative",
       }}
     >
+      {showConfetti && <Confetti startFrame={18} />}
       <div
         style={{
-          background: "rgba(99,102,241,0.12)",
-          borderRadius: 20,
-          padding: "40px 60px",
-          border: "2px solid rgba(99,102,241,0.3)",
+          background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)",
+          borderRadius: 36,
+          padding: "44px 80px",
+          boxShadow: "0 10px 0 rgba(0,0,0,0.18), 0 20px 40px rgba(255,107,107,0.4)",
         }}
       >
         <p
           style={{
-            color: "#E0E7FF",
-            fontSize: 52,
-            fontWeight: 800,
-            fontFamily: "'Inter', sans-serif",
+            color: "#FFFFFF",
+            fontSize: 72,
+            fontWeight: 900,
+            fontFamily: "'Nunito', 'Comic Sans MS', cursive",
             margin: 0,
-            letterSpacing: 2,
+            letterSpacing: 4,
             whiteSpace: "pre-wrap",
+            textShadow: "0 4px 0 rgba(0,0,0,0.2)",
+            textAlign: "center",
           }}
         >
           {scene.equation || scene.narration}

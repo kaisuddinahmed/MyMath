@@ -4,7 +4,7 @@ import { getAudioDurationInSeconds } from "@remotion/media-utils";
 import { MathVideo } from "./compositions/MathVideo";
 import type { DirectorScript } from "./types";
 
-const FPS = 24;
+const FPS = 30;
 
 /** Fallback script for Remotion Studio preview */
 const defaultScript: DirectorScript = {
@@ -52,8 +52,8 @@ export const RemotionRoot: React.FC = () => {
         component={MathVideo}
         durationInFrames={FPS * 30}
         fps={FPS}
-        width={1280}
-        height={720}
+        width={1080}
+        height={1920}
         defaultProps={{
           script: defaultScript,
           audioUrl: undefined,
@@ -63,7 +63,7 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={async ({ props }) => {
           let totalFrames = 0;
           const sceneDurations: number[] = [];
-          
+
           function getVisualFrames(scene: any): number {
             if (scene.action === "SHOW_EQUATION") return 30;
             if (scene.action === "SPLIT_ITEM") {
@@ -82,7 +82,7 @@ export const RemotionRoot: React.FC = () => {
             const maxDelay = (total - 1) * stagger;
             return Math.round(maxDelay + 30); // 30 frames for spring to settle
           }
-          
+
           const audioUrls = props.audioUrls || [];
 
           for (let i = 0; i < (props.script?.scenes || []).length; i++) {
@@ -93,11 +93,14 @@ export const RemotionRoot: React.FC = () => {
                 const audioSecs = await getAudioDurationInSeconds(url);
                 const audioFrames = Math.round((audioSecs + 1.0) * FPS);
                 const visualFrames = getVisualFrames(scene);
-                
+
                 // Allow scene to hold until BOTH audio and visual are finished
                 // (Visual gets an extra 0.5s padding at the end)
-                const frames = Math.max(audioFrames, visualFrames + Math.round(FPS * 0.5));
-                
+                const frames = Math.max(
+                  audioFrames,
+                  visualFrames + Math.round(FPS * 0.5),
+                );
+
                 sceneDurations.push(frames);
                 totalFrames += frames;
               } catch (err) {
@@ -113,7 +116,7 @@ export const RemotionRoot: React.FC = () => {
                 totalFrames += 4 * FPS;
               } else {
                 const wordCount = scene.narration.split(/\s+/).length;
-                const estimatedSeconds = Math.max(3, (wordCount / 2.5) + 1.5);
+                const estimatedSeconds = Math.max(3, wordCount / 2.5 + 1.5);
                 const frames = Math.round(estimatedSeconds * FPS);
                 sceneDurations.push(frames);
                 totalFrames += frames;
@@ -121,8 +124,11 @@ export const RemotionRoot: React.FC = () => {
             }
           }
 
+          // Add 4 extra seconds for the celebration sequence after all scenes
+          const CELEBRATION_FRAMES = 4 * FPS;
+
           return {
-            durationInFrames: totalFrames,
+            durationInFrames: totalFrames + CELEBRATION_FRAMES,
             props: {
               ...props,
               sceneDurations,
