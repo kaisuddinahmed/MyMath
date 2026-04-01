@@ -1446,5 +1446,165 @@
     "template": "number_line_jump",
     "score": 60,
     "timestamp": "2026-03-31T13:03:59.418914+00:00"
+  },
+  {
+    "child_id": "818810a1-ddc4-41fd-8a81-d2d531dc7122",
+    "question": "3467+98",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-31T15:57:38.675435+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "3456+89",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-31T16:05:56.565744+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T16:10:21.964066+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "In Apu's house, mangoes fell down from the trees by storm. Apu picked up 6 mangoes and his sister picked up 11. How many mangoes did they pick up altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 55,
+    "timestamp": "2026-03-31T16:12:14.906255+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "55/5",
+    "topic": "division",
+    "template": "sharing_groups",
+    "score": 95,
+    "timestamp": "2026-03-31T16:14:26.370191+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "4567-98",
+    "topic": "subtraction",
+    "template": "column_arithmetic",
+    "score": 80,
+    "timestamp": "2026-03-31T16:17:01.813435+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "15+6",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 60,
+    "timestamp": "2026-03-31T22:25:54.116274+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T22:28:18.847703+00:00"
+  },
+  {
+    "child_id": "ced9d75b-c9e1-49ca-b1d9-ba27baa4f41e",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T22:36:23.766856+00:00"
+  },
+  {
+    "child_id": "7720b279-d00d-4c7c-a32b-0f165389573d",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T22:37:26.119708+00:00"
+  },
+  {
+    "child_id": "7720b279-d00d-4c7c-a32b-0f165389573d",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 55,
+    "timestamp": "2026-03-31T22:37:51.341680+00:00"
+  },
+  {
+    "child_id": "13cbf59d-ca48-4863-afdc-86df4b2cf5ae",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 60,
+    "timestamp": "2026-03-31T22:41:09.163527+00:00"
+  },
+  {
+    "child_id": "600249c1-2638-4ea4-8a90-721341bdf083",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-03-31T22:45:20.133367+00:00"
+  },
+  {
+    "child_id": "7a28a836-a0dc-432e-95e5-ecd3762be648",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-04-01T05:06:20.361434+00:00"
+  },
+  {
+    "child_id": "8553ff04-b0d8-478a-8648-d77765f03306",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-04-01T05:18:57.254860+00:00"
+  },
+  {
+    "child_id": "8553ff04-b0d8-478a-8648-d77765f03306",
+    "question": "Rahim had 8 water lilies in his pond. His friend gave him 5 more water lilies. How many water lilies does Rahim have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-04-01T05:19:03.239672+00:00"
+  },
+  {
+    "child_id": "8553ff04-b0d8-478a-8648-d77765f03306",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 55,
+    "timestamp": "2026-04-01T05:19:18.845492+00:00"
+  },
+  {
+    "child_id": "67206b2d-f021-4aa2-bb76-8e183751cc7e",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 25,
+    "timestamp": "2026-04-01T05:31:47.885961+00:00"
+  },
+  {
+    "child_id": "67206b2d-f021-4aa2-bb76-8e183751cc7e",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-01T05:40:10.055928+00:00"
+  },
+  {
+    "child_id": "6a20c9ce-035d-46c2-9228-e087015378ac",
+    "question": "Rafiq had 10 colour pencils for drawing pictures. He bought 9 more colour pencils from a shop. How many colour pencils does he have now?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-01T05:45:00.617343+00:00"
   }
 ]

@@ -412,8 +412,11 @@ the animation engine what to render. Available actions and when to use them:
 - JUMP_NUMBER_LINE: Show frogs/bunnies jumping on a number line
 - SHOW_PLACE_VALUE: Emphasize Base-10 blocks grouped by 10s and 100s
 - SHOW_COLUMN_ARITHMETIC: Show right-to-left columnar addition or subtraction
-- CHOREOGRAPH_SUBTRACTION: ONLY use for subtraction word problems involving physical objects or animals (e.g., birds flying away, eating apples).
-  → IMPORTANT: requires "choreography_total" (start amount), "choreography_amount" (amount subtracted), and "choreography_environment" ("TREE_BRANCH" or "PLAIN"). Do NOT use REMOVE_ITEMS for these stories.
+- CHOREOGRAPH_ADDITION: ONLY use for addition word problems where physical objects or people are joining together (e.g., 3 children playing, 2 more arrive).
+  → IMPORTANT: requires "choreography_total" (first amount), "choreography_amount" (amount added), and "choreography_environment" ("PLAIN" or "TREE_BRANCH").
+- CHOREOGRAPH_SUBTRACTION: ONLY use for subtraction word problems where physical objects are physically removed/vanishing (e.g., birds flying away, eating apples, giving away toys).
+  → IMPORTANT: requires "choreography_total" (start amount), "choreography_amount" (amount subtracted), and "choreography_environment" ("TREE_BRANCH" or "PLAIN").
+- SHOW_PART_WHOLE_SUBTRACTION: MUST use for subtraction problems that are Part-Whole classification (e.g., '9 students, 5 are girls, how many boys?') or Comparison (e.g., 'caught 9 fishes vs 5 fishes'). DO NOT use CHOREOGRAPH_SUBTRACTION for these, because objects do not physically disappear in these stories!
 
 Available item_type includes basic shapes (BLOCK_SVG, STAR_SVG, COUNTER, PIE_CHART, BAR_CHART, COIN, NOTE, RULER, CLOCK, SHAPE_2D, SHAPE_3D, BASE10_BLOCK, TALLY_MARK, NUMBER_LINE) AND 50+ real-world curriculum objects: APPLE_SVG, BIRD_SVG, FOOTBALL_SVG, PEN_SVG, PENCIL_SVG, TREE_SVG, BOTTLE_SVG, CAR_SVG, RICKSHAW_SVG, FEATHER_SVG, JACKFRUIT_SVG, BOOK_SVG, FLOWER_SVG, MANGO_SVG, BRINJAL_SVG, BUS_SVG, BD_FLAG_SVG, MAGPIE_SVG, LILY_SVG, TIGER_SVG, BANANA_SVG, ROSE_SVG, LEAF_SVG, UMBRELLA_SVG, HILSA_FISH_SVG, BALLOON_SVG, PINEAPPLE_SVG, COCONUT_SVG, CARROT_SVG, WATER_GLASS_SVG, EGG_SVG, TEA_CUP_SVG, POMEGRANATE_SVG, RABBIT_SVG, CAT_SVG, HORSE_SVG, BOAT_SVG, MARBLE_SVG, CROW_SVG, PEACOCK_SVG, COCK_SVG, HEN_SVG, GUAVA_SVG, ELEPHANT_SVG, TOMATO_SVG, PALM_FRUIT_SVG, ICE_CREAM_SVG, WATERMELON_SVG, CAP_SVG, HAT_SVG, BUTTERFLY_SVG, CHOCOLATE_SVG, CHAIR_SVG, SLICED_WATERMELON_SVG, CHILD_SVG, FRUIT_SVG.
 Available animation_style: BOUNCE_IN, FADE_IN, SLIDE_LEFT, POP, NONE
@@ -888,8 +891,8 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             )
             return (
                 "Topic guidance: This is a SMALL TAKE-AWAY SUBTRACTION problem (starting amount ≤ 10). "
-                "CRITICAL: You MUST output exactly ONE (1) JSON scene element in your array representing the entire sequence. Do NOT output multiple scenes.\n"
-                "Action MUST be 'SHOW_SMALL_SUBTRACTION'.\n"
+                "If the problem is a physical word problem (e.g., birds flying, eating), YOU MUST use 'CHOREOGRAPH_SUBTRACTION' and output exactly ONE scene. "
+                "Otherwise (for abstract math), output exactly ONE (1) JSON scene element with Action 'SHOW_SMALL_SUBTRACTION'.\n"
                 "Equation MUST be 'Total - Remove' (e.g., '8 - 3').\n"
                 "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG).\n"
                 "In the 'narration' field, provide a single cohesive sequence of sentences covering:\n"
@@ -905,8 +908,8 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             _final = _start_val - (_sub_val or 0)
             return (
                 f"Topic guidance: This is a MEDIUM TAKE-AWAY SUBTRACTION problem (starting amount {_start_val}, removing {_sub_display}, result {_final}).\n"
-                "CRITICAL: Output EXACTLY ONE (1) JSON scene element. NO MORE. Do NOT generate ADD_ITEMS, REMOVE_ITEMS, or any other action.\n"
-                "Action MUST be 'SHOW_MEDIUM_SUBTRACTION'.\n"
+                "If the problem is a physical word problem (e.g., boys running away, eating apples), YOU MUST use 'CHOREOGRAPH_SUBTRACTION' and output exactly ONE scene.\n"
+                "Otherwise, Action MUST be 'SHOW_MEDIUM_SUBTRACTION'.\n"
                 f"Equation MUST be '{_start_val} - {_sub_display}'.\n"
                 "Pick an appropriate item_type from (BALL_SVG, BLOCK_SVG, BALLOON_SVG, APPLE_SVG, BIRD_SVG, MANGO_SVG, CHOCOLATE_SVG, PENCIL_SVG, etc.) based on the question subject.\n"
                 "In the 'narration' field, write a FULL child-friendly story of 80 to 100 words covering ALL of these beats IN ORDER:\n"
@@ -1100,39 +1103,17 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             # Class 1 Ch.4 (concept, ≤10): animated grouped objects
             return (
                 "Topic guidance: This is a SMALL ADDITION problem (sum ≤ 10). "
-                "CRITICAL: You MUST rigidly return exactly 4 JSON scene elements in your array (unless sum < 6, then return 3). DO NOT merge steps.\n"
+                "If this is a physical word problem where objects or people come together, YOU MUST use 'CHOREOGRAPH_ADDITION' with exactly ONE scene.\n"
+                "Otherwise, CRITICAL: You MUST rigidly return exactly 4 JSON scene elements (or 3 if sum < 6) with Action 'SHOW_SMALL_ADDITION'. DO NOT merge steps.\n"
                 "CRITICAL: Your narration MUST use the verbatim names/adjectives of the things from the question (e.g., '4 green mangoes and 3 ripe mangoes'). NEVER use the generic words 'items' or 'objects'.\n"
-                "Step 1: 'SHOW_SMALL_ADDITION'. Show A + B. Narration e.g., 'Let us put 4 green mangoes and 3 ripe mangoes together.' Equation MUST simply be 'A + B' (e.g., '4 + 3').\n"
+                "Step 1: Show A + B. Narration e.g., 'Let us put 4 green mangoes and 3 ripe mangoes together.' Equation MUST simply be 'A + B' (e.g., '4 + 3').\n"
                 "Step 2: 'SHOW_SMALL_ADDITION'. Merge groups. Narration e.g., 'When we add them all together...' Equation MUST be 'A + B' (e.g., '4 + 3').\n"
                 "Step 3 (ONLY IF TOTAL SUM IS 6 OR GREATER): 'SHOW_SMALL_ADDITION'. Count the total. Narration e.g., 'Let us count them: 1, 2, 3...'. Equation MUST be 'A + B' (e.g., '4 + 3'). Skip this step entirely if the total is less than 6. THIS MUST BE A SEPARATE SCENE FROM STEP 4.\n"
                 "Step 4 (or Step 3 if skipped): 'SHOW_SMALL_ADDITION'. Show the final answer. Narration e.g., 'So, there are 7 mangoes altogether.' Equation MUST be the full expression 'A + B = C' (e.g., '4 + 3 = 7').\n"
                 "Pick an appropriate item_type based on the question (e.g., BIRD_SVG, APPLE_SVG, STAR_SVG, BLOCK_SVG, or CHILD_SVG)."
             )
-        elif _sum_val is not None and 11 <= _sum_val <= 20:
-            # Class 1 Ch.7 (11-20): Arrive & Join animation
-            # Extract A (larger) and B (smaller) to show in the narration
-            import re as _re2
-            _add_nums = _re2.findall(r"\d+", str(question))
-            _a_val = max([int(x) for x in _add_nums if int(x) < _sum_val], default=_sum_val - 1)
-            _b_val = _sum_val - _a_val
-            return (
-                f"Topic guidance: This is a MEDIUM ADDITION problem (sum {_sum_val}, adding {_a_val} and {_b_val}).\n"
-                "CRITICAL: Output EXACTLY ONE (1) JSON scene element. NO MORE. Do NOT generate ADD_ITEMS, REMOVE_ITEMS, or any other action.\n"
-                "Action MUST be 'SHOW_MEDIUM_ADDITION'.\n"
-                f"Equation MUST be '{_a_val} + {_b_val}' (larger number first).\n"
-                "Pick an appropriate item_type from (BALL_SVG, BLOCK_SVG, BALLOON_SVG, APPLE_SVG, BIRD_SVG, MANGO_SVG, PENCIL_SVG, etc.) based on the question subject.\n"
-                "In the 'narration' field, write a FULL child-friendly story of 80 to 100 words covering ALL of these beats IN ORDER:\n"
-                f"1. READ THE PROBLEM: Re-tell the story in simple words (e.g., 'First, there are {_a_val} balls. Then, {_b_val} more balls join them.').\n"
-                f"2. WHY ADDITION: Explain clearly, 'When we put things TOGETHER into one big group, we use addition. So we add the {_a_val} and the {_b_val}.'\n"
-                f"3. SHOW FIRST GROUP: 'Let us see the first {_a_val} [items] sitting together in a row.'\n"
-                f"4. HIGHLIGHT ARRIVAL: 'Now look! Here come the {_b_val} new [items]. Watch them join the group!'\n"
-                f"5. COUNT TOGETHER: 'Let us count them all together. 1, 2, 3, 4, 5... {_sum_val} [items] in total.'\n"
-                f"6. FINAL ANSWER: 'So, {_a_val} plus {_b_val} equals {_sum_val}. The answer is {_sum_val}.'\n"
-                "Write this as ONE single flowing paragraph (do NOT use numbered points in the narration text itself). "
-                "Use warm, simple, encouraging language a 6-year-old will understand. AIM FOR 80-100 WORDS. DO NOT mention 'Make 10', 'tens', or 'strategy'."
-            )
         else:
-            # Class 1 Ch.15 (sums >20, up to 100): column arithmetic — deterministic narration
+            # Class 1 Ch.15 (sums >10): column arithmetic — deterministic narration
             scene_narrations = []
             _add_nums = None
             _num1 = _num2 = None
@@ -1146,11 +1127,20 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
             
             if _num1 is not None and _num2 is not None:
                 equation_str = f"{_num1} + {_num2}"
+                is_wp = len(re.findall(r'[a-zA-Z]{3,}', str(question))) >= 2
                 
-                scene_narrations.append(
-                    f'Scene 1 (Setup): action "SHOW_COLUMN_ARITHMETIC", equation "{equation_str}", '
-                    f'narration MUST be exactly: "Let us solve {equation_str}. We will add column by column, starting from the ones place on the right."'
-                )
+                if is_wp:
+                    scene_narrations.append(
+                        f'Scene 1 (Setup): action "SHOW_COLUMN_ARITHMETIC", equation "{equation_str}", '
+                        f'item_type MUST be chosen based on the story objects (e.g. "PENCIL_SVG", "APPLE_SVG"), '
+                        f'choreography_total MUST be {_num1}, choreography_amount MUST be {_num2}, '
+                        f'narration MUST be exactly: "First, there are {_num1} items. Then, {_num2} more join. Since there are more, this is an addition problem. Let us add them column by column."'
+                    )
+                else:
+                    scene_narrations.append(
+                        f'Scene 1 (Setup): action "SHOW_COLUMN_ARITHMETIC", equation "{equation_str}", '
+                        f'narration MUST be exactly: "Let us solve {equation_str}. We will add column by column, starting from the ones place on the right."'
+                    )
                 
                 s1 = str(_num1)[::-1]
                 s2 = str(_num2)[::-1]
@@ -1198,11 +1188,18 @@ def _build_topic_guidance(topic: str, verified_answer: str, template: str = "", 
                     )
                     scene_idx += 1
                 
-                scene_narrations.append(
-                    f'Scene {scene_idx} (Answer): action "SHOW_COLUMN_ARITHMETIC", '
-                    f'equation "{equation_str} = {verified_answer}", '
-                    f'narration MUST be exactly: "So, {equation_str} equals {verified_answer}. Great job!"'
-                )
+                if is_wp:
+                    scene_narrations.append(
+                        f'Scene {scene_idx} (Answer): action "SHOW_COLUMN_ARITHMETIC", '
+                        f'equation "{equation_str} = {verified_answer}", '
+                        f'narration MUST be exactly: "So, there are now {verified_answer} items. Great job!"'
+                    )
+                else:
+                    scene_narrations.append(
+                        f'Scene {scene_idx} (Answer): action "SHOW_COLUMN_ARITHMETIC", '
+                        f'equation "{equation_str} = {verified_answer}", '
+                        f'narration MUST be exactly: "So, {equation_str} equals {verified_answer}. Great job!"'
+                    )
                 
                 scenes_block = "\n".join([f"  {s}" for s in scene_narrations])
                 

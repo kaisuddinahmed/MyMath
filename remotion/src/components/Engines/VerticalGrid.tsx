@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useVideoConfig, useCurrentFrame, spring, interpolate, Easing } from "remotion";
+import { ItemComponent } from "../../assets/items/ItemSvgs";
 
 export type VerticalGridAction = "ADD" | "SUBTRACT" | "MULTIPLY";
 
@@ -23,6 +24,9 @@ export interface VerticalGridProps {
    * ... 
    */
   stepDurations: number[];
+  topCount?: number;
+  botCount?: number;
+  itemType?: string;
 }
 
 export const VerticalGrid: React.FC<VerticalGridProps> = ({
@@ -30,6 +34,9 @@ export const VerticalGrid: React.FC<VerticalGridProps> = ({
   operatorStr,
   columns,
   stepDurations,
+  topCount,
+  botCount,
+  itemType,
 }) => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -62,7 +69,47 @@ export const VerticalGrid: React.FC<VerticalGridProps> = ({
 
   return (
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+      
+      {/* Optional Physical Items rendered above the grid */}
+      {topCount && botCount && itemType && (
+        <div style={{
+          position: "absolute",
+          top: "15%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 15, // Gap between the two rows
+        }}>
+          {/* Top Row */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", maxWidth: 800 }}>
+            {Array.from({ length: Math.min(topCount, 40) }).map((_, i) => {
+              const pop = spring({ frame: Math.max(0, frame - (i * 2)), fps, config: { damping: 12 } });
+              return (
+                <div key={`top-item-${i}`} style={{ width: 45, height: 45, transform: `scale(${pop})` }}>
+                  <ItemComponent itemType={itemType} />
+                </div>
+              );
+            })}
+          </div>
+          {/* Bottom Row */}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center", maxWidth: 800 }}>
+            {Array.from({ length: Math.min(botCount, 40) }).map((_, i) => {
+              // Start bottom row animation after top row finishes roughly
+              const botStart = (topCount * 2) + 15 + (i * 2);
+              const pop = spring({ frame: Math.max(0, frame - botStart), fps, config: { damping: 12 } });
+              return (
+                <div key={`bot-item-${i}`} style={{ width: 45, height: 45, transform: `scale(${pop})` }}>
+                  <ItemComponent itemType={itemType} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Grid shifts down if items are present */}
       <div style={{
+        marginTop: topCount ? 180 : 0,
         display: "grid",
         gridTemplateColumns: `60px repeat(${columns.length}, ${CELL}px)`,
         gridTemplateRows: "60px 100px 100px 100px",

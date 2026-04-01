@@ -118,12 +118,21 @@ export const ColumnArithmeticScene: React.FC<{
     localDurations.push(t.dur);
   }
 
+  // Extract physical items from the first scene (if it was tagged as a physical word problem)
+  const firstScene = groupedScenes[0];
+  const topCount = firstScene?.choreography_total;
+  const botCount = firstScene?.choreography_amount;
+  const itemType = firstScene?.item_type;
+
   return (
     <VerticalGrid 
       action={operator === "+" ? "ADD" : "SUBTRACT"}
       operatorStr={operator}
       columns={cols}
       stepDurations={localDurations}
+      topCount={topCount}
+      botCount={botCount}
+      itemType={itemType}
     />
   );
 };

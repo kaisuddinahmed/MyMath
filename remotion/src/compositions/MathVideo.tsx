@@ -29,7 +29,7 @@ import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
 import { MediumAdditionScene } from "../components/Scenes/MediumAdditionScene";
 import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScene";
 import { ChoreographyScene } from "../components/Scenes/ChoreographyScene";
-import { generateStoryChoreography } from "../mockChoreography";
+import { generateStoryChoreography, generateAdditionChoreography } from "../mockChoreography";
 import { MediumSubtractionScene } from "../components/Scenes/MediumSubtractionScene";
 import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 import { PartWholeScene } from "../components/Scenes/PartWholeScene";
@@ -136,6 +136,8 @@ export const MathVideo: React.FC<{
         (lastGroup.action === "SHOW_MEDIUM_ADDITION" && scene.action === "SHOW_MEDIUM_ADDITION") ||
         (lastGroup.action === "SHOW_SMALL_SUBTRACTION" && scene.action === "SHOW_SMALL_SUBTRACTION") ||
         (lastGroup.action === "SHOW_MEDIUM_SUBTRACTION" && scene.action === "SHOW_MEDIUM_SUBTRACTION") ||
+        (lastGroup.action === "CHOREOGRAPH_SUBTRACTION" && scene.action === "CHOREOGRAPH_SUBTRACTION") ||
+        (lastGroup.action === "CHOREOGRAPH_ADDITION" && scene.action === "CHOREOGRAPH_ADDITION") ||
         (lastGroup.action === "SHOW_NUMBER_ORDERING" && scene.action === "SHOW_NUMBER_ORDERING") ||
         (lastGroup.action === "SHOW_PART_WHOLE_SUBTRACTION" && scene.action === "SHOW_PART_WHOLE_SUBTRACTION") ||
         (lastGroup.action === "SHOW_NUMBER_BOND" && scene.action === "SHOW_NUMBER_BOND")
@@ -183,12 +185,15 @@ export const MathVideo: React.FC<{
               <SmallAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
             ) : group.action === "SHOW_MEDIUM_ADDITION" ? (
               <MediumAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
-            ) : group.action === "CHOREOGRAPH_SUBTRACTION" ? (
+            ) : group.action === "CHOREOGRAPH_SUBTRACTION" || group.action === "CHOREOGRAPH_ADDITION" ? (
               (() => {
                 const total = group.subScenes[0]?.scene?.choreography_total || 5;
                 const amt = group.subScenes[0]?.scene?.choreography_amount || 1;
-                const env = group.subScenes[0]?.scene?.choreography_environment || "TREE_BRANCH";
                 const type = group.subScenes[0]?.scene?.item_type || "BIRD_SVG";
+                const env = group.subScenes[0]?.scene?.choreography_environment || (type.includes("BIRD") || type.includes("APPLE") ? "TREE_BRANCH" : "PLAIN");
+                if (group.action === "CHOREOGRAPH_ADDITION") {
+                  return <ChoreographyScene script={generateAdditionChoreography(total, amt, type, env, group.subScenes)} />;
+                }
                 return <ChoreographyScene script={generateStoryChoreography(total, amt, type, env, group.subScenes)} />;
               })()
             ) : group.action === "SHOW_SMALL_SUBTRACTION" ? (
@@ -221,6 +226,8 @@ export const MathVideo: React.FC<{
 
       {/* Narration Bars */}
       {script.scenes.map((scene, i) =>
+        scene.action === "CHOREOGRAPH_SUBTRACTION" ||
+        scene.action === "CHOREOGRAPH_ADDITION" ||
         scene.action === "SHOW_COLUMN_ARITHMETIC" ||
         scene.action === "SHOW_SMALL_ADDITION" ||
         scene.action === "SHOW_MEDIUM_ADDITION" ||

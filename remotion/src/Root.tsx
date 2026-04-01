@@ -88,6 +88,8 @@ export const RemotionRoot: React.FC = () => {
           for (let i = 0; i < (props.script?.scenes || []).length; i++) {
             const scene = props.script?.scenes[i];
             const url = audioUrls[i];
+            
+            let dur = 0;
             if (url) {
               try {
                 const audioSecs = await getAudioDurationInSeconds(url);
@@ -102,26 +104,33 @@ export const RemotionRoot: React.FC = () => {
                 );
 
                 sceneDurations.push(frames);
-                totalFrames += frames;
+                
+                // MathVideo.tsx organically adds 1.5s padding to the sceneDurations[i] slot
+                dur = frames + Math.round(1.5 * FPS);
+                if (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") {
+                  dur = Math.max(dur, 22 * FPS);
+                }
               } catch (err) {
                 console.error("Failed to load audio length for " + url, err);
                 sceneDurations.push(4 * FPS);
-                totalFrames += 4 * FPS;
+                dur = 4 * FPS + Math.round(1.5 * FPS);
               }
             } else {
-              // Legacy fallback logic
-              const scene = props.script.scenes[i];
+              // Legacy fallback logic perfectly mirroring MathVideo.tsx fallback
               if (!scene.narration || scene.narration.trim() === "") {
                 sceneDurations.push(4 * FPS);
-                totalFrames += 4 * FPS;
+                dur = 4 * FPS;
               } else {
                 const wordCount = scene.narration.split(/\s+/).length;
-                const estimatedSeconds = Math.max(3, wordCount / 2.5 + 1.5);
+                const minSeconds = (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") ? 22 : 3;
+                const estimatedSeconds = Math.max(minSeconds, wordCount / 2.5 + 1.5);
                 const frames = Math.round(estimatedSeconds * FPS);
                 sceneDurations.push(frames);
-                totalFrames += frames;
+                dur = frames;
               }
             }
+            
+            totalFrames += dur;
           }
 
           // Add 4 extra seconds for the celebration sequence after all scenes

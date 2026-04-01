@@ -26,7 +26,7 @@ SUB_WORDS = [
     "gave away", "gave", "give away", "spent", "lost", "removed",
     "decreased by", "how many more", "how many less", "how many fewer",
     "wrote", "written on", "broken", "sold", "dropped", "drank",
-    "have now", "left to", "left with", "left in", "are left",
+    "left to", "left with", "left in", "are left",
     "from those", "from them", "deduct", "out of",
     "how many boys", "how many girls",
 ]
@@ -138,7 +138,7 @@ def detect_operation(q: str, nums_count: int = 2) -> Optional[str]:
     """Detect math operation from keywords, resolving ambiguities."""
     # Priority: Subtraction triggers first (how many more/left)
     op = None
-    if re.search(r"how many more|left(?! to)|have now|remain", q):
+    if re.search(r"how many more|left(?! to)|remain", q):
         op = "-"
 
     if not op:

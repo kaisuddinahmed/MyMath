@@ -27,8 +27,15 @@ All object counts must match the math exactly.
 
 
 def validate_video_prompt(json_text: str):
+    import re
+    # Aggressively extract the JSON object, ignoring any conversational preamble or markdown
+    clean_text = json_text.strip()
+    match = re.search(r"(\{.*\})", clean_text, re.DOTALL)
+    if match:
+        clean_text = match.group(1)
+        
     try:
-        data = json.loads(json_text)
+        data = json.loads(clean_text)
     except json.JSONDecodeError as exc:
         return False, None, f"Invalid JSON: {exc.msg}"
 

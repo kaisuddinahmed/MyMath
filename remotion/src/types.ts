@@ -106,6 +106,7 @@ export type SceneAction =
   | "SHOW_PART_WHOLE_SUBTRACTION"
   | "SHOW_NUMBER_BOND"
   | "CHOREOGRAPH_SUBTRACTION"
+  | "CHOREOGRAPH_ADDITION"
   | "PROTOTYPE_CHOREOGRAPHY";
 
 export type CurriculumId = "nctb" | "cambridge" | "edexcel";
@@ -135,7 +136,7 @@ export interface ChoreographyEvent {
 }
 
 export interface ChoreographyScript {
-  environment: "TREE_BRANCH" | "NONE";
+  environment: "TREE_BRANCH" | "PLAIN";
   actors: ChoreographyActor[];
   events: ChoreographyEvent[];
 }

@@ -92,3 +92,87 @@ export const generateStoryChoreography = (
     ],
   };
 };
+
+export const generateAdditionChoreography = (
+  amount1: number, 
+  amount2: number,
+  itemType: string,
+  environment: string,
+  timings: { start: number; dur: number; audioDur?: number }[]
+): ChoreographyScript => {
+  const total = amount1 + amount2;
+  const gap = total <= 1 ? 0 : (SVG_BRANCH_RIGHT - SVG_BRANCH_LEFT) / (total - 1);
+  const getBirdX = (i: number) => total === 1 ? (SVG_BRANCH_LEFT + SVG_BRANCH_RIGHT) / 2 : SVG_BRANCH_LEFT + i * gap;
+
+  // Predict total run length based on the incoming narration cuts
+  const totalDuration = timings.reduce((sum, t) => sum + (t.dur || 0), 0) || 300;
+  
+  // Logical Acts for Addition:
+  // Act 1: Initial Group Pop In ("3 children playing")
+  // Act 2: Second Group Pop In ("2 more come")
+  // Act 3: Whole Group Excitement Wobble & Counting
+  // Act 4: Mathematical Conclusion
+  const quarter = totalDuration * 0.25;
+  const act2Start = quarter; 
+  const act3Start = quarter * 2; 
+  const act4Start = quarter * 3;
+
+  return {
+    environment: environment === "PLAIN" ? "PLAIN" : "TREE_BRANCH",
+    actors: Array.from({ length: total }).map((_, i) => ({
+      id: `actor-${i}`,
+      type: (itemType || "CHILD_SVG") as ItemType,
+      colorIndex: i,
+      startX: getBirdX(i) - 55, // Center offset
+      startY: BIRD_Y,
+    })),
+    events: [
+      // --- ACT 1: INITIAL GROUP POP IN ---
+      ...Array.from({ length: amount1 }).map((_, i) => ({
+        targetId: `actor-${i}`,
+        startFrame: 8 + i * 5,
+        action: "POP_IN" as const,
+      })),
+
+      // --- ACT 2: NEW ARRIVALS POP IN ---
+      ...Array.from({ length: amount2 }).map((_, index) => {
+        const i = amount1 + index;
+        return {
+          targetId: `actor-${i}`,
+          startFrame: act2Start + index * 8, 
+          action: "POP_IN" as const, // Pop in next to the first group exactly when the voice triggers
+        };
+      }),
+
+      // --- WOBBLE ALL FOR VISUAL COMBINATION EXCITEMENT ---
+      ...Array.from({ length: total }).map((_, i) => ({
+        targetId: `actor-${i}`,
+        startFrame: act3Start - 10,  // Just before counting starts
+        action: "WOBBLE" as const,
+      })),
+
+      // --- ACT 3: COUNTING BADGES (during enumeration voiceover) ---
+      ...Array.from({ length: total }).map((_, i) => ({
+        targetId: `actor-${i}`,
+        startFrame: act3Start + i * 15, // Slow, paced counting
+        action: "SHOW_COUNT_BADGE" as const,
+        text: `${i + 1}`,
+      })),
+
+      // --- ACT 4: GLOBAL EQUATION STAMP ---
+      {
+        targetId: "scene",
+        startFrame: act4Start - 15,
+        action: "SHOW_EQUATION",
+        text: `${amount1} + ${amount2} = ${total}`,
+      },
+      
+      // --- END SCENE CONFETTI ---
+      {
+        targetId: "scene",
+        startFrame: act4Start,
+        action: "CONFETTI",
+      }
+    ],
+  };
+};
