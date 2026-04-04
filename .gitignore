@@ -25,5 +25,7 @@ backend/video_engine/output/
 # Remotion compiled output (should always build from src/)
 remotion/dist/
 
+docs/
+
 # Logs
 *.log
