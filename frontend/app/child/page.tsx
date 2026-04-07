@@ -48,6 +48,7 @@ export default function ChildPage() {
   const [preSolvedAnswer, setPreSolvedAnswer] = useState<string | null>(null);
   const [preSolvedSteps, setPreSolvedSteps] = useState<string[]>([]);
   const [questionType, setQuestionType] = useState<string | undefined>(undefined);
+  const [uploadLanguage, setUploadLanguage] = useState<"en" | "bn">("en");
 
   const selectedChild = useMemo(() => {
     if (!selectedChildId) return null;
@@ -116,7 +117,7 @@ export default function ChildPage() {
     setLoadingLabel("Analyzing your file...");
 
     try {
-      const extracted = await api.extractProblem(file);
+      const extracted = await api.extractProblem(file, uploadLanguage);
       setInputMode("type");
       // Store pre-solved data from LLM extraction for fast-path solving
       setPreSolvedAnswer(extracted.pre_solved_answer ?? null);
@@ -303,6 +304,30 @@ export default function ChildPage() {
                   <p className="mb-3 text-sm font-bold text-emerald-900 dark:text-emerald-100">
                     Upload image or PDF. I will read it and fill the question box for you.
                   </p>
+                  <div className="mb-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setUploadLanguage("en")}
+                      className={`rounded-xl px-3 py-1 text-sm font-bold ${
+                        uploadLanguage === "en"
+                          ? "bg-emerald-500 text-white"
+                          : "border border-emerald-300 text-emerald-800 dark:border-emerald-600 dark:text-emerald-200"
+                      }`}
+                    >
+                      English
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setUploadLanguage("bn")}
+                      className={`rounded-xl px-3 py-1 text-sm font-bold ${
+                        uploadLanguage === "bn"
+                          ? "bg-emerald-500 text-white"
+                          : "border border-emerald-300 text-emerald-800 dark:border-emerald-600 dark:text-emerald-200"
+                      }`}
+                    >
+                      বাংলা
+                    </button>
+                  </div>
                   <label className="flex min-h-12 cursor-pointer items-center justify-center rounded-2xl bg-emerald-500 px-4 text-lg font-extrabold text-white">
                     Choose File
                     <input

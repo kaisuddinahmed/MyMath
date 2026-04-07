@@ -3,7 +3,7 @@ backend/math_engine/word_problem_parser.py
 Lightweight sentence-level parser for word problems.
 Extracts: numbers, operation type, and a direct expression where possible.
 Upgraded to support multi-step context Extraction: object, location, actors, actions.
-Maintains backward compatibility.
+
 """
 import re
 from typing import Optional, List, Dict, Any, Union

@@ -16,3 +16,4 @@ pypdf
 pymupdf
 rapidocr-onnxruntime
 pytesseract
+easyocr

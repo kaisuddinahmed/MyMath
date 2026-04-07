@@ -15,13 +15,15 @@ export interface ObjectArrayProps {
   rightCount: number;
   /** The full equation string to display at the end (e.g., "4 + 2 = 6") */
   equationStr?: string;
-  /** 
+  /**
    * Timing offsets (in frames) to control when each phase starts.
    * If not provided, defaults will be calculated based on standard fps.
    */
   timings?: {
-    popInEnd: number;
-    actionStart: number;
+    leftPopDelay?: number;   // frames to wait before group 1 starts appearing (default: 0)
+    popInEnd: number;        // when group 2 starts appearing (= rightPopDelay)
+    operatorStart?: number;  // when + sign becomes visible (default: same as popInEnd)
+    actionStart: number;     // when gap starts collapsing (merge animation)
     actionEnd: number;
     countStart: number;
     equationStart: number;
@@ -55,13 +57,27 @@ export const ObjectArray: React.FC<ObjectArrayProps> = ({
     equationStart: 7 * fps           // Step 4: Final equation shows
   };
 
-  // --- Step 1: Squash & Stretch Pop-in ---
-  // Instead of a simple spring scale, we do a bounce that stretches vertically
-  const popProgress = spring({ frame, fps, config: { damping: 10, stiffness: 100 } });
-  
-  // Map progress (0 -> 1 -> overshoot -> 1) into an elastic scale
+  // --- Step 1a: Left group pop-in (delayed by leftPopDelay if provided) ---
+  const leftDelay = t.leftPopDelay || 0;
+  const popProgress = spring({ frame: Math.max(0, frame - leftDelay), fps, config: { damping: 10, stiffness: 100 } });
   const scaleY = interpolate(popProgress, [0, 0.7, 1, 1.2], [0, 1.3, 1, 0.9], { extrapolateRight: "clamp" });
   const scaleX = interpolate(popProgress, [0, 0.7, 1, 1.2], [0, 0.8, 1, 1.1], { extrapolateRight: "clamp" });
+  // Keep group 1 fully invisible before its delay fires
+  const leftGroupOpacity = leftDelay > 0 ? Math.min(1, popProgress * 3) : 1;
+
+  // --- Step 1b: Right group pop-in (delayed until popInEnd for ADD) ---
+  // For ADD: right group appears after left group with a visible gap between them.
+  // For SUBTRACT: right group is already there from frame 0 (it's the set being removed).
+  const rightPopDelay = action === "ADD" ? t.popInEnd : 0;
+  const rightPopProgress = spring({
+    frame: Math.max(0, frame - rightPopDelay),
+    fps,
+    config: { damping: 10, stiffness: 100 },
+  });
+  const rightScaleY = interpolate(rightPopProgress, [0, 0.7, 1, 1.2], [0, 1.3, 1, 0.9], { extrapolateRight: "clamp" });
+  const rightScaleX = interpolate(rightPopProgress, [0, 0.7, 1, 1.2], [0, 0.8, 1, 1.1], { extrapolateRight: "clamp" });
+  // Right group is invisible before its pop-in delay
+  const rightGroupOpacity = action === "ADD" ? Math.min(1, rightPopProgress * 3) : 1;
 
   // --- Step 2: Action (Merge for ADD, Fade/Fall for SUB) ---
   const actionProgress = spring({
@@ -70,18 +86,28 @@ export const ObjectArray: React.FC<ObjectArrayProps> = ({
     config: { damping: 14 }
   });
 
-  // For Addition, the gap between left and right groups collapses
-  const additionGap = interpolate(actionProgress, [0, 1], [100, 0], { extrapolateRight: "clamp" });
-  
+  // For Addition: gap between groups collapses from 80px → 0 during merge.
+  // This gap is APPLIED in the JSX (unlike before where it was computed but unused).
+  const additionGap = action === "ADD"
+    ? interpolate(actionProgress, [0, 1], [80, 0], { extrapolateRight: "clamp" })
+    : 0;
+
   // For Subtraction, the right group falls down and fades out
-  // Make the fall much more pronounced so it breaks out of the row with a bounce arc
   const subFallY = interpolate(actionProgress, [0, 0.3, 1], [0, -60, 400], { extrapolateRight: "clamp" });
   const subFallX = interpolate(actionProgress, [0, 1], [0, 100], { extrapolateRight: "clamp" });
   const subRotate = interpolate(actionProgress, [0, 1], [0, 90], { extrapolateRight: "clamp" });
   const subOpacity = interpolate(actionProgress, [0, 0.8, 1], [1, 1, 0], { extrapolateRight: "clamp" });
 
-  // Operator (+ or -) fades out as the action resolves
-  const operatorOpacity = interpolate(actionProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" });
+  // Operator: appears at operatorStart (or falls back to when group 2 appears), fades out during merge
+  const opDelay = t.operatorStart !== undefined ? t.operatorStart : t.popInEnd;
+  const operatorProgress = spring({
+    frame: Math.max(0, frame - opDelay),
+    fps,
+    config: { damping: 15 },
+  });
+  const operatorOpacity = action === "ADD"
+    ? operatorProgress * interpolate(actionProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" })
+    : interpolate(actionProgress, [0, 0.5], [1, 0], { extrapolateRight: "clamp" });
 
   // --- Step 3: Counting Numbers ---
   const getCountOpacity = (idx: number) => {
@@ -111,11 +137,11 @@ export const ObjectArray: React.FC<ObjectArrayProps> = ({
       {/* Main Container */}
       <div style={{
         display: "flex", flexDirection: "row", alignItems: "center",
-        gap: action === "ADD" ? 20 : 16 // Consistent gap for both
+        gap: action === "ADD" ? 0 : 16, // For ADD, gap is controlled by additionGap on right group
       }}>
-        
+
         {/* LEFT GROUP (For Subtraction, this is the remaining items) */}
-        <div style={{ display: "flex", gap: 16 }}>
+        <div style={{ display: "flex", gap: 16, opacity: leftGroupOpacity }}>
           {Array.from({ length: leftCount }).map((_, idx) => {
             const countProg = getCountOpacity(idx);
             return (
@@ -136,47 +162,64 @@ export const ObjectArray: React.FC<ObjectArrayProps> = ({
           })}
         </div>
 
-        {/* NO OPERATOR BETWEEN GROUPS: We want them to look like one continuous line initially */}
+        {/* OPERATOR: + sign for ADD (appears with right group, fades during merge) */}
+        {action === "ADD" && (
+          <div style={{
+            opacity: operatorOpacity,
+            marginLeft: additionGap * 0.4,
+            marginRight: additionGap * 0.4,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            minWidth: 40,
+          }}>
+            <span style={{
+              color: "#FCD34D", fontSize: 56, fontWeight: 900,
+              textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+              lineHeight: 1,
+            }}>+</span>
+          </div>
+        )}
 
-        {/* RIGHT GROUP (For Subtraction, these are the items being removed) */}
-        <div style={{ display: "flex", gap: 16 }}>
+        {/* RIGHT GROUP (For ADD: appears after left group with gap; for SUBTRACT: removed items) */}
+        <div style={{
+          display: "flex", gap: 16,
+          // For ADD: right group shifts right by remaining gap amount so total gap = additionGap
+          marginLeft: action === "ADD" ? additionGap * 0.2 : 0,
+          opacity: action === "ADD" ? rightGroupOpacity : 1,
+        }}>
           {Array.from({ length: rightCount }).map((_, idx) => {
-            const absoluteIdx = leftCount + idx; // Just continue the count visually from left to right
+            const absoluteIdx = leftCount + idx;
             const countProg = getCountOpacity(absoluteIdx);
-            
+
             // Subtraction logic: this group falls away
             const dropY = action === "SUBTRACT" ? subFallY : 0;
             const dropX = action === "SUBTRACT" ? subFallX : 0;
             const opac = action === "SUBTRACT" ? subOpacity : 1;
 
+            // Use rightScaleX/Y for ADD (delayed pop-in), original scales for SUBTRACT
+            const rsx = action === "ADD" ? rightScaleX : scaleX;
+            const rsy = action === "ADD" ? rightScaleY : scaleY;
+
             return (
               <div key={`R-${idx}`} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
               }}>
-                {/* 
-                  CRITICAL FIX: The falling animation needs to be on a wrapper that 
-                  doesn't break the flexbox layout width, otherwise the whole row shifts.
-                */}
                 <div style={{
-                  transform: `translate(${dropX}px, ${dropY}px) scaleX(${scaleX}) scaleY(${scaleY}) rotate(${action === "SUBTRACT" ? subRotate : 0}deg)`, 
+                  transform: `translate(${dropX}px, ${dropY}px) scaleX(${rsx}) scaleY(${rsy}) rotate(${action === "SUBTRACT" ? subRotate : 0}deg)`,
                   opacity: opac,
                 }}>
                   <ItemComponent itemType={itemType} size={70} />
                 </div>
-                
-                {/* 
-                  Spacer so the Right Group has the exact same vertical 
-                  dimensions as the Left Group. This fixes alignment! 
-                */}
+
+                {/* Spacer for SUBTRACT alignment */}
                 <span style={{
                   fontSize: 32, fontWeight: "bold",
                   opacity: 0, pointerEvents: "none",
-                  display: action !== "ADD" ? "block" : "none" // Always occupy space if not adding (since count is not rendered)
+                  display: action !== "ADD" ? "block" : "none"
                 }}>
                   0
                 </span>
-                
-                {/* Counting Number (Only show if adding) */}
+
+                {/* Counting Number (ADD only) */}
                 {action === "ADD" && (
                   <span style={{
                     fontSize: 32, fontWeight: "bold", color: "#FCD34D",

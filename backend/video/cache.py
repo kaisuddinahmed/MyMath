@@ -13,7 +13,7 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_DIR = Path(__file__).resolve().parent / "output"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "video_engine" / "output"
 CACHE_INDEX_PATH = OUTPUT_DIR / "cache_index.json"
 
 

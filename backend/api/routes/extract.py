@@ -26,6 +26,10 @@ async def extract_problem_endpoint(request: Request):
     if file is None:
         raise HTTPException(status_code=400, detail="Missing file field. Use form field name 'file'.")
 
+    language = str(form.get("language", "en")).strip().lower()
+    if language not in ("en", "bn"):
+        language = "en"
+
     filename = getattr(file, "filename", None) or "upload"
     content_type = getattr(file, "content_type", None) or ""
     read_fn = getattr(file, "read", None)
@@ -47,6 +51,7 @@ async def extract_problem_endpoint(request: Request):
             file_bytes=bytes(file_bytes),
             filename=filename,
             content_type=content_type,
+            language=language,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))

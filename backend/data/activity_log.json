@@ -1822,5 +1822,77 @@
     "template": "number_line_back",
     "score": 60,
     "timestamp": "2026-04-02T10:33:56.282501+00:00"
+  },
+  {
+    "child_id": "b06e80a5-901a-4f79-ba3f-9be7ecd378e9",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-06T12:11:55.369452+00:00"
+  },
+  {
+    "child_id": "348239b1-67c3-4fb1-b86f-8e0d88d26a5b",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-06T15:54:36.993534+00:00"
+  },
+  {
+    "child_id": "5e471a44-8579-4c3b-8ccf-bb6a1d621abd",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-06T16:04:01.833260+00:00"
+  },
+  {
+    "child_id": "0004374f-b851-47c7-876c-1628b42a2696",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 90,
+    "timestamp": "2026-04-06T16:14:46.665907+00:00"
+  },
+  {
+    "child_id": "222c04a0-dbba-4900-8c56-a5f7323e6905",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 0,
+    "timestamp": "2026-04-07T07:32:00.347782+00:00"
+  },
+  {
+    "child_id": "cc6431ae-b180-4065-b446-0a6e2f00168d",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 0,
+    "timestamp": "2026-04-07T07:35:12.222526+00:00"
+  },
+  {
+    "child_id": "cc6431ae-b180-4065-b446-0a6e2f00168d",
+    "question": "Nidhi had 8 toys. She gave her brother 5 toys. How many toys does she have now?",
+    "topic": "subtraction",
+    "template": "number_line_back",
+    "score": 0,
+    "timestamp": "2026-04-07T07:38:39.578869+00:00"
+  },
+  {
+    "child_id": "2f86ee0a-bffe-4e19-8bcb-26cceaa11a68",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 0,
+    "timestamp": "2026-04-07T11:45:37.092153+00:00"
+  },
+  {
+    "child_id": "366a9c8d-14c2-4efa-a38a-23981b5e17ec",
+    "question": "Ratul and Mitu have come to Shahid Miner with flowers. Ratul has brought 3 flowers, Mitu has brought 2. How many flowers have they brought altogether?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 0,
+    "timestamp": "2026-04-07T12:04:54.828395+00:00"
   }
 ]

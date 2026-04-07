@@ -463,7 +463,7 @@ def _ocr_with_rapidocr(image: Image.Image) -> Tuple[str, Optional[str]]:
         return "", "rapidocr"
 
 
-def _ocr_with_tesseract(image: Image.Image) -> Tuple[str, Optional[str]]:
+def _ocr_with_tesseract(image: Image.Image, lang: str = "eng") -> Tuple[str, Optional[str]]:
     try:
         import pytesseract
     except Exception:
@@ -472,11 +472,40 @@ def _ocr_with_tesseract(image: Image.Image) -> Tuple[str, Optional[str]]:
     try:
         text = pytesseract.image_to_string(
             image,
+            lang=lang,
             config="--oem 3 --psm 4",  # PSM 4: single column of variable-size text
         )
         return text or "", "tesseract"
     except Exception:
         return "", "tesseract"
+
+
+_EASY_OCR: Any = None
+_EASY_OCR_LANGS: List[str] = []
+
+
+def _ocr_with_easyocr(image: Image.Image, languages: List[str]) -> Tuple[str, Optional[str]]:
+    global _EASY_OCR, _EASY_OCR_LANGS
+
+    try:
+        import easyocr
+        import numpy as np
+    except Exception:
+        return "", None
+
+    try:
+        # Re-initialize only if language set changes
+        if _EASY_OCR is None or sorted(languages) != sorted(_EASY_OCR_LANGS):
+            _EASY_OCR = easyocr.Reader(languages, gpu=False, verbose=False)
+            _EASY_OCR_LANGS = languages
+
+        arr = np.array(image.convert("RGB"))
+        result = _EASY_OCR.readtext(arr, detail=1)
+
+        lines = [text for (_, text, conf) in result if text.strip() and conf > 0.3]
+        return "\n".join(lines), "easyocr"
+    except Exception:
+        return "", "easyocr"
 
 
 def _repair_ocr_text(raw: str) -> str:
@@ -511,9 +540,22 @@ def _repair_ocr_text(raw: str) -> str:
     return "\n".join(cleaned)
 
 
-def _ocr_image(image: Image.Image) -> Tuple[str, str]:
+def _ocr_image(image: Image.Image, language: str = "en") -> Tuple[str, str]:
     prepared = _prepare_for_ocr(image)
 
+    if language == "bn":
+        # Bengali: EasyOCR (bn+en) first, then tesseract with Bengali lang pack as fallback.
+        # Skip _repair_ocr_text — its regex is Latin-only and will mangle Bengali characters.
+        for fn, args in [
+            (_ocr_with_easyocr, (["bn", "en"],)),
+            (_ocr_with_tesseract, ("ben+eng",)),
+        ]:
+            text, engine = fn(prepared, *args)
+            if _clean_text(text):
+                return text, engine or "unknown"
+        return "", "none"
+
+    # English (default): existing cascade with post-processing repair
     for fn in (_ocr_with_rapidocr, _ocr_with_tesseract):
         text, engine = fn(prepared)
         if _clean_text(text):
@@ -713,14 +755,14 @@ def _estimate_confidence(extracted_text: str, question: str, geometry: Dict[str,
 
 
 def llm_fix_ocr_question(raw_ocr: str) -> str:
-    """Legacy wrapper: extract just the cleaned question string from LLM structured response."""
+    """Extract just the cleaned question string from LLM structured response."""
     result = llm_extract_structured(raw_ocr)
     if result and result.get("question"):
         return result["question"]
     return raw_ocr
 
 
-def llm_extract_structured(raw_ocr: str) -> Optional[Dict[str, Any]]:
+def llm_extract_structured(raw_ocr: str, language: str = "en") -> Optional[Dict[str, Any]]:
     """
     Use the LLM to extract and classify a math question from noisy OCR text.
     Returns a structured dict or None if the LLM is unavailable or fails.
@@ -746,6 +788,14 @@ def llm_extract_structured(raw_ocr: str) -> Optional[Dict[str, Any]]:
     except Exception:
         return None
 
+    lang_hint = (
+        "The OCR text may be in Bengali (Bangla) mixed with numbers and math symbols. "
+        "Preserve Bengali characters exactly as they appear. Output the 'question' field in Bengali. "
+        "Output 'pre_solved_steps' in Bengali as well.\n"
+        if language == "bn"
+        else ""
+    )
+
     prompt = f"""You are a primary school math expert assistant.
 You will receive raw OCR text from a math worksheet. Your job is to:
 1. Fix any OCR errors (typos, merged words, wrong characters, scrambled word order)
@@ -753,6 +803,7 @@ You will receive raw OCR text from a math worksheet. Your job is to:
 3. Classify the question type
 4. If it is MCQ, evaluate each option numerically and identify the correct answer
 5. Pre-solve the question with child-friendly steps
+{lang_hint}
 
 Return ONLY a JSON object with this exact shape (no markdown, no explanation):
 {{
@@ -800,7 +851,8 @@ OCR TEXT:
             return None
 
         # Sanity check: question must contain at least one digit
-        if not re.search(r"\d", parsed["question"]):
+        # Covers ASCII digits (0-9) and Bengali digits (০-৯, Unicode \u09E6-\u09EF)
+        if not re.search(r"[\d\u09E6-\u09EF]", parsed["question"]):
             return None
 
         return parsed
@@ -810,18 +862,18 @@ OCR TEXT:
 
 
 
-def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
+def _extract_from_image_bytes(file_bytes: bytes, language: str = "en") -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
     try:
         image = Image.open(BytesIO(file_bytes))
     except Exception as exc:
         raise ValueError("Could not open image file.") from exc
 
-    raw_text, ocr_engine = _ocr_image(image)
+    raw_text, ocr_engine = _ocr_image(image, language=language)
     extracted_text = _clean_text(raw_text)
     geometry = _analyze_geometry(image, raw_text)
 
     # Try the smart LLM extraction first
-    llm_result = llm_extract_structured(raw_text)
+    llm_result = llm_extract_structured(raw_text, language=language)
     pre_solved: Dict[str, Any] = {}
 
     if llm_result and llm_result.get("question"):
@@ -863,7 +915,7 @@ def _extract_from_image_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[st
     return question, extracted_text, ocr_engine, geometry, notes, pre_solved
 
 
-def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
+def _extract_from_pdf_bytes(file_bytes: bytes, language: str = "en") -> Tuple[str, str, str, Dict[str, Any], List[str], Dict[str, Any]]:
     notes: List[str] = []
     pre_solved: Dict[str, Any] = {}
 
@@ -882,7 +934,7 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
     }
 
     # Try LLM extraction first
-    llm_result = llm_extract_structured(raw_text) if raw_text.strip() else None
+    llm_result = llm_extract_structured(raw_text, language=language) if raw_text.strip() else None
     if llm_result and llm_result.get("question"):
         question = llm_result["question"]
         options = llm_result.get("options", [])
@@ -912,7 +964,7 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
         ocr_chunks: List[str] = []
         used_engine = "none"
         for page in pages:
-            page_text, engine = _ocr_image(page)
+            page_text, engine = _ocr_image(page, language=language)
             if _clean_text(page_text):
                 ocr_chunks.append(page_text)
             if engine != "none":
@@ -921,7 +973,7 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
         raw_text = "\n".join(ocr_chunks)
         extracted_text = _clean_text(raw_text)
 
-        llm_result2 = llm_extract_structured(raw_text) if raw_text.strip() else None
+        llm_result2 = llm_extract_structured(raw_text, language=language) if raw_text.strip() else None
         if llm_result2 and llm_result2.get("question"):
             question = llm_result2["question"]
             options2 = llm_result2.get("options", [])
@@ -954,7 +1006,7 @@ def _extract_from_pdf_bytes(file_bytes: bytes) -> Tuple[str, str, str, Dict[str,
     return question, extracted_text, ocr_engine, geometry, notes, pre_solved
 
 
-def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_type: str) -> Dict[str, Any]:
+def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_type: str, language: str = "en") -> Dict[str, Any]:
     if not file_bytes:
         raise ValueError("Uploaded file is empty.")
 
@@ -971,10 +1023,10 @@ def extract_math_problem_from_upload(file_bytes: bytes, filename: str, content_t
         raise ValueError("Unsupported file type. Upload an image or PDF.")
 
     if is_pdf:
-        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_pdf_bytes(file_bytes)
+        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_pdf_bytes(file_bytes, language=language)
         source_type = "pdf"
     else:
-        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_image_bytes(file_bytes)
+        question, extracted_text, ocr_engine, geometry, notes, pre_solved = _extract_from_image_bytes(file_bytes, language=language)
         source_type = "image"
 
     confidence = _estimate_confidence(extracted_text, question, geometry)

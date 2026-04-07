@@ -7,12 +7,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import type { DirectorScript, DirectorScene } from "../types";
-import {
-  NarrationBar,
-  CounterScene,
-  GroupScene,
-  EquationScene,
-} from "../components/Scenes";
+import { CounterScene, GroupScene, EquationScene } from "../components/Scenes";
 import { FractionScene } from "../components/Scenes/FractionScene";
 import { GeometryScene } from "../components/Scenes/GeometryScene";
 import { MeasurementScene } from "../components/Scenes/MeasurementScene";
@@ -29,12 +24,18 @@ import { SmallAdditionScene } from "../components/Scenes/SmallAdditionScene";
 import { MediumAdditionScene } from "../components/Scenes/MediumAdditionScene";
 import { SmallSubtractionScene } from "../components/Scenes/SmallSubtractionScene";
 import { ChoreographyScene } from "../components/Scenes/ChoreographyScene";
-import { generateStoryChoreography, generateAdditionChoreography } from "../mockChoreography";
+import {
+  generateStoryChoreography,
+  generateAdditionChoreography,
+} from "../mockChoreography";
 import { MediumSubtractionScene } from "../components/Scenes/MediumSubtractionScene";
 import { NumberOrderingScene } from "../components/Scenes/NumberOrderingScene";
 import { PartWholeScene } from "../components/Scenes/PartWholeScene";
 import { NumberBondScene } from "../components/Scenes/NumberBondScene";
-import { CartoonBackground, themeForTopic } from "../components/primitives/CartoonBackground";
+import {
+  CartoonBackground,
+  themeForTopic,
+} from "../components/primitives/CartoonBackground";
 import { CelebrationBurst } from "../components/primitives/CelebrationBurst";
 
 const FPS = 30;
@@ -96,9 +97,12 @@ export const MathVideo: React.FC<{
 
     if (sceneDurations && sceneDurations[i]) {
       audioDur = sceneDurations[i];
-      // Add 1.5s of "digestion padding" so scenes don't rush into the next one the millisecond the voice stops
-      dur = sceneDurations[i] + (1.5 * fps);
-      if (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") {
+      // Add 0.5s of "digestion padding" so scenes don't cut the moment the voice stops
+      dur = sceneDurations[i] + 0.5 * fps;
+      if (
+        scene.action === "SHOW_MEDIUM_SUBTRACTION" ||
+        scene.action === "SHOW_MEDIUM_ADDITION"
+      ) {
         dur = Math.max(dur, 22 * fps);
       }
     } else if (!scene.narration || scene.narration.trim() === "") {
@@ -106,8 +110,12 @@ export const MathVideo: React.FC<{
       audioDur = 4 * fps;
     } else {
       const wordCount = scene.narration.split(/\s+/).length;
-      const minSeconds = (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") ? 22 : 3;
-      const estimatedSeconds = Math.max(minSeconds, (wordCount / 2.5) + 1.5);
+      const minSeconds =
+        scene.action === "SHOW_MEDIUM_SUBTRACTION" ||
+        scene.action === "SHOW_MEDIUM_ADDITION"
+          ? 22
+          : 3;
+      const estimatedSeconds = Math.max(minSeconds, wordCount / 2.5 + 1.5);
       dur = Math.round(estimatedSeconds * fps);
       audioDur = dur;
     }
@@ -121,7 +129,12 @@ export const MathVideo: React.FC<{
     start: number;
     durationInFrames: number;
     action: string;
-    subScenes: { scene: DirectorScene; start: number; dur: number; audioDur?: number }[];
+    subScenes: {
+      scene: DirectorScene;
+      start: number;
+      dur: number;
+      audioDur?: number;
+    }[];
   }[] = [];
 
   script.scenes.forEach((scene, i) => {
@@ -130,18 +143,26 @@ export const MathVideo: React.FC<{
 
     if (
       lastGroup &&
-      (
-        (lastGroup.action === "SHOW_COLUMN_ARITHMETIC" && scene.action === "SHOW_COLUMN_ARITHMETIC") ||
-        (lastGroup.action === "SHOW_SMALL_ADDITION" && scene.action === "SHOW_SMALL_ADDITION") ||
-        (lastGroup.action === "SHOW_MEDIUM_ADDITION" && scene.action === "SHOW_MEDIUM_ADDITION") ||
-        (lastGroup.action === "SHOW_SMALL_SUBTRACTION" && scene.action === "SHOW_SMALL_SUBTRACTION") ||
-        (lastGroup.action === "SHOW_MEDIUM_SUBTRACTION" && scene.action === "SHOW_MEDIUM_SUBTRACTION") ||
-        (lastGroup.action === "CHOREOGRAPH_SUBTRACTION" && scene.action === "CHOREOGRAPH_SUBTRACTION") ||
-        (lastGroup.action === "CHOREOGRAPH_ADDITION" && scene.action === "CHOREOGRAPH_ADDITION") ||
-        (lastGroup.action === "SHOW_NUMBER_ORDERING" && scene.action === "SHOW_NUMBER_ORDERING") ||
-        (lastGroup.action === "SHOW_PART_WHOLE_SUBTRACTION" && scene.action === "SHOW_PART_WHOLE_SUBTRACTION") ||
-        (lastGroup.action === "SHOW_NUMBER_BOND" && scene.action === "SHOW_NUMBER_BOND")
-      )
+      ((lastGroup.action === "SHOW_COLUMN_ARITHMETIC" &&
+        scene.action === "SHOW_COLUMN_ARITHMETIC") ||
+        (lastGroup.action === "SHOW_SMALL_ADDITION" &&
+          scene.action === "SHOW_SMALL_ADDITION") ||
+        (lastGroup.action === "SHOW_MEDIUM_ADDITION" &&
+          scene.action === "SHOW_MEDIUM_ADDITION") ||
+        (lastGroup.action === "SHOW_SMALL_SUBTRACTION" &&
+          scene.action === "SHOW_SMALL_SUBTRACTION") ||
+        (lastGroup.action === "SHOW_MEDIUM_SUBTRACTION" &&
+          scene.action === "SHOW_MEDIUM_SUBTRACTION") ||
+        (lastGroup.action === "CHOREOGRAPH_SUBTRACTION" &&
+          scene.action === "CHOREOGRAPH_SUBTRACTION") ||
+        (lastGroup.action === "CHOREOGRAPH_ADDITION" &&
+          scene.action === "CHOREOGRAPH_ADDITION") ||
+        (lastGroup.action === "SHOW_NUMBER_ORDERING" &&
+          scene.action === "SHOW_NUMBER_ORDERING") ||
+        (lastGroup.action === "SHOW_PART_WHOLE_SUBTRACTION" &&
+          scene.action === "SHOW_PART_WHOLE_SUBTRACTION") ||
+        (lastGroup.action === "SHOW_NUMBER_BOND" &&
+          scene.action === "SHOW_NUMBER_BOND"))
     ) {
       lastGroup.durationInFrames += timing.dur;
       lastGroup.subScenes.push({ scene, ...timing });
@@ -167,7 +188,6 @@ export const MathVideo: React.FC<{
 
   return (
     <AbsoluteFill>
-
       {/* Bright cartoon sky/ground background — full video */}
       <CartoonBackground theme={theme} />
 
@@ -180,21 +200,56 @@ export const MathVideo: React.FC<{
         >
           <AbsoluteFill>
             {group.action === "SHOW_COLUMN_ARITHMETIC" ? (
-              <ColumnArithmeticScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <ColumnArithmeticScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : group.action === "SHOW_SMALL_ADDITION" ? (
-              <SmallAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <SmallAdditionScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : group.action === "SHOW_MEDIUM_ADDITION" ? (
-              <MediumAdditionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
-            ) : group.action === "CHOREOGRAPH_SUBTRACTION" || group.action === "CHOREOGRAPH_ADDITION" ? (
+              <MediumAdditionScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
+            ) : group.action === "CHOREOGRAPH_SUBTRACTION" ||
+              group.action === "CHOREOGRAPH_ADDITION" ? (
               (() => {
-                const total = group.subScenes[0]?.scene?.choreography_total || 5;
+                const total =
+                  group.subScenes[0]?.scene?.choreography_total || 5;
                 const amt = group.subScenes[0]?.scene?.choreography_amount || 1;
                 const type = group.subScenes[0]?.scene?.item_type || "BIRD_SVG";
-                const env = group.subScenes[0]?.scene?.choreography_environment || (type.includes("BIRD") || type.includes("APPLE") ? "TREE_BRANCH" : "PLAIN");
+                const env =
+                  group.subScenes[0]?.scene?.choreography_environment ||
+                  (type.includes("BIRD") || type.includes("APPLE")
+                    ? "TREE_BRANCH"
+                    : "PLAIN");
                 if (group.action === "CHOREOGRAPH_ADDITION") {
-                  return <ChoreographyScene script={generateAdditionChoreography(total, amt, type, env, group.subScenes)} />;
+                  return (
+                    <ChoreographyScene
+                      script={generateAdditionChoreography(
+                        total,
+                        amt,
+                        type,
+                        env,
+                        group.subScenes,
+                      )}
+                    />
+                  );
                 }
-                return <ChoreographyScene script={generateStoryChoreography(total, amt, type, env, group.subScenes)} />;
+                return (
+                  <ChoreographyScene
+                    script={generateStoryChoreography(
+                      total,
+                      amt,
+                      type,
+                      env,
+                      group.subScenes,
+                    )}
+                  />
+                );
               })()
             ) : group.action === "SHOW_SMALL_SUBTRACTION" ? (
               // Fallback for cached V2 problems mapping to the new V3 engine
@@ -202,21 +257,48 @@ export const MathVideo: React.FC<{
                 (() => {
                   const eqStr = group.subScenes[0]?.scene?.equation || "7 - 4";
                   const nums = eqStr.match(/\d+/g);
-                  const total = nums && nums.length >= 1 ? parseInt(nums[0], 10) : 7;
-                  const amt = nums && nums.length >= 2 ? parseInt(nums[1], 10) : 4;
-                  return <ChoreographyScene script={generateStoryChoreography(total, amt, group.subScenes[0].scene.item_type || "BIRD_SVG", "TREE_BRANCH", group.subScenes)} />;
+                  const total =
+                    nums && nums.length >= 1 ? parseInt(nums[0], 10) : 7;
+                  const amt =
+                    nums && nums.length >= 2 ? parseInt(nums[1], 10) : 4;
+                  return (
+                    <ChoreographyScene
+                      script={generateStoryChoreography(
+                        total,
+                        amt,
+                        group.subScenes[0].scene.item_type || "BIRD_SVG",
+                        "TREE_BRANCH",
+                        group.subScenes,
+                      )}
+                    />
+                  );
                 })()
               ) : (
-                <SmallSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+                <SmallSubtractionScene
+                  groupedScenes={group.subScenes.map((s) => s.scene)}
+                  timings={group.subScenes}
+                />
               )
             ) : group.action === "SHOW_MEDIUM_SUBTRACTION" ? (
-              <MediumSubtractionScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <MediumSubtractionScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : group.action === "SHOW_NUMBER_ORDERING" ? (
-              <NumberOrderingScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <NumberOrderingScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : group.action === "SHOW_PART_WHOLE_SUBTRACTION" ? (
-              <PartWholeScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <PartWholeScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : group.action === "SHOW_NUMBER_BOND" ? (
-              <NumberBondScene groupedScenes={group.subScenes.map(s => s.scene)} timings={group.subScenes} />
+              <NumberBondScene
+                groupedScenes={group.subScenes.map((s) => s.scene)}
+                timings={group.subScenes}
+              />
             ) : (
               sceneComponent(group.subScenes[0].scene)
             )}
@@ -224,38 +306,13 @@ export const MathVideo: React.FC<{
         </Sequence>
       ))}
 
-      {/* Narration Bars */}
-      {script.scenes.map((scene, i) =>
-        scene.action === "CHOREOGRAPH_SUBTRACTION" ||
-        scene.action === "CHOREOGRAPH_ADDITION" ||
-        scene.action === "SHOW_COLUMN_ARITHMETIC" ||
-        scene.action === "SHOW_SMALL_ADDITION" ||
-        scene.action === "SHOW_MEDIUM_ADDITION" ||
-        scene.action === "SHOW_SMALL_SUBTRACTION" ||
-        scene.action === "SHOW_MEDIUM_SUBTRACTION" ||
-        scene.action === "SHOW_NUMBER_ORDERING" ||
-        scene.action === "SHOW_PART_WHOLE_SUBTRACTION" ||
-        scene.action === "SHOW_NUMBER_BOND" ? null : (
-          <Sequence
-            key={`narration-${i}`}
-            from={sceneStarts[i].start}
-            durationInFrames={sceneStarts[i].dur}
-          >
-            <AbsoluteFill>
-              <NarrationBar text={scene.narration} />
-            </AbsoluteFill>
-          </Sequence>
-        )
-      )}
+      {/* Narration Bars — disabled: audio TTS handles narration */}
 
       {/* Celebration burst — final 4 seconds ONLY */}
       {showCelebration && (
         <Sequence from={celebrationStart} durationInFrames={CELEBRATION_FRAMES}>
           <AbsoluteFill>
-            <CelebrationBurst
-              answer={script.correct_answer}
-              startFrame={0}
-            />
+            <CelebrationBurst answer={script.correct_answer} startFrame={0} />
           </AbsoluteFill>
         </Sequence>
       )}
@@ -264,10 +321,13 @@ export const MathVideo: React.FC<{
       {audioUrls && audioUrls.length > 0 ? (
         audioUrls.map((url, i) =>
           url ? (
-            <Sequence key={i} from={sceneStarts[i].start + Math.round(fps * 0.5)}>
+            <Sequence
+              key={i}
+              from={sceneStarts[i].start + Math.round(fps * 0.5)}
+            >
               <Audio src={url} />
             </Sequence>
-          ) : null
+          ) : null,
         )
       ) : audioUrl ? (
         <Sequence from={0}>

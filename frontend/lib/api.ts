@@ -2,13 +2,12 @@ import {
   ActivityRecord,
   ChildProfile,
   ExtractProblemResponse,
-  RenderVideoResponse,
   SolveAndPromptResponse
 } from "@/lib/types";
 import { extractProblemInBrowser, normalizeExtractedQuestion } from "@/utils/browser-ocr";
 
 const DEFAULT_API_BASE_URL = "http://127.0.0.1:1233";
-const DEFAULT_API_TIMEOUT_MS = 120000; // V2: increased for video rendering
+const DEFAULT_API_TIMEOUT_MS = 120000; // increased for video rendering
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
 const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || DEFAULT_API_TIMEOUT_MS);
@@ -128,14 +127,6 @@ export const api = {
     });
   },
 
-  solveAndVideoPromptByChild(payload: SolveByChildPayload) {
-    return request<SolveAndPromptResponse>("/solve-and-video-prompt/by-child", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-  },
-
-  /** V2: Unified solve + render in one call */
   solveAndRenderByChild(payload: SolveByChildPayload) {
     return request<SolveAndPromptResponse>("/solve-and-render/by-child", {
       method: "POST",
@@ -143,19 +134,10 @@ export const api = {
     });
   },
 
-  renderVideo(video_prompt_json: Record<string, unknown>, outputName?: string) {
-    return request<RenderVideoResponse>("/render-video", {
-      method: "POST",
-      body: JSON.stringify({
-        video_prompt_json,
-        output_name: outputName || `mymath-${Date.now()}.mp4`
-      })
-    });
-  },
-
-  async extractProblem(file: File) {
+  async extractProblem(file: File, language: "en" | "bn" = "en") {
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("language", language);
     const defaultGeometry = {
       analysis_available: false,
       has_diagram: false,
@@ -173,6 +155,8 @@ export const api = {
         : "image";
 
     const shouldUseBrowserFallback = (parsed: ExtractProblemResponse) => {
+      // Browser Tesseract.js has no Bengali model — never fallback for Bengali
+      if (language === "bn") return false;
       const q = (parsed.question || "").trim().toLowerCase();
       const isPlaceholder = q.includes("please type the math question from the image");
       const emptyQuestion = !q;

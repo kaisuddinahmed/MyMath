@@ -1,2 +1,0 @@
-"""Deterministic video rendering package."""
-

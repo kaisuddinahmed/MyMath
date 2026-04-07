@@ -11,6 +11,9 @@ All logic lives in the 5 isolated layers:
 Run with:
   uvicorn backend.main:app --reload --host 127.0.0.1 --port 1233
 """
+from dotenv import load_dotenv
+load_dotenv()  # load .env before any module reads os.getenv()
+
 from backend.api.app import create_app
 
 app = create_app()

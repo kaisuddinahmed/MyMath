@@ -95,7 +95,7 @@ class SolveAndPromptResponse(BaseModel):
     final_score: int
     video_prompt_json: Optional[Dict[str, Any]]
     schema_valid: bool
-    # V2 video delivery fields
+    # video delivery fields
     video_url: Optional[str] = None
     video_cached: bool = False
     video_generated_by: str = "none"  # "remotion" | "template" | "none"
