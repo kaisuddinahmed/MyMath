@@ -177,6 +177,14 @@ export interface DirectorScene {
   
   /** V2 Choreography data payload for entirely data-driven scenes */
   choreography?: ChoreographyScript;
+
+  /**
+   * Visual mode for SmallAdditionScene — drives timing and layout strategy.
+   * "story"    → 7-beat: setting + named characters + items pop in sequentially
+   * "joining"  → 5-beat: group 1 pops immediately, group 2 joins ("more came")
+   * "abstract" → 4-beat: pure number blocks, minimal narration
+   */
+  mode?: "story" | "joining" | "abstract";
 }
 
 export interface DirectorScript {

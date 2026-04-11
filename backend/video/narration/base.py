@@ -31,6 +31,7 @@ class NarrationBeat:
     equation: str = ""
     item_type: str = "BLOCK_SVG"
     items_count: int = 0
+    mode: str = ""   # visual mode: "story" | "joining" | "abstract" | ""
     extra: dict = field(default_factory=dict)
     is_celebration: bool = False
 
@@ -48,5 +49,7 @@ class NarrationBeat:
             scene["item_type"] = self.item_type
         if self.items_count:
             scene["items_count"] = self.items_count
+        if self.mode:
+            scene["mode"] = self.mode
         scene.update(self.extra)
         return scene

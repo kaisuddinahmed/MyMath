@@ -116,14 +116,40 @@ _LOCATION_HINTS: list[tuple[str, str]] = [
 # Helpers
 # ---------------------------------------------------------------------------
 
+_WORD_TO_NUM: dict[str, int] = {
+    "zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+    "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+    "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15,
+    "sixteen": 16, "seventeen": 17, "eighteen": 18, "nineteen": 19,
+    "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50,
+    "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90,
+}
+
+
 def _nums(question: str) -> list[int]:
-    return [int(n) for n in re.findall(r"\d+", question)]
+    """Extract numbers from question — handles both digit ('3') and word ('three') forms."""
+    digit_nums = [int(n) for n in re.findall(r"\d+", question)]
+    if digit_nums:
+        return digit_nums
+    # Fallback: scan for word-form numbers in order of appearance
+    q = question.lower()
+    found: list[tuple[int, int]] = []  # (position, value)
+    for word, val in _WORD_TO_NUM.items():
+        for m in re.finditer(r'\b' + re.escape(word) + r'\b', q):
+            found.append((m.start(), val))
+    found.sort(key=lambda x: x[0])
+    return [v for _, v in found]
 
 
 def _item(question: str) -> str:
+    """Return the item SVG type best matching the question.
+
+    Uses whole-word matching (\\b boundaries) to prevent false hits like
+    'hen' matching inside 'then', or 'pen' matching inside 'pencil'.
+    """
     q = question.lower()
     for kw, itype in ITEM_TYPE_HINTS:
-        if kw in q:
+        if re.search(r'\b' + re.escape(kw) + r'\b', q):
             return itype
     return "BLOCK_SVG"
 
@@ -226,6 +252,31 @@ def _extract_location(question: str) -> Optional[str]:
         if kw in q:
             return label
     return None
+
+
+def _joining_beats(question: str, a: int, b: int, item_plural: str) -> Optional[tuple[str, str]]:
+    """Return (beat0_text, beat1_text) if the question describes a past-tense joining scenario.
+
+    Detects patterns like "X birds were sitting in a tree. Then Y more birds sat there."
+    Returns None if the question is not a recognisable joining scenario.
+    """
+    q = question.lower()
+    is_past = any(w in q for w in ["were", "was", "had", "sat", "flew", "came", "placed"])
+    has_then = any(w in q for w in ["then", "later", "after that"])
+    if not (is_past and has_then):
+        return None
+
+    location = _extract_location(question)
+    loc_phrase = ""
+    if location:
+        # Places you go "to" vs. places things are "in"
+        at_locs = {"school", "Shahid Minar", "the park", "the market", "the field"}
+        prep = "at" if location in at_locs else "in"
+        loc_phrase = f" {prep} {location}"
+
+    beat0 = f"There were {a} {item_plural}{loc_phrase}."
+    beat1 = f"Then {b} more {item_plural} came to join them."
+    return beat0, beat1
 
 
 def _assign_char_numbers(question: str, names: list[str]) -> dict[str, int]:
@@ -646,76 +697,93 @@ def _addition_small_word(question: str, answer: str) -> list[NarrationBeat]:
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 1 — group 1 pops
                 text=f"{char1} has brought {n1} {item_plural}.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 2 — group 2 pops
                 text=f"And {char2} has brought {n2} more {item_plural}. We need to find the total.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 3 — + sign appears
                 text="That is why this is an addition problem. Let us put them all together.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 4 — merge
                 text="Here they come.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 5 — count aloud
                 text=f"Let us count together: {count_str}.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b}",
                 item_type=itype,
+                mode="story",
             ),
             NarrationBeat(                                              # beat 6 — equation
                 text=f"So {a} plus {b} equals {total}.",
                 action="SHOW_SMALL_ADDITION",
                 equation=f"{a} + {b} = {total}",
                 item_type=itype,
+                mode="story",
             ),
         ]
 
-    # --- Fallback: generic 5-beat structure (no characters detected) ---
+    # --- Fallback: 5-beat joining structure (no named characters detected) ---
+    # Try to extract a "then more came" story context from the question.
+    joining = _joining_beats(question, a, b, item_plural)
+    beat0_text = joining[0] if joining else f"Look! Here are {a} {item_plural}."
+    beat1_text = joining[1] if joining else f"And here are {b} more {item_plural}."
+
     return [
-        NarrationBeat(
-            text=f"Look! Here are {a} {item_plural}.",
+        NarrationBeat(                                                  # beat 0 — group 1 pops
+            text=beat0_text,
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
-        NarrationBeat(
-            text=f"And here are {b} more {item_plural}.",
+        NarrationBeat(                                                  # beat 1 — group 2 pops
+            text=beat1_text,
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 2 — + sign / concept
             text="We need to find the total. This is an addition problem!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 3 — merge
             text="Let's put them all together. Here they come!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 4 — count + equation
             text=f"Let's count together: {count_str}! So {a} plus {b} equals {total}!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b} = {total}",
             item_type=itype,
+            mode="joining",
         ),
     ]
 
@@ -725,30 +793,35 @@ def _addition_small_abstract(question: str, answer: str) -> list[NarrationBeat]:
     a = nums[0] if len(nums) >= 2 else 3
     b = nums[1] if len(nums) >= 2 else 2
     total = a + b
+    count_str = ', '.join(str(i) for i in range(1, total + 1))
     return [
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 0 — group 1 pops
             text=f"Look! {a} blocks here.",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type="BLOCK_SVG",
+            mode="abstract",
         ),
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 1 — group 2 pops / + sign
             text=f"And {b} more blocks coming!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type="BLOCK_SVG",
+            mode="abstract",
         ),
-        NarrationBeat(
+        NarrationBeat(                                                  # beat 2 — merge
             text="This is an addition problem. Let's put them together!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type="BLOCK_SVG",
+            mode="abstract",
         ),
-        NarrationBeat(
-            text=f"Let's count together: {', '.join(str(i) for i in range(1, total+1))}! {a} plus {b} equals {total}!",
+        NarrationBeat(                                                  # beat 3 — count + equation
+            text=f"Let's count together: {count_str}! {a} plus {b} equals {total}!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b} = {total}",
             item_type="BLOCK_SVG",
+            mode="abstract",
         ),
     ]
 
@@ -787,6 +860,81 @@ def _addition_medium(question: str, answer: str) -> list[NarrationBeat]:
     ]
 
 
+def _addition_large(question: str, answer: str) -> list[NarrationBeat]:
+    """Column addition for any sum > 20.
+
+    Emits one beat per step so VerticalGrid's stepDurations map correctly:
+      beat 0  → setup      (write numbers in columns)
+      beat 1  → ones col
+      beat 2  → tens col
+      beat N  → final carry column (only if carry out of last digit)
+      beat N+1→ final equation
+    """
+    nums = _nums(question)
+    a = nums[0] if len(nums) >= 2 else 145
+    b = nums[1] if len(nums) >= 2 else 90
+    total = a + b
+    num_digits = max(len(str(a)), len(str(b)))
+    _PLACE_NAMES = ["ones", "tens", "hundreds", "thousands"]
+
+    def _digit(n: int, place: int) -> int:
+        return (n // (10 ** place)) % 10
+
+    def _col_narration(place: int, d1: int, d2: int, carry_in: int) -> tuple[str, int]:
+        """Return (narration_text, carry_out) for a single column."""
+        col_sum = d1 + d2 + carry_in
+        result  = col_sum % 10
+        carry_out = col_sum // 10
+        place_name = _PLACE_NAMES[place] if place < len(_PLACE_NAMES) else f"{10**place}s"
+
+        carry_phrase = f" plus {carry_in} we carried" if carry_in > 0 else ""
+        if carry_out > 0:
+            text = (f"{place_name.capitalize()}: {d1} plus {d2}{carry_phrase} "
+                    f"equals {col_sum}. Write {result}, carry {carry_out}.")
+        else:
+            text = (f"{place_name.capitalize()}: {d1} plus {d2}{carry_phrase} "
+                    f"equals {col_sum}. Write {result}.")
+        return text, carry_out
+
+    # Beat 0 — setup
+    beats: list[NarrationBeat] = [
+        NarrationBeat(
+            text=f"Let us add {a} and {b}. We write them one below the other in columns.",
+            action="SHOW_COLUMN_ARITHMETIC",
+            equation=f"{a} + {b}",
+        ),
+    ]
+
+    # One beat per column (ones → tens → hundreds → …)
+    carry = 0
+    for place in range(num_digits):
+        d1 = _digit(a, place)
+        d2 = _digit(b, place)
+        narration, carry = _col_narration(place, d1, d2, carry)
+        beats.append(NarrationBeat(
+            text=narration,
+            action="SHOW_COLUMN_ARITHMETIC",
+            equation=f"{a} + {b}",
+        ))
+
+    # Final carry column (e.g. 99+11 → extra "1" in thousands place)
+    if carry > 0:
+        beats.append(NarrationBeat(
+            text=f"We still have {carry} carried over. Write it in the next column.",
+            action="SHOW_COLUMN_ARITHMETIC",
+            equation=f"{a} + {b}",
+        ))
+
+    # Final equation beat
+    beats.append(NarrationBeat(
+        text=f"So {a} plus {b} equals {total}!",
+        action="SHOW_COLUMN_ARITHMETIC",
+        equation=f"{a} + {b} = {total}",
+    ))
+
+    return beats
+
+
 def _addition_story(question: str, answer: str) -> list[NarrationBeat]:
     nums = _nums(question)
     a = nums[0] if len(nums) >= 2 else 3
@@ -804,18 +952,21 @@ def _addition_story(question: str, answer: str) -> list[NarrationBeat]:
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
         NarrationBeat(
             text=f"{b} more are coming to join them!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b}",
             item_type=itype,
+            mode="joining",
         ),
         NarrationBeat(
             text=f"Let's count together: {', '.join(str(i) for i in range(1, total+1))}! {a} plus {b} equals {total}!",
             action="SHOW_SMALL_ADDITION",
             equation=f"{a} + {b} = {total}",
             item_type=itype,
+            mode="joining",
         ),
     ]
 
@@ -1092,6 +1243,7 @@ _DISPATCH: dict[tuple[str, str], callable] = {
     ("addition",   "small_word"):      _addition_small_word,
     ("addition",   "small_abstract"):  _addition_small_abstract,
     ("addition",   "medium"):          _addition_medium,
+    ("addition",   "large"):           _addition_large,
     ("addition",   "story"):           _addition_story,
     # Subtraction
     ("subtraction","small"):           _subtraction_small,

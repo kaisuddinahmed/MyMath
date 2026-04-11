@@ -105,15 +105,16 @@ export const RemotionRoot: React.FC = () => {
 
                 sceneDurations.push(frames);
                 
-                // MathVideo.tsx organically adds 1.5s padding to the sceneDurations[i] slot
-                dur = frames + Math.round(1.5 * FPS);
+                // MathVideo.tsx adds 0.5s digestion padding per scene — match that here
+                // so the composition duration equals actual content length exactly.
+                dur = frames + Math.round(0.5 * FPS);
                 if (scene.action === "SHOW_MEDIUM_SUBTRACTION" || scene.action === "SHOW_MEDIUM_ADDITION") {
                   dur = Math.max(dur, 22 * FPS);
                 }
               } catch (err) {
                 console.error("Failed to load audio length for " + url, err);
                 sceneDurations.push(4 * FPS);
-                dur = 4 * FPS + Math.round(1.5 * FPS);
+                dur = 4 * FPS + Math.round(0.5 * FPS);
               }
             } else {
               // Legacy fallback logic perfectly mirroring MathVideo.tsx fallback

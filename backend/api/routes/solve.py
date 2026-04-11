@@ -7,6 +7,7 @@ Solve + render endpoints.
   POST /solve-and-render/by-child — full pipeline (primary endpoint)
 """
 import logging
+import re
 from fastapi import APIRouter, HTTPException
 
 from backend.api.schemas import (
@@ -20,6 +21,23 @@ from backend.knowledge.activity import append_activity
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+# Matches equations like "5 + 2 = 7", "7 - 3 = 4", "3 x 2 = 6", "8 ÷ 2 = 4"
+_EQ_RE = re.compile(r"(\d+\s*[+\-x×÷*/]\s*\d+)\s*=\s*(\d+)")
+
+
+def _make_practice(result) -> dict | None:
+    """
+    Extract a practice question/answer from smaller_example.
+    Returns {"question": str, "answer": str} or None.
+    """
+    example = getattr(result, "smaller_example", "") or ""
+    m = _EQ_RE.search(example)
+    if not m:
+        return None
+    equation = m.group(1).strip()
+    answer = m.group(2).strip()
+    return {"question": f"What is {equation}?", "answer": answer}
 
 
 # ---------------------------------------------------------------------------
@@ -87,7 +105,10 @@ def solve_and_render_by_child(req: SolveByChildRequest):
         final_prompt="",
         final_passed=True,
         final_score=100,
-        video_prompt_json={"scenes": video.get("scenes", [])},
+        video_prompt_json={
+            "scenes": video.get("scenes", []),
+            "practice_problem": _make_practice(result),
+        },
         schema_valid=True,
         video_url=video.get("video_url"),
         video_cached=video.get("video_cached", False),

@@ -1894,5 +1894,85 @@
     "template": "counters_add",
     "score": 0,
     "timestamp": "2026-04-07T12:04:54.828395+00:00"
+  },
+  {
+    "child_id": "494ec7f8-8060-4832-8c76-80b07fda1e43",
+    "question": "4 birds were sitting in a tree. Then 6 more birds sat there. How many birds are there in the tree now?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 0,
+    "timestamp": "2026-04-08T04:47:12.576664+00:00"
+  },
+  {
+    "child_id": "494ec7f8-8060-4832-8c76-80b07fda1e43",
+    "question": "7 birds were sitting on the branch of a tree. Then 4 birds flew away. How many birds are left in the tree?",
+    "topic": "subtraction",
+    "template": "counters_remove",
+    "score": 0,
+    "timestamp": "2026-04-08T04:56:24.644539+00:00"
+  },
+  {
+    "child_id": "00c93d10-62bc-4f09-b01a-501145d58a63",
+    "question": "4 birds were sitting in a tree. Then 6 more birds sat there. How many birds are there in the tree now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 0,
+    "timestamp": "2026-04-08T05:07:30.943508+00:00"
+  },
+  {
+    "child_id": "00c93d10-62bc-4f09-b01a-501145d58a63",
+    "question": "12 + 12",
+    "topic": "addition",
+    "template": "small_addition",
+    "score": 0,
+    "timestamp": "2026-04-08T05:08:15.088247+00:00"
+  },
+  {
+    "child_id": "00c93d10-62bc-4f09-b01a-501145d58a63",
+    "question": "4 birds were sitting in a tree. Then 6 more birds sat there. How many birds are there in the tree now?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 0,
+    "timestamp": "2026-04-08T05:09:58.835264+00:00"
+  },
+  {
+    "child_id": "00c93d10-62bc-4f09-b01a-501145d58a63",
+    "question": "145+90",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 0,
+    "timestamp": "2026-04-08T05:12:39.349213+00:00"
+  },
+  {
+    "child_id": "4f00c3ec-9de5-45a7-b842-c9ccc21f4040",
+    "question": "145+87",
+    "topic": "addition",
+    "template": "column_arithmetic",
+    "score": 0,
+    "timestamp": "2026-04-08T05:17:43.292181+00:00"
+  },
+  {
+    "child_id": "a66f2cd9-ed7e-4e94-94a7-f2c7144418a7",
+    "question": "Five children are playing in the park. Then two more children have come. Now, how many children are there in the park?",
+    "topic": "addition",
+    "template": "counters_add",
+    "score": 0,
+    "timestamp": "2026-04-08T09:39:12.518314+00:00"
+  },
+  {
+    "child_id": "2f8a0490-fac0-4934-a8a9-d44aa1c6c026",
+    "question": "At first, there were 2 tomatoes. Then 3 more tomatoes were added. What is the total number of tomatoes?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 0,
+    "timestamp": "2026-04-11T11:12:20.975007+00:00"
+  },
+  {
+    "child_id": "c9137961-8a40-4fdf-b4b1-336c5c3209dc",
+    "question": "At first, there were 2 tomatoes. Then 3 more tomatoes were added. What is the total number of tomatoes?",
+    "topic": "addition",
+    "template": "number_line_jump",
+    "score": 0,
+    "timestamp": "2026-04-11T11:13:27.319292+00:00"
   }
 ]
